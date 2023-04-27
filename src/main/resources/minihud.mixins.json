@@ -1,0 +1,34 @@
+{
+  "required": true,
+  "package": "fi.dy.masa.minihud.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "IMixinAbstractFurnaceBlockEntity",
+    "IMixinBeaconBlockEntity",
+    "IMixinBiomeAccess",
+    "IMixinChunkDeltaUpdateS2CPacket",
+    "IMixinEntityNavigation",
+    "IMixinServerWorld",
+    "IMixinWorld",
+    "IMixinWorldRenderer",
+    "MixinBeaconBlockEntity",
+    "MixinBlockOutlineDebugRenderer",
+    "MixinClientPlayerInteractionManager",
+    "MixinClientPlayNetworkHandler",
+    "MixinConduitBlockEntity",
+    "MixinDebugRenderer",
+    "MixinHeightmapDebugRenderer",
+    "MixinItemStack",
+    "MixinMinecraftClient",
+    "MixinMinecraftServer",
+    "MixinNeighborUpdateDebugRenderer",
+    "MixinScreen",
+    "MixinServerEntityManager",
+    "MixinSubtitlesHud",
+    "MixinWorld"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
