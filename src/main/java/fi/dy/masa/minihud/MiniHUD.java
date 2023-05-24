@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import fi.dy.masa.malilib.event.InitializationHandler;
 import fi.dy.masa.minihud.config.Configs;
-import net.fabricmc.api.ModInitializer;
 
 public class MiniHUD {
     public static final Logger logger = LogManager.getLogger(Reference.MOD_ID);

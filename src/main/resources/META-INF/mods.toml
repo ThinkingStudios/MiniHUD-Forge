@@ -29,3 +29,10 @@ mandatory = true
 versionRange = "[1.16,)"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.minihud]]
+modId = "malilib"
+mandatory = true
+versionRange = "[0.1,)"
+ordering = "NONE"
+side = "BOTH"
