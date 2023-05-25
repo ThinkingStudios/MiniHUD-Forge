@@ -92,8 +92,6 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
         //System.out.printf("LL markers: %d, time: %.3f s\n", LIGHT_INFOS.size(), (double) (System.nanoTime() - pre) / 1000000000D);
         this.renderLightLevels(cameraPos, mc);
 
-        BUFFER_1.end();
-        BUFFER_2.end();
         renderQuads.uploadData(BUFFER_1);
         renderLines.uploadData(BUFFER_2);
 
@@ -114,6 +112,8 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
     @Override
     protected void postRender()
     {
+        super.postRender();
+
         RenderSystem.disableTexture();
     }
 

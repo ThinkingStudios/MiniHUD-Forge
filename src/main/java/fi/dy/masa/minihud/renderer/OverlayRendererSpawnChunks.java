@@ -63,7 +63,7 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
             return ex != lx || ez != lz;
         }
 
-        int range = mc.options.viewDistance * 16;
+        int range = mc.options.getViewDistance().getValue() * 16;
 
         return Math.abs(lx - ex) > range || Math.abs(lz - ez) > range;
     }
@@ -103,9 +103,6 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
 
         corners = this.getSpawnChunkCorners(spawn, 9, mc.world);
         RenderUtils.renderWallsWithLines(corners.getLeft(), corners.getRight(), cameraPos, 16, 16, true, colorEntity, BUFFER_1, BUFFER_2);
-
-        BUFFER_1.end();
-        BUFFER_2.end();
 
         renderQuads.uploadData(BUFFER_1);
         renderLines.uploadData(BUFFER_2);

@@ -59,7 +59,7 @@ public class OverlayRendererStructures extends OverlayRendererBase
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
-        int maxRange = (mc.options.viewDistance + 4) * 16;
+        int maxRange = (mc.options.getViewDistance().getValue() + 4) * 16;
         List<StructureData> data = this.getStructuresToRender(this.lastUpdatePos, maxRange);
 
         RenderObjectBase renderQuads = this.renderObjects.get(0);
@@ -71,9 +71,6 @@ public class OverlayRendererStructures extends OverlayRendererBase
         {
             this.renderStructureBoxes(data, cameraPos);
         }
-
-        BUFFER_1.end();
-        BUFFER_2.end();
 
         renderQuads.uploadData(BUFFER_1);
         renderLines.uploadData(BUFFER_2);

@@ -13,15 +13,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerTask;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureStart;
+import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -34,7 +35,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.gen.structure.Structure;
 import fi.dy.masa.malilib.network.ClientPacketChannelHandler;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InfoUtils;
@@ -43,6 +44,7 @@ import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
+import fi.dy.masa.minihud.data.MobCapDataHandler;
 import fi.dy.masa.minihud.network.StructurePacketHandlerCarpet;
 import fi.dy.masa.minihud.network.StructurePacketHandlerServux;
 import fi.dy.masa.minihud.renderer.OverlayRendererBeaconRange;
@@ -65,6 +67,7 @@ public class DataStorage
     public static final int CARPET_ID_LARGE_BOUNDINGBOX_MARKERS_START = 7;
     public static final int CARPET_ID_LARGE_BOUNDINGBOX_MARKERS = 8;
 
+    private final MobCapDataHandler mobCapData = new MobCapDataHandler();
     private boolean worldSeedValid;
     private boolean serverTPSValid;
     private boolean hasSyncedTime;
@@ -104,6 +107,11 @@ public class DataStorage
         return INSTANCE;
     }
 
+    public MobCapDataHandler getMobCapData()
+    {
+        return this.mobCapData;
+    }
+
     public void reset(boolean isLogout)
     {
         if (isLogout)
@@ -128,6 +136,7 @@ public class DataStorage
             MiniHUD.printDebug("DataStorage#reset() - dimension change or log-in");
         }
 
+        this.mobCapData.clear();
         this.serverTPSValid = false;
         this.hasSyncedTime = false;
         this.carpetServer = false;
@@ -353,11 +362,11 @@ public class DataStorage
         return MiscUtils.intAverage(this.blockBreakCounter) * 20;
     }
 
-    public boolean onSendChatMessage(PlayerEntity player, String message)
+    public boolean onSendChatMessage(String message)
     {
         String[] parts = message.split(" ");
 
-        if (parts[0].equals("minihud-seed") || parts[0].equals("/minihud-seed"))
+        if (parts.length > 0 && (parts[0].equals("minihud-seed") || parts[0].equals("/minihud-seed")))
         {
             if (parts.length == 2)
             {
@@ -391,29 +400,33 @@ public class DataStorage
 
     public void onChatMessage(Text message)
     {
-        if (message instanceof TranslatableText)
+        if (message instanceof MutableText mutableText &&
+            mutableText.getContent() instanceof TranslatableTextContent text)
         {
-            TranslatableText text = (TranslatableText) message;
-
             // The vanilla "/seed" command
-            if ("commands.seed.success".equals(text.getKey()))
+            if ("commands.seed.success".equals(text.getKey()) && text.getArgs().length == 1)
             {
                 try
                 {
-                    String str = text.getString();
-                    int i1 = str.indexOf("[");
-                    int i2 = str.indexOf("]");
+                    //String str = message.getString();
+                    //int i1 = str.indexOf("[");
+                    //int i2 = str.indexOf("]");
+                    MutableText m = (MutableText) text.getArgs()[0];
+                    TranslatableTextContent t = (TranslatableTextContent) m.getContent();
+                    LiteralTextContent l = (LiteralTextContent) ((MutableText) t.getArgs()[0]).getContent();
+                    String str = l.string();
 
-                    if (i1 != -1 && i2 != -1)
+                    //if (i1 != -1 && i2 != -1)
                     {
-                        this.setWorldSeed(Long.parseLong(str.substring(i1 + 1, i2)));
+                        //this.setWorldSeed(Long.parseLong(str.substring(i1 + 1, i2)));
+                        this.setWorldSeed(Long.parseLong(str));
                         MiniHUD.logger.info("Received world seed from the vanilla /seed command: {}", this.worldSeed);
-                        InfoUtils.printActionbarMessage("minihud.message.seed_set", Long.valueOf(this.worldSeed));
+                        InfoUtils.printActionbarMessage("minihud.message.seed_set", this.worldSeed);
                     }
                 }
                 catch (Exception e)
                 {
-                    MiniHUD.logger.warn("Failed to read the world seed from '{}'", text.getArgs()[0], e);
+                    MiniHUD.logger.warn("Failed to read the world seed from '{}'", text.getArgs()[0]);
                 }
             }
             // The "/jed seed" command
@@ -423,7 +436,7 @@ public class DataStorage
                 {
                     this.setWorldSeed(Long.parseLong(text.getArgs()[1].toString()));
                     MiniHUD.logger.info("Received world seed from the JED '/jed seed' command: {}", this.worldSeed);
-                    InfoUtils.printActionbarMessage("minihud.message.seed_set", Long.valueOf(this.worldSeed));
+                    InfoUtils.printActionbarMessage("minihud.message.seed_set", this.worldSeed);
                 }
                 catch (Exception e)
                 {
@@ -590,7 +603,7 @@ public class DataStorage
         if (world != null)
         {
             MinecraftServer server = this.mc.getServer();
-            final int maxChunkRange = this.mc.options.viewDistance + 2;
+            final int maxChunkRange = this.mc.options.getViewDistance().getValue() + 2;
 
             server.send(new ServerTask(server.getTicks(), () ->
             {
@@ -681,11 +694,11 @@ public class DataStorage
                     continue;
                 }
 
-                for (Map.Entry<ConfiguredStructureFeature<?, ?>, StructureStart> entry : chunk.getStructureStarts().entrySet())
+                for (Map.Entry<Structure, StructureStart> entry : chunk.getStructureStarts().entrySet())
                 {
-                    ConfiguredStructureFeature<?, ?> structure = entry.getKey();
+                    Structure structure = entry.getKey();
                     StructureStart start = entry.getValue();
-                    Identifier id = world.getRegistryManager().get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY).getId(structure);
+                    Identifier id = world.getRegistryManager().get(Registry.STRUCTURE_KEY).getId(structure);
                     StructureType type = StructureType.fromStructureId(id != null ? id.toString() : "?");
 
                     if (type.isEnabled() &&

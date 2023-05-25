@@ -22,7 +22,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -56,6 +56,7 @@ import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.InfoToggle;
 import fi.dy.masa.minihud.config.RendererToggle;
+import fi.dy.masa.minihud.data.MobCapDataHandler;
 import fi.dy.masa.minihud.mixin.IMixinServerWorld;
 import fi.dy.masa.minihud.mixin.IMixinWorldRenderer;
 import fi.dy.masa.minihud.renderer.OverlayRenderer;
@@ -340,6 +341,20 @@ public class RenderHandler implements IRenderer
                 int hour = (int) ((dayTicks / 1000) + 6) % 24;
                 int min = (int) (dayTicks / 16.666666) % 60;
                 int sec = (int) (dayTicks / 0.277777) % 60;
+                // Moonphase has 8 different states in MC
+                String moon = "Invalid";
+                switch ((int) day % 8)
+                {
+                    case 0: moon = "Full moon"; break;
+                    case 1: moon = "Waning gibbous"; break;
+                    case 2: moon = "Last quarter"; break;
+                    case 3: moon = "Waning crescent"; break;
+                    case 4: moon = "New moon"; break;
+                    case 5: moon = "Waxing crescent"; break;
+                    case 6: moon = "First quarter"; break;
+                    case 7: moon = "Waxing gibbous"; break;
+                    default:
+                }
 
                 String str = Configs.Generic.DATE_FORMAT_MINECRAFT.getStringValue();
                 str = str.replace("{DAY}",  String.format("%d", day));
@@ -347,6 +362,7 @@ public class RenderHandler implements IRenderer
                 str = str.replace("{HOUR}", String.format("%02d", hour));
                 str = str.replace("{MIN}",  String.format("%02d", min));
                 str = str.replace("{SEC}",  String.format("%02d", sec));
+                str = str.replace("{MOON}",  String.format("%s", moon));
 
                 this.addLine(str);
             }
@@ -403,6 +419,20 @@ public class RenderHandler implements IRenderer
             else
             {
                 this.addLine("Server TPS: <no valid data>");
+            }
+        }
+        else if (type == InfoToggle.MOB_CAPS)
+        {
+            MobCapDataHandler mobCapData = this.data.getMobCapData();
+
+            if (mc.isIntegratedServerRunning() && (mc.getServer().getTicks() % 100) == 0)
+            {
+                mobCapData.updateIntegratedServerMobCaps();
+            }
+
+            if (mobCapData.getHasValidData())
+            {
+                this.addLine(mobCapData.getFormattedInfoLine());
             }
         }
         else if (type == InfoToggle.PING)
@@ -632,12 +662,12 @@ public class RenderHandler implements IRenderer
 
             Entity vehicle = this.mc.player.getVehicle();
 
-            if ((vehicle instanceof HorseBaseEntity) == false)
+            if ((vehicle instanceof AbstractHorseEntity) == false)
             {
                 return;
             }
 
-            HorseBaseEntity horse = (HorseBaseEntity) vehicle;
+            AbstractHorseEntity horse = (AbstractHorseEntity) vehicle;
 
             if (horse.isSaddled())
             {

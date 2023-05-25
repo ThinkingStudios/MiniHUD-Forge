@@ -32,13 +32,14 @@ public abstract class MixinClientPlayNetworkHandler
     @Inject(method = "onGameMessage", at = @At("RETURN"))
     private void onGameMessage(net.minecraft.network.packet.s2c.play.GameMessageS2CPacket packet, CallbackInfo ci)
     {
-        DataStorage.getInstance().onChatMessage(packet.getMessage());
+        DataStorage.getInstance().onChatMessage(packet.content());
     }
 
     @Inject(method = "onPlayerListHeader", at = @At("RETURN"))
     private void onHandlePlayerListHeaderFooter(net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket packetIn, CallbackInfo ci)
     {
         DataStorage.getInstance().handleCarpetServerTPSData(packetIn.getFooter());
+        DataStorage.getInstance().getMobCapData().parsePlayerListFooterMobCapData(packetIn.getFooter());
     }
 
     @Inject(method = "onWorldTimeUpdate", at = @At("RETURN"))
