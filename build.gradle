@@ -6,13 +6,11 @@ plugins {
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "${project.mod_version}-mc${project.minecraft_version}"
 group = project.maven_group
 
 loom {
     forge {
-        // specify the mixin configs used in this mod
-        // this will be added to the jar manifest as well!
         mixinConfigs = [
                 "minihud.mixins.json"
         ]
