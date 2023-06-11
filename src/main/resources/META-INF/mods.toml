@@ -5,7 +5,7 @@ license = "LGPLv3"
 [[mods]]
 modId = "minihud"
 version = "${version}"
-displayName = "MiniHUD-Forge"
+displayName = "BoccHUD"
 displayURL="https://github.com/ThinkingStudios/MiniHUD-Forge" #optional
 logoFile="icon.png" #optional
 credits="masa" #optional
