@@ -2,7 +2,7 @@
 
 <img height="100" src="src/main/resources/assets/minihud/icon.png" width="100"/>
 
-# MiniHUD-Forge
+# BoccHUD
 
 MiniHUD unofficial forge port.
 
