@@ -2,7 +2,10 @@ package fi.dy.masa.minihud;
 
 import fi.dy.masa.malilib.compat.forge.ForgePlatformCompat;
 import fi.dy.masa.minihud.gui.GuiConfigs;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import fi.dy.masa.malilib.event.InitializationHandler;
@@ -14,6 +17,13 @@ public class MiniHUD {
     public static final String CHANNEL_CARPET_CLIENT = "CarpetClient";
 
     public MiniHUD() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        modEventBus.addListener(this::onInitializeClient);
+    }
+
+    public void onInitializeClient(FMLClientSetupEvent event) {
+        ForgePlatformCompat.getInstance().getModClientExtensionPoint();
         InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
 
         ForgePlatformCompat.getInstance().getMod(Reference.MOD_ID).registerModConfigScreen((screen) -> {
