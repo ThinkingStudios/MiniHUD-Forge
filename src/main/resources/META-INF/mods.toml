@@ -3,7 +3,7 @@ loaderVersion = "[46,)"
 license = "LGPLv3"
 
 [[mods]]
-modId = "minihud"
+modId = "bocchud"
 version = "${version}"
 displayName = "BoccHUD"
 displayURL="https://github.com/ThinkingStudios/MiniHUD-Forge" #optional
@@ -16,23 +16,23 @@ MiniHUD unofficial forge port.
 Configurable "mini-F3" info lines, and various overlay renderers.
 '''
 
-[[dependencies.minihud]]
+[[dependencies.bocchud]]
 modId = "forge"
 mandatory = true
 versionRange = "[46,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.minihud]]
+[[dependencies.bocchud]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20,]"
+versionRange = "[1.20,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.minihud]]
-modId = "malilib"
+[[dependencies.bocchud]]
+modId = "mafglib"
 mandatory = true
-versionRange = "[0.1.0,)"
+versionRange = "*"
 ordering = "NONE"
 side = "BOTH"
