@@ -1,2 +1,2 @@
 ## Change
-- change modid to `bocchud`
+- update mafglib version to `0.1.11`
