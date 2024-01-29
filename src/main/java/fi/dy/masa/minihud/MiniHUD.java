@@ -1,6 +1,6 @@
 package fi.dy.masa.minihud;
 
-import fi.dy.masa.malilib.compat.forge.ForgePlatformCompat;
+import fi.dy.masa.malilib.compat.forge.ForgePlatformUtils;
 import fi.dy.masa.minihud.gui.GuiConfigs;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -23,10 +23,10 @@ public class MiniHUD {
     }
 
     public void onInitializeClient(FMLClientSetupEvent event) {
-        ForgePlatformCompat.getInstance().getModClientExtensionPoint();
+        ForgePlatformUtils.getInstance().getClientModIgnoredServerOnly();
         InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
 
-        ForgePlatformCompat.getInstance().getMod(Reference.MOD_ID).registerModConfigScreen((screen) -> {
+        ForgePlatformUtils.getInstance().getMod(Reference.MOD_ID).registerModConfigScreen((screen) -> {
             GuiConfigs gui = new GuiConfigs();
             gui.setParent(screen);
             return gui;
