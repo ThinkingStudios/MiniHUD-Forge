@@ -64,7 +64,7 @@ modrinth {
 
     projectId = "${project.modrinth_id}"
     versionNumber = "${project.version}"
-    versionType = "beta"
+    versionType = "alpha"
     changelog = file("CHANGELOG.md").getText('UTF-8')
     uploadFile = remapJar
     additionalFiles = [sourcesJar]
@@ -81,7 +81,7 @@ task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge)
 
     def mainFile = upload(project.curseforge_id, remapJar)
     mainFile.displayName = "${project.version}"
-    mainFile.releaseType = "beta"
+    mainFile.releaseType = "alpha"
     mainFile.changelog = file("CHANGELOG.md")
     mainFile.changelogType = "markdown"
     mainFile.addModLoader("NeoForge")
