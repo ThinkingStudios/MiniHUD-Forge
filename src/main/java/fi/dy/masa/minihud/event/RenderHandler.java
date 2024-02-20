@@ -119,7 +119,7 @@ public class RenderHandler implements IRenderer
             return;
         }
 
-        if (this.mc.options.debugEnabled == false &&
+        if (this.mc.getDebugHud().shouldShowDebugHud() == false &&
             this.mc.player != null && this.mc.options.hudHidden == false &&
             (Configs.Generic.REQUIRE_SNEAK.getBooleanValue() == false || this.mc.player.isSneaking()) &&
             Configs.Generic.REQUIRED_KEY.getKeybind().isKeybindHeld())
@@ -151,9 +151,10 @@ public class RenderHandler implements IRenderer
     {
         if (stack.getItem() instanceof FilledMapItem)
         {
-            if (Configs.Generic.MAP_PREVIEW.getBooleanValue())
+            if (Configs.Generic.MAP_PREVIEW.getBooleanValue() &&
+                (Configs.Generic.MAP_PREVIEW_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown()))
             {
-                fi.dy.masa.malilib.render.RenderUtils.renderMapPreview(stack, x, y, Configs.Generic.MAP_PREVIEW_SIZE.getIntegerValue());
+                fi.dy.masa.malilib.render.RenderUtils.renderMapPreview(stack, x, y, Configs.Generic.MAP_PREVIEW_SIZE.getIntegerValue(), false);
             }
         }
         else if (Configs.Generic.SHULKER_BOX_PREVIEW.getBooleanValue())
@@ -536,7 +537,17 @@ public class RenderHandler implements IRenderer
 
             if (InfoToggle.BLOCK_POS.getBooleanValue())
             {
-                str.append(String.format("Block: %d, %d, %d", pos.getX(), pos.getY(), pos.getZ()));
+                try
+                {
+                    String fmt = Configs.Generic.BLOCK_POS_FORMAT_STRING.getStringValue();
+                    str.append(String.format(fmt, pos.getX(), pos.getY(), pos.getZ()));
+                }
+                // Uh oh, someone done goofed their format string... :P
+                catch (Exception e)
+                {
+                    str.append("broken format string in 'blockPosFormat'");
+                }
+
                 pre = " / ";
             }
 

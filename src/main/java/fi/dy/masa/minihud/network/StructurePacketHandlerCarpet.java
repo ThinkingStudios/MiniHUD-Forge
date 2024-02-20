@@ -1,11 +1,10 @@
 package fi.dy.masa.minihud.network;
 
-import java.util.List;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+
 import fi.dy.masa.malilib.network.IPluginChannelHandler;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.minihud.MiniHUD;
@@ -13,7 +12,7 @@ import fi.dy.masa.minihud.util.DataStorage;
 
 public class StructurePacketHandlerCarpet implements IPluginChannelHandler
 {
-    public static final List<Identifier> CHANNELS = ImmutableList.of(new Identifier("carpet:structures"));
+    public static final Identifier CHANNEL = new Identifier("carpet:structures");
     public static final int PACKET_S2C_DATA = 0;
     public static final int VERSION = 1;
 
@@ -28,9 +27,9 @@ public class StructurePacketHandlerCarpet implements IPluginChannelHandler
     }
 
     @Override
-    public List<Identifier> getChannels()
+    public Identifier getChannel()
     {
-        return CHANNELS;
+        return CHANNEL;
     }
 
     @Override

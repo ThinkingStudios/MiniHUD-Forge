@@ -44,6 +44,7 @@ public class Configs implements IConfigHandler
         public static final ConfigInteger       BIOME_OVERLAY_RANGE                 = new ConfigInteger("biomeOverlayRange", 4, 0, 32, "The horizontal chunk radius to render for the Biome Border Overlay");
         public static final ConfigInteger       BIOME_OVERLAY_RANGE_VERTICAL        = new ConfigInteger("biomeOverlayRangeVertical", 0, 0, 32, "The vertical (sub-)chunk radius to render for the Biome Border Overlay");
         public static final ConfigBoolean       BIOME_OVERLAY_SINGLE_COLOR          = new ConfigBoolean("biomeOverlaySingleColor", true, "If enabled, then the Biome Border Overlay will use\nthe same color for all biomes. This can look \"less messy\"\nwhen the adjacent biome's colors and lines aren't blending\ninto a huge mess of colors.");
+        public static final ConfigString        BLOCK_POS_FORMAT_STRING             = new ConfigString("blockPosFormat", "Block: %d, %d, %d", "The format string for the \"infoBlockPosition\" line.\nNeeds to have three %d format strings!\nDefault: \"Block: %d, %d, %d\"");
         public static final ConfigOptionList    BLOCK_GRID_OVERLAY_MODE             = new ConfigOptionList("blockGridOverlayMode", BlockGridMode.ALL, "The block grid render mode");
         public static final ConfigInteger       BLOCK_GRID_OVERLAY_RADIUS           = new ConfigInteger("blockGridOverlayRadius", 32, 0, 128, "The radius of the block grid lines to render");
         public static final ConfigString        COORDINATE_FORMAT_STRING            = new ConfigString("coordinateFormat", "x: %.1f y: %.1f z: %.1f", "The format string for the coordinate line.\nNeeds to have three %f format strings!\nDefault: x: %.1f y: %.1f z: %.1f");
@@ -77,7 +78,9 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       LIGHT_LEVEL_UNDER_WATER             = new ConfigBoolean("lightLevelUnderWater", false, "Should the light level overlay render under water");
         public static final ConfigBooleanHotkeyed MAIN_RENDERING_TOGGLE             = new ConfigBooleanHotkeyed("mainRenderingToggle", true, "H", KeybindSettings.RELEASE_EXCLUSIVE, "The main rendering toggle for all MiniHUD rendering,\nincluding the info lines AND all the overlay renderers", "MiniHUD Main Rendering");
         public static final ConfigBoolean       MAP_PREVIEW                         = new ConfigBoolean("mapPreview", false, "Enables rendering a preview of the map,\nwhen you hold shift while hovering over a map item");
+        public static final ConfigBoolean       MAP_PREVIEW_REQUIRE_SHIFT           = new ConfigBoolean("mapPreviewRequireShift", true, "Whether holding shift is required for the Map Preview");
         public static final ConfigInteger       MAP_PREVIEW_SIZE                    = new ConfigInteger("mapPreviewSize", 160, 16, 512, "The size of the rendered map previews");
+        public static final ConfigHotkey        MOVE_SHAPE_TO_PLAYER                = new ConfigHotkey("moveShapeToPlayer", "", "Move the currently selected shape to the player's\n(or the camera's) current location");
         public static final ConfigBoolean       OFFSET_SUBTITLE_HUD                 = new ConfigBoolean("offsetSubtitleHud", true, "If the Info Lines HUD is set to the bottom right corner,\nand subtitles are enabled, then the subtitles will\nbe offset to appear above the Info Lines text.");
         public static final ConfigHotkey        OPEN_CONFIG_GUI                     = new ConfigHotkey("openConfigGui", "H,C", "A hotkey to open the in-game Config GUI");
         public static final ConfigBoolean       REQUIRE_SNEAK                       = new ConfigBoolean("requireSneak", false, "Require the player to be sneaking to render the info line HUD");
@@ -87,6 +90,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       SHULKER_BOX_PREVIEW                 = new ConfigBoolean("shulkerBoxPreview", false, "Enables rendering a preview of the Shulker Box contents,\nwhen you hold shift while hovering over a Shulker Box item");
         public static final ConfigBoolean       SHULKER_DISPLAY_BACKGROUND_COLOR    = new ConfigBoolean("shulkerDisplayBgColor", true, "Enables tinting/coloring the Shulker Box display\nbackground texture with the dye color of the box");
         public static final ConfigBoolean       SHULKER_DISPLAY_REQUIRE_SHIFT       = new ConfigBoolean("shulkerDisplayRequireShift", true, "Whether or not holding shift is required for the Shulker Box preview");
+        public static final ConfigBoolean       SLIME_CHUNK_TOP_TO_PLAYER           = new ConfigBoolean("slimeChunkTopToPlayer", true, "If enabled, then the slime chunk overlay's top position\nis set to the player's y-position when the overlay is turned on.\nIf disabled, then the top is set to y = 40 when the overlay is turned on.");
         public static final ConfigInteger       SLIME_CHUNK_OVERLAY_RADIUS          = new ConfigInteger("slimeChunkOverlayRadius", -1, -1, 40, "The radius of chunks to render the slime chunk overlay in.\nValid range: -1 ... 40, where -1 = render distance");
         public static final ConfigBoolean       SORT_LINES_BY_LENGTH                = new ConfigBoolean("sortLinesByLength", false, "Sort the lines by their text's length");
         public static final ConfigBoolean       SORT_LINES_REVERSED                 = new ConfigBoolean("sortLinesReversed", false, "Reverse the line sorting order");
@@ -117,11 +121,13 @@ public class Configs implements IConfigHandler
                 LIGHT_LEVEL_SKIP_BLOCK_CHECK,
                 LIGHT_LEVEL_UNDER_WATER,
                 MAP_PREVIEW,
+                MAP_PREVIEW_REQUIRE_SHIFT,
                 OFFSET_SUBTITLE_HUD,
                 REQUIRE_SNEAK,
                 SHULKER_BOX_PREVIEW,
                 SHULKER_DISPLAY_BACKGROUND_COLOR,
                 SHULKER_DISPLAY_REQUIRE_SHIFT,
+                SLIME_CHUNK_TOP_TO_PLAYER,
                 SORT_LINES_BY_LENGTH,
                 SORT_LINES_REVERSED,
                 STRUCTURES_RENDER_THROUGH,
@@ -130,6 +136,7 @@ public class Configs implements IConfigHandler
                 USE_TEXT_BACKGROUND,
 
                 MAIN_RENDERING_TOGGLE,
+                MOVE_SHAPE_TO_PLAYER,
                 OPEN_CONFIG_GUI,
                 REQUIRED_KEY,
                 SET_DISTANCE_REFERENCE_POINT,
@@ -144,6 +151,7 @@ public class Configs implements IConfigHandler
 
                 BIOME_OVERLAY_RANGE,
                 BIOME_OVERLAY_RANGE_VERTICAL,
+                BLOCK_POS_FORMAT_STRING,
                 BLOCK_GRID_OVERLAY_RADIUS,
                 COORDINATE_FORMAT_STRING,
                 DATE_FORMAT_REAL,
@@ -169,8 +177,9 @@ public class Configs implements IConfigHandler
 
         public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
                 MAIN_RENDERING_TOGGLE,
-                REQUIRED_KEY,
+                MOVE_SHAPE_TO_PLAYER,
                 OPEN_CONFIG_GUI,
+                REQUIRED_KEY,
                 SET_DISTANCE_REFERENCE_POINT,
                 SHAPE_EDITOR
         );

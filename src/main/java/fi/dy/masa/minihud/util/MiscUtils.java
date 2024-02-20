@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.recipe.AbstractCookingRecipe;
-import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -155,7 +155,7 @@ public class MiscUtils
                 if (entityDataTag.contains("CustomName", Constants.NBT.TAG_STRING))
                 {
                     String beeName = entityDataTag.getString("CustomName");
-                    lines.add(Math.min(1, lines.size()), Text.translatable("minihud.label.bee_tooltip.name", Text.Serializer.fromJson(beeName).getString()));
+                    lines.add(Math.min(1, lines.size()), Text.translatable("minihud.label.bee_tooltip.name", Text.Serialization.fromJson(beeName).getString()));
                 }
 
                 if (entityDataTag.contains("Age", Constants.NBT.TAG_INT) &&
@@ -210,9 +210,9 @@ public class MiscUtils
 
         for (Object2IntMap.Entry<Identifier> entry : recipes.object2IntEntrySet())
         {
-            Optional<? extends Recipe<?>> recipeOpt = world.getRecipeManager().get(entry.getKey());
+            Optional<RecipeEntry<?>> recipeOpt = world.getRecipeManager().get(entry.getKey());
 
-            if (recipeOpt.isPresent() && recipeOpt.get() instanceof AbstractCookingRecipe recipe)
+            if (recipeOpt.isPresent() && recipeOpt.get().value() instanceof AbstractCookingRecipe recipe)
             {
                 xp += entry.getIntValue() * recipe.getExperience();
             }

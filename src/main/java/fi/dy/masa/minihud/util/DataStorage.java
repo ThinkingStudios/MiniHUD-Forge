@@ -11,6 +11,7 @@ import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
@@ -21,21 +22,21 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerTask;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureStart;
-import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.structure.Structure;
+
 import fi.dy.masa.malilib.network.ClientPacketChannelHandler;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InfoUtils;
@@ -55,7 +56,6 @@ import fi.dy.masa.minihud.renderer.OverlayRendererSpawnableColumnHeights;
 import fi.dy.masa.minihud.renderer.shapes.ShapeManager;
 import fi.dy.masa.minihud.renderer.worker.ChunkTask;
 import fi.dy.masa.minihud.renderer.worker.ThreadWorker;
-import fi.dy.masa.minihud.util.MiscUtils;
 
 public class DataStorage
 {
@@ -414,7 +414,7 @@ public class DataStorage
                     //int i2 = str.indexOf("]");
                     MutableText m = (MutableText) text.getArgs()[0];
                     TranslatableTextContent t = (TranslatableTextContent) m.getContent();
-                    LiteralTextContent l = (LiteralTextContent) ((MutableText) t.getArgs()[0]).getContent();
+                    PlainTextContent.Literal l = (PlainTextContent.Literal) ((MutableText) t.getArgs()[0]).getContent();
                     String str = l.string();
 
                     //if (i1 != -1 && i2 != -1)
@@ -497,7 +497,7 @@ public class DataStorage
     {
         if (this.mc != null && this.mc.player != null && this.mc.getServer() != null)
         {
-            this.serverMSPT = MiscUtils.longAverage(this.mc.getServer().lastTickLengths) / 1000000D;
+            this.serverMSPT = MiscUtils.longAverage(this.mc.getServer().getTickTimes()) / 1000000D;
             this.serverTPS = this.serverMSPT <= 50 ? 20D : (1000D / this.serverMSPT);
             this.serverTPSValid = true;
         }
@@ -584,6 +584,7 @@ public class DataStorage
         if (this.servuxServer == false)
         {
             MiniHUD.printDebug("DataStorage#registerStructureChannel(): Carpet");
+
             ClientPacketChannelHandler.getInstance().registerClientChannelHandler(StructurePacketHandlerCarpet.INSTANCE);
         }
     }
@@ -633,12 +634,13 @@ public class DataStorage
         // Ignore the data from QuickCarpet if the Servux mod is also present
         if (this.servuxServer && isServux == false)
         {
+            MiniHUD.printDebug("DataStorage#addOrUpdateStructuresFromServer(): Ignoring structure data from not Servux");
             return;
         }
 
         if (structures.getHeldType() == Constants.NBT.TAG_COMPOUND)
         {
-            MiniHUD.printDebug("DataStorage#addOrUpdateStructuresFromServer(): count: " + structures.size());
+            MiniHUD.printDebug("DataStorage#addOrUpdateStructuresFromServer(): list size: {}", structures.size());
             this.structureDataTimeout = timeout + 200;
 
             long currentTime = this.mc.world.getTime();
@@ -671,7 +673,16 @@ public class DataStorage
     private void removeExpiredStructures(long currentTime, int timeout)
     {
         long maxAge = timeout;
+        int countBefore = this.structures.values().size();
+
         this.structures.values().removeIf(data -> currentTime > (data.getRefreshTime() + maxAge));
+
+        int countAfter = this.structures.values().size();
+
+        if (countBefore != countAfter)
+        {
+            MiniHUD.printDebug("DataStorage#removeExpiredStructures(): before: {}, after: {}", countBefore, countAfter);
+        }
     }
 
     private void addStructureDataFromGenerator(ServerWorld world, BlockPos playerPos, int maxChunkRange)

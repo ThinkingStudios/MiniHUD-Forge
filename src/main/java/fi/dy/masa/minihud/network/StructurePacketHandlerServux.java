@@ -1,11 +1,10 @@
 package fi.dy.masa.minihud.network;
 
-import java.util.List;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+
 import fi.dy.masa.malilib.network.IPluginChannelHandler;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.minihud.MiniHUD;
@@ -19,8 +18,7 @@ public class StructurePacketHandlerServux implements IPluginChannelHandler
 
     public static final StructurePacketHandlerServux INSTANCE = new StructurePacketHandlerServux();
 
-    private final Identifier channel = new Identifier("servux:structures");
-    private final List<Identifier> channels = ImmutableList.of(this.channel);
+    private static final Identifier CHANNEL = new Identifier("servux:structures");
     private boolean registered;
     private int timeout;
 
@@ -30,9 +28,9 @@ public class StructurePacketHandlerServux implements IPluginChannelHandler
     }
 
     @Override
-    public List<Identifier> getChannels()
+    public Identifier getChannel()
     {
-        return this.channels;
+        return CHANNEL;
     }
 
     @Override
@@ -40,7 +38,8 @@ public class StructurePacketHandlerServux implements IPluginChannelHandler
     {
         int id = buf.readVarInt();
 
-        MiniHUD.printDebug("StructurePacketHandlerServux#onPacketReceived(): " + id);
+        MiniHUD.printDebug("StructurePacketHandlerServux#onPacketReceived(): type: {} (old timeout: {}, old reg: {})",
+                           id, this.timeout, this.registered);
 
         if (id == PACKET_S2C_STRUCTURE_DATA && this.registered)
         {
@@ -49,6 +48,7 @@ public class StructurePacketHandlerServux implements IPluginChannelHandler
             if (tag != null)
             {
                 NbtList structures = tag.getList("Structures", Constants.NBT.TAG_COMPOUND);
+                MiniHUD.printDebug("StructurePacketHandlerServux#onPacketReceived(): structures; list size: {}", structures.size());
                 DataStorage.getInstance().addOrUpdateStructuresFromServer(structures, this.timeout, true);
             }
         }
@@ -58,11 +58,12 @@ public class StructurePacketHandlerServux implements IPluginChannelHandler
 
             if (tag != null &&
                 tag.getInt("version") == PROTOCOL_VERSION &&
-                tag.getString("id").equals(this.channel.toString()))
+                tag.getString("id").equals(CHANNEL.toString()))
             {
                 this.timeout = tag.getInt("timeout");
                 this.registered = true;
                 DataStorage.getInstance().setIsServuxServer();
+                MiniHUD.printDebug("StructurePacketHandlerServux#onPacketReceived(): register; timeout: {}", this.timeout);
             }
         }
     }

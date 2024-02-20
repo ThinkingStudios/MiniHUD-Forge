@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[46,)"
+loaderVersion = "[1,)"
 license = "LGPLv3"
 
 [[mods]]
@@ -16,23 +16,26 @@ MiniHUD unofficial forge port.
 Configurable "mini-F3" info lines, and various overlay renderers.
 '''
 
+[[mixins]]
+config = "bocchud.mixins.json"
+
 [[dependencies.bocchud]]
-modId = "forge"
-mandatory = true
-versionRange = "[46,)"
+modId = "neoforge"
+type = "required"
+versionRange = "[20,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.bocchud]]
 modId = "minecraft"
-mandatory = true
-versionRange = "[1.20,)"
+type = "required"
+versionRange = "[1.20.3,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.bocchud]]
 modId = "mafglib"
-mandatory = true
-versionRange = "*"
+type = "required"
+versionRange = "[0.1.4,)"
 ordering = "NONE"
 side = "BOTH"
