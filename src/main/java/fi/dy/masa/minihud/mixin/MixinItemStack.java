@@ -19,7 +19,7 @@ import net.minecraft.text.Text;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.util.MiscUtils;
 
-@Mixin(ItemStack.class)
+@Mixin(value = ItemStack.class, priority = 600)
 public abstract class MixinItemStack
 {
     @Shadow
