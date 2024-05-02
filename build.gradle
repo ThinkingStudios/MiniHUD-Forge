@@ -1,13 +1,10 @@
 plugins {
-    id "dev.architectury.loom" version "1.4-SNAPSHOT"
+    id "dev.architectury.loom" version "1.5-SNAPSHOT"
     id "maven-publish"
-    id 'com.modrinth.minotaur' version '2.+'
-    id 'net.darkhax.curseforgegradle' version '1.+'
+    id "com.hypherionmc.modutils.modpublisher" version "2.+"
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
+base.archivesName = project.archives_base_name
 version = "${project.mod_version}-mc${project.minecraft_version}"
 group = project.maven_group
 
@@ -47,6 +44,9 @@ tasks.withType(JavaCompile) {
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+
     withSourcesJar()
 }
 
@@ -64,41 +64,6 @@ jar {
     }
 }
 
-modrinth {
-    token = System.getenv("MODRINTH_TOKEN")
-
-    projectId = "${project.modrinth_id}"
-    versionNumber = "${project.version}"
-    versionType = "beta"
-    changelog = file("CHANGELOG.md").getText('UTF-8')
-    uploadFile = remapJar
-    additionalFiles = [sourcesJar]
-    gameVersions = ["1.18", "1.18.1", "1.18.2"]
-    loaders = ["forge"]
-    dependencies {
-        required.project("mafglib")
-    }
-}
-
-task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-    apiToken = System.getenv("CURSEFORGE_TOKEN")
-    disableVersionDetection()
-
-    def mainFile = upload(project.curseforge_id, remapJar)
-    mainFile.displayName = "${project.version}"
-    mainFile.releaseType = "beta"
-    mainFile.changelog = file("CHANGELOG.md")
-    mainFile.changelogType = "markdown"
-    mainFile.addModLoader("Forge")
-    mainFile.addJavaVersion("Java 17", "Java 18")
-    mainFile.addGameVersion("1.18", "1.18.1", "1.18.2")
-    mainFile.addRequirement("mafglib")
-
-    def sourcesFile = mainFile.withAdditionalFile(sourcesJar)
-    sourcesFile.changelog = file("CHANGELOG.md")
-    sourcesFile.changelogType = "markdown"
-}
-
 // configure the maven publication
 publishing {
     publications {
@@ -114,4 +79,25 @@ publishing {
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
     }
+}
+
+publisher {
+    apiKeys {
+        modrinth System.getenv("MODRINTH_TOKEN")
+        curseforge System.getenv("CURSE_TOKEN")
+    }
+
+    setCurseID("${project.curseforge_id}")
+    setModrinthID("${project.modrinth_id}")
+    setVersionType("release")
+    setChangelog(file("CHANGELOG.md").getText("UTF-8"))
+    setVersion("${project.version}")
+    setDisplayName("${project.version}")
+    setGameVersions("1.18", "1.18.1", "1.18.2")
+    setLoaders("forge")
+    setCurseEnvironment("client")
+    setArtifact(remapJar)
+    addAdditionalFile(sourcesJar)
+    curseDepends { required("mafglib") }
+    modrinthDepends { required("mafglib") }
 }
