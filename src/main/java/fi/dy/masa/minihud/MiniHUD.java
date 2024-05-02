@@ -16,18 +16,14 @@ public class MiniHUD {
 
     public MiniHUD() {
         if (FMLLoader.getDist().isClient()) {
-            this.onInitializeClient();
+            ForgePlatformUtils.getInstance().getClientModIgnoredServerOnly();
+            InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
+            ForgePlatformUtils.getInstance().getMod(Reference.MOD_ID).registerModConfigScreen((screen) -> {
+                GuiConfigs gui = new GuiConfigs();
+                gui.setParent(screen);
+                return gui;
+            });
         }
-    }
-
-    public void onInitializeClient() {
-        ForgePlatformUtils.getInstance().getClientModIgnoredServerOnly();
-        InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
-        ForgePlatformUtils.getInstance().getMod(Reference.MOD_ID).registerModConfigScreen((screen) -> {
-            GuiConfigs gui = new GuiConfigs();
-            gui.setParent(screen);
-            return gui;
-        });
     }
 
     public static void printDebug(String key, Object... args) {
