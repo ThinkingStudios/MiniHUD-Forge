@@ -21,7 +21,7 @@
     "minihud.gui.label.margin_colon": "Margin:",
     "minihud.gui.label.margin_value": "Margin: %s",
 
-    "minihud.gui.title.configs": "MiniHUD Configs",
+    "minihud.gui.title.configs": "%s Configs - %s",
     "minihud.gui.title.shape_editor": "Shape Editor",
     "minihud.gui.title.shape_manager": "Shape Manager",
 

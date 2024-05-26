@@ -496,5 +496,5 @@
 	"infoHoneyLevel":"infoHoneyLevel蜂蜜等级信息",
 	"Show the honey level the targeted Hive or Nest.\nNote: This only works in single player without server-side support.":"在指向蜂巢和蜂箱时显示蜂蜜等级信息\n注意：该功能只可在单机使用",
 	
-	"minihud.gui.title.configs": "MiniHUD 配置汉化——醉梦巅峰（ZMDF）-2020.09.20"
+	"minihud.gui.title.configs": "%s 配置 - %s"
 }

@@ -25,7 +25,7 @@ public class GuiConfigs extends GuiConfigsBase
 
     public GuiConfigs()
     {
-        super(10, 50, Reference.MOD_ID, null, "minihud.gui.title.configs");
+        super(10, 50, Reference.MOD_ID, null, "minihud.gui.title.configs", Reference.MOD_NAME, Reference.MOD_VERSION);
     }
 
     @Override
