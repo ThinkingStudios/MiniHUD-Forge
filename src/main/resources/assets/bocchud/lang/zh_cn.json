@@ -640,5 +640,5 @@
 	"Toggle the Biome Border overlay renderer":"切换是否显示群系边界",
 	
 	
-	"minihud.gui.title.configs": "MiniHUD 配置汉化——醉梦巅峰（ZMDF）-2022.01.30"
+	"minihud.gui.title.configs": "%s 配置 - %s"
 }
