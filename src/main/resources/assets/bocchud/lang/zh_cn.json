@@ -541,32 +541,24 @@
 	"shapeRenderer":"shapeRenderer | 图形渲染器",
 	"The main toggle for the shape renderer":"切换是否显示图形渲染器渲染的图形",
 	
-	// "20200920更新":"这只是一个更新TAG",
-	
 	"honeyTooltips":"honeyTooltips | 蜂蜜信息显示",
 	"Adds the honey level to the tooltip of Bee Hive and Bee Nest items":"在指向蜂巢和蜂箱时添加蜂蜜等级信息",
 	"infoHoneyLevel":"HoneyLevel | 蜂蜜等级信息",
 	"Show the honey level the targeted Hive or Nest.\nNote: This only works in single player without server-side support.":"在指向蜂巢和蜂箱时显示蜂蜜等级信息\n注意：该功能只可在单机使用",
-	
-	// "20211204更新":"这只是一个更新TAG",
-	//通用
+
 	"axolotlTooltipsTooltips":"axolotl | 美西螈品种提示",
 	"Adds the Axolotl variant name to the bucket tooltip":"将美西螈品种名称添加到桶的工具提示中",
-	
-	//结构渲染器
+
 	"debugChunkBorder":"ChunkBorder | 区块边界显示",
 	"Toggles the vanilla Chunk Border debug renderer":"打开区块边界显示，效果与F3+G一样。",
-	
-	//信息
+
 	"infoHorseSpeed":"HorseSpeed | 马速度属性",
 	"Show the speed (m/s) of the horse being ridden.":"显示玩家当前所骑的马的速度属性(米/秒)。",
 	"infoHorseJump":"HorseJump | 马跳跃属性",
 	"Show the jump height of the horse being ridden.":"显示玩家当前所骑的马的跳跃属性(格)",
 	"infoSpeedHV":"SpeedHV | 玩家速度分量",
 	"Show the player's current moving speed both horizontally and vertically.":"显示玩家当前水平和垂直的移动速度。",
-	
-	// "20220129更新":"这只是一个更新TAG",
-	//通用
+
 	"beaconRangeAutoUpdate":"beaconRange | 信标范围更新",
 	"This enables the Beacon Range renderer to update automatically\nwhen block or chunk change packets are received.\nThose updates can have a performance impact if tons of blocks are changing often.\nYou can toggle off/on the renderer to update to those changes manually.":"这使得信标范围渲染器能够在接收到方块或区块变更时进行自动更新。\n但是如果有大量的方块经常改变，这些更新可能会对性能造成影响。\n您可以关闭/打开渲染器来手动更新这些更改。",
 	"biomeOverlaySingleColor":"biomeOverlay | 群系单一颜色边界",
@@ -598,8 +590,7 @@
 	"lightLevelThresholdSafe":"lightLevel | 光照渲染Safe阈值",
 	"lightLevelRenderOffset":"lightLevel | 光照渲染Z轴偏移",
 	"The relative render offset for the light level overlay.\nMeant to help with potential z-fighting issues with the block surface.\nRange: 0.0 - 1.0":"光照等级渲染层的相对垂直偏移量。\n这是为了帮助解决方块表面潜在的Z轴冲突的问题。\n调节范围:0.0 - 1.0",
-	
-	//颜色
+
 	"beaconRangeLvl1":"beaconLvl1 | 1级信标",
 	"Color for the Beacon Range lvl 1 overlay":"1级信标范围的颜色",
 	"beaconRangeLvl2":"beaconLvl2 | 2级信标",
@@ -622,8 +613,7 @@
 	"Default color for the Box shape\nThe color can be changed for each shape via its configuration GUI.":"长方体的默认颜色，可以通过其配置GUI进行更改。",
 	"shapeLineBlocky":"LineBlocky | 线",
 	"Default color for the Line (Blocky) renderer.\nThe color can be changed for each shape via its configuration GUI.":"Line(块状)渲染器的默认颜色，可以通过其配置GUI进行更改。",
-	
-	//信息
+
 	"Show the number of bees in the targeted Hive or Nest.\n§6Note: This only works in single player (without server-side support,\n§6which doesn't exist yet, but will be in the Servux mod at some point).":"显示目标蜂巢或蜂箱中的蜜蜂数量。\n§6注意：这仅适用于单人游戏（没有服务器端支持，\n§6将无法正常显示，但会在有Servux mod 时可能出现）。",
 	"infoCoordinatesScaled":"Coordinates | 地狱坐标映射",
 	"Show the player's coordinates scaled by the dimension's scale factor.\nOnly works in the overworld and the nether,\nand assumes the vanilla nether portal scaling factor.":"根据维度的比例系数显示玩家的坐标。只适用于主世界和地狱，\n并且地狱与主世界的比例系数是原版的系数。",
@@ -632,14 +622,12 @@
 	"Show the honey level the targeted Hive or Nest.\nNote: This only works in single player (without server-side support,\n§6which doesn't exist yet, but will be in the Servux mod at some point).":"显示目标蜂巢或蜂箱中的蜜蜂数量。\n§6注意：这仅适用于单人游戏（没有服务器端支持，\n§6将无法正常显示，但会在有Servux mod 时可能出现）。",
 	"infoSprinting":"Sprinting | 奔跑状态",
 	"Show the \"Sprinting\" info line if the player is sprinting":"如果玩家正在冲刺，显示“冲刺”信息行\n§c我自己不知道我在跑是吧？",
-	
-	//渲染器
+
 	"overlayBeaconRange":"BeaconRange | 信标范围显示",
 	"Toggle the Beacon Range overlay renderer":"切换是否显示信标范围",
 	"overlayBiomeBorder":"BiomeBorder | 群系边界显示",
 	"Toggle the Biome Border overlay renderer":"切换是否显示群系边界",
-	
-	// "20220731更新":"这只是一个更新TAG",
+
 	"offsetSubtitleHud":"offset | 偏移字幕Hud",
 	"If the Info Lines HUD is set to the bottom right corner,\nand subtitles are enabled, then the subtitles will\nbe offset to appear above the Info Lines text.":"如果信息HUD设置为右下角，\n并且字幕设置为启用，\n那么字幕将被偏移显示在信息HUD上方。",
 	"conduitRange":"conduit | 潮涌核心",
@@ -652,11 +640,10 @@
 	"Unknown structure components":"未知结构",
 	"overlayConduitRange":"overlayConduit | 潮涌核心范围",
 	"Toggle the Conduit Range overlay renderer":"显示潮涌核心覆盖范围",
-	
-	// "20230619更新":"这只是一个更新TAG",
+
 	"The format string for the Minecraft time.\nThe supported placeholders are: {DAY_1}, {DAY}, {HOUR}, {MIN}, {SEC}, {MOON}.\n{DAY_1} starts the day counter from 1, {DAY} starts from 0.":"默认格式为：§eMC time：(day 0) 00:00:xx§r\n功能为定义MC时间的显示格式\n支持的占位符有:\n{DAY_1}(初始值为1的日)、{DAY}(初始值为0的日)、\n{HOUR}(小时)、{MIN}(分钟)、{SEC}(秒)、\n{MOON}(月相)。",
 	"infoMobCaps":"MobCaps | 刷怪占用",
 	"Show the mob caps\n\n§dNote: Currently only works on Carpet servers!\n§6The data is currently only parsed from the player list footer on Carpet servers,\n§6if you have subscribed to the data with '/log mobcaps'":"显示刷怪占用\n\n§d注意:目前只适用于地毯端服务器!\n§6数据目前只能从Carpet服务器上的list列表解析（TAB抬头显示）\n§6当然前提是如果您已使用'/log mobcaps'向服务器获取了数据",
 	
-	"minihud.gui.title.configs": "MiniHUD 配置汉化——醉梦巅峰（ZMDF）-2023.06.19"
+	"minihud.gui.title.configs": "%s 配置 - %s"
 }
