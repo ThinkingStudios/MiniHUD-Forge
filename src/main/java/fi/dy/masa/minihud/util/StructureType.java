@@ -7,6 +7,7 @@ import fi.dy.masa.minihud.config.StructureToggle;
 
 public enum StructureType
 {
+    ANCIENT_CITY        (StructureToggle.OVERLAY_STRUCTURE_ANCIENT_CITY,        "minecraft:ancient_city"),
     BURIED_TREASURE     (StructureToggle.OVERLAY_STRUCTURE_BURIED_TREASURE,     "minecraft:buried_treasure"),
     DESERT_PYRAMID      (StructureToggle.OVERLAY_STRUCTURE_DESERT_PYRAMID,      "minecraft:desert_pyramid"),
     IGLOO               (StructureToggle.OVERLAY_STRUCTURE_IGLOO,               "minecraft:igloo"),
@@ -19,6 +20,7 @@ public enum StructureType
     RUINED_PORTAL       (StructureToggle.OVERLAY_STRUCTURE_RUINED_PORTAL,       "minecraft:ruined_portal", "minecraft:ruined_portal_desert", "minecraft:ruined_portal_jungle", "minecraft:ruined_portal_mountain", "minecraft:ruined_portal_nether", "minecraft:ruined_portal_ocean", "minecraft:ruined_portal_swamp"),
     SHIPWRECK           (StructureToggle.OVERLAY_STRUCTURE_SHIPWRECK,           "minecraft:shipwreck", "minecraft:shipwreck_beached"),
     STRONGHOLD          (StructureToggle.OVERLAY_STRUCTURE_STRONGHOLD,          "minecraft:stronghold"),
+    TRIAL_CHAMBERS      (StructureToggle.OVERLAY_STRUCTURE_TRIAL_CHAMBERS,      "minecraft:trial_chambers"),
     VILLAGE             (StructureToggle.OVERLAY_STRUCTURE_VILLAGE,             "minecraft:village_desert", "minecraft:village_plains", "minecraft:village_savanna", "minecraft:village_snowy", "minecraft:village_taiga"),
     WITCH_HUT           (StructureToggle.OVERLAY_STRUCTURE_WITCH_HUT,           "minecraft:swamp_hut"),
     TRAIL_RUINS         (StructureToggle.OVERLAY_STRUCTURE_TRAIL_RUINS,         "minecraft:trail_ruins"),

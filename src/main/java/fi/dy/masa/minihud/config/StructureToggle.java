@@ -10,6 +10,7 @@ import fi.dy.masa.minihud.util.DataStorage;
 
 public enum StructureToggle
 {
+    OVERLAY_STRUCTURE_ANCIENT_CITY      ("Ancient City",    "", "#41D10AE6", "#41D506C9", "Toggle Ancient City structure bounding boxes rendering", "Ancient City"),
     OVERLAY_STRUCTURE_BASTION_REMNANT   ("Bastion Remnant", "", "#302171F5", "#302171F5", "Toggle Bastion Remnant structure bounding boxes rendering", "Bastion Remnant"),
     OVERLAY_STRUCTURE_BURIED_TREASURE   ("Buried Treasure", "", "#302298E6", "#302298E6", "Toggle Buried Treasure structure bounding boxes rendering", "Buried Treasure"),
     OVERLAY_STRUCTURE_DESERT_PYRAMID    ("Desert Pyramid",  "", "#30FFFF00", "#30FFFF00", "Toggle Desert Pyramid structure bounding boxes rendering", "Desert Pyramid"),
@@ -26,10 +27,10 @@ public enum StructureToggle
     OVERLAY_STRUCTURE_RUINED_PORTAL     ("Ruined Portal",   "", "#309F03D3", "#309F03D3", "Toggle Ruined Portal structure bounding boxes rendering", "Ruined Portal"),
     OVERLAY_STRUCTURE_SHIPWRECK         ("Shipwreck",       "", "#30EB1995", "#30EB1995", "Toggle Shipwreck structure bounding boxes rendering", "Shipwreck"),
     OVERLAY_STRUCTURE_STRONGHOLD        ("Stronghold",      "", "#30009999", "#30009999", "Toggle Stronghold structure bounding boxes rendering", "Stronghold"),
+    OVERLAY_STRUCTURE_TRIAL_CHAMBERS    ("Trial Chambers",  "", "#3599664E", "#35CC8868", "Toggle Trial Chambers structure bounding boxes rendering", "Trial Chambers"),
     OVERLAY_STRUCTURE_VILLAGE           ("Village",         "", "#3054CB4E", "#3054CB4E", "Toggle Village structure bounding boxes rendering\nNOTE: This is the Village world gen structures!\nThis is not the Village data you use for iron farms etc.!", "Village"),
     OVERLAY_STRUCTURE_WITCH_HUT         ("Witch Hut",       "", "#30BE1DFC", "#300099FF", "Toggle Witch Hut structure bounding boxes rendering", "Witch Hut"),
     OVERLAY_STRUCTURE_TRAIL_RUINS       ("Trail Ruins",     "", "#307F5AFF", "#307F5AFF", "Toggle Trail Ruins structure bounding boxes rendering", "Trail Ruins"),
-    
     OVERLAY_STRUCTURE_UNKNOWN           ("Unknown",         "", "#50FFFFFF", "#50FFFFFF", "Toggle Unknown structure bounding boxes rendering", "Unknown Structure");
 
     public static final ImmutableList<StructureToggle> VALUES = ImmutableList.copyOf(values());

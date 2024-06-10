@@ -8,7 +8,6 @@ import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormatElement;
-import net.minecraft.client.util.math.MatrixStack;
 
 public class RenderObjectVbo extends RenderObjectBase
 {
@@ -58,13 +57,13 @@ public class RenderObjectVbo extends RenderObjectBase
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, Matrix4f projMatrix)
+    public void draw(Matrix4f matrix4f, Matrix4f projMatrix)
     {
         if (this.hasData)
         {
             RenderSystem.setShader(this.getShader());
             this.vertexBuffer.bind();
-            this.vertexBuffer.draw(matrixStack.peek().getPositionMatrix(), projMatrix, this.getShader().get());
+            this.vertexBuffer.draw(matrix4f, projMatrix, this.getShader().get());
             VertexBuffer.unbind();
         }
     }

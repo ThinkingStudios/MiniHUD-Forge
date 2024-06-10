@@ -15,6 +15,7 @@
     "MixinBeaconBlockEntity",
     "MixinBlockOutlineDebugRenderer",
     "MixinChatScreen",
+    "MixinChunkTicketManager",
     "MixinClientPlayerInteractionManager",
     "MixinClientPlayNetworkHandler",
     "MixinConduitBlockEntity",
@@ -26,6 +27,7 @@
     "MixinMinecraftServer",
     "MixinNeighborUpdateDebugRenderer",
     "MixinServerEntityManager",
+    "MixinServerWorld",
     "MixinSubtitlesHud"
   ],
   "injectors": {

@@ -1,5 +1,6 @@
 package fi.dy.masa.minihud.renderer;
 
+import fi.dy.masa.malilib.util.WorldUtils;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.block.entity.BlockEntity;
@@ -191,7 +192,7 @@ public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends Overl
             for (int cx = minCX; cx <= maxCX; ++cx)
             {
                 WorldChunk chunk = world.getChunk(cx, cz);
-                int height = chunk.getHighestNonEmptySectionYOffset() + 15;
+                int height = WorldUtils.getHighestSectionYOffset(chunk) + 15;
 
                 if (height > maxY)
                 {

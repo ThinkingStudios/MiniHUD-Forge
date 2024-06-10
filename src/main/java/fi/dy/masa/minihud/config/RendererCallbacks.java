@@ -7,12 +7,9 @@ import net.minecraft.util.math.Vec3d;
 
 import fi.dy.masa.malilib.config.IConfigBoolean;
 import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.network.ClientPacketChannelHandler;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import fi.dy.masa.minihud.network.StructurePacketHandlerCarpet;
-import fi.dy.masa.minihud.network.StructurePacketHandlerServux;
 import fi.dy.masa.minihud.renderer.OverlayRendererBeaconRange;
 import fi.dy.masa.minihud.renderer.OverlayRendererBiomeBorders;
 import fi.dy.masa.minihud.renderer.OverlayRendererConduitRange;
@@ -104,24 +101,67 @@ public class RendererCallbacks
     {
         if (config.getBooleanValue())
         {
+            String green = GuiBase.TXT_GREEN;
+            String rst = GuiBase.TXT_RST;
+            String message;
+
+            String strStatus = green + StringUtils.translate("malilib.message.value.on") + rst;
+            String strDist = String.format("%d", DataStorage.getInstance().getSimulationDistance());
+            message = StringUtils.translate("minihud.message.toggled_using_player_spawn", config.getPrettyName(), strStatus, strDist);
+
+            InfoUtils.printActionbarMessage(message);
             OverlayRendererSpawnChunks.setNeedsUpdate();
         }
     }
 
     public static void onSpawnChunksRealToggled(IConfigBoolean config)
     {
-        if (config.getBooleanValue())
+        MinecraftClient mc = MinecraftClient.getInstance();
+
+        if (mc != null && mc.player != null)
         {
-            OverlayRendererSpawnChunks.setNeedsUpdate();
+            if (config.getBooleanValue())
+            {
+                BlockPos spawn = DataStorage.getInstance().getWorldSpawn();
+                int radius = DataStorage.getInstance().getSpawnChunkRadius();
+                String green = GuiBase.TXT_GREEN;
+                String red = GuiBase.TXT_RED;
+                String rst = GuiBase.TXT_RST;
+                String message;
 
-            BlockPos spawn = DataStorage.getInstance().getWorldSpawn();
-            String green = GuiBase.TXT_GREEN;
-            String rst = GuiBase.TXT_RST;
-            String strStatus = green + StringUtils.translate("malilib.message.value.on") + rst;
-            String strPos = String.format("x: %d, y: %d, z: %d", spawn.getX(), spawn.getY(), spawn.getZ());
-            String message = StringUtils.translate("minihud.message.toggled_using_world_spawn", config.getPrettyName(), strStatus, strPos);
+                if (radius < 0)
+                {
+                    DataStorage.getInstance().setSpawnChunkRadius(2, true);   // 1.20.5 Vanilla Default
+                    radius = 2;
+                }
+                if (radius > 0)
+                {
+                    String strStatus = green + StringUtils.translate("malilib.message.value.on") + rst;
+                    String strPos = String.format("x: %d, y: %d, z: %d [R: %d]", spawn.getX(), spawn.getY(), spawn.getZ(), radius);
+                    message = StringUtils.translate("minihud.message.toggled_using_world_spawn", config.getPrettyName(), strStatus, strPos);
 
-            InfoUtils.printActionbarMessage(message);
+                    if (mc.isIntegratedServerRunning() == false && DataStorage.getInstance().hasServuxServer())
+                    {
+                        DataStorage.getInstance().requestSpawnMetadata();
+                    }
+                    else
+                    {
+                        OverlayRendererSpawnChunks.setNeedsUpdate();
+                    }
+                }
+                else
+                {
+                    OverlayRendererSpawnChunks.setNeedsUpdate();
+
+                    String strStatus = red + StringUtils.translate("malilib.message.value.off") + rst;
+                    String strPos = red + String.format("x: %d, y: %d, z: %d [R: 0]", spawn.getX(), spawn.getY(), spawn.getZ());
+                    message = StringUtils.translate("minihud.message.toggled_using_world_spawn", config.getPrettyName(), strStatus, strPos);
+
+                    RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_REAL.setBooleanValue(false);
+                }
+
+                InfoUtils.printActionbarMessage(message);
+            }
         }
     }
 
@@ -131,7 +171,7 @@ public class RendererCallbacks
 
         if (mc != null && mc.player != null)
         {
-            if (mc.isIntegratedServerRunning() == false)
+            if (mc.isIntegratedServerRunning() == false && DataStorage.getInstance().hasIntegratedServer() == false)
             {
                 if (config.getBooleanValue())
                 {
@@ -139,8 +179,7 @@ public class RendererCallbacks
                 }
                 else
                 {
-                    ClientPacketChannelHandler.getInstance().unregisterClientChannelHandler(StructurePacketHandlerCarpet.INSTANCE);
-                    ClientPacketChannelHandler.getInstance().unregisterClientChannelHandler(StructurePacketHandlerServux.INSTANCE);
+                    DataStorage.getInstance().unregisterStructureChannel();
                 }
             }
             else

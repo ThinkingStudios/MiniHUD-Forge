@@ -2,7 +2,6 @@ package fi.dy.masa.minihud.renderer;
 
 import org.joml.Matrix4f;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
@@ -42,7 +41,7 @@ public interface IOverlayRenderer
     /**
      * Draw the buffer contents to screen
      */
-    void draw(MatrixStack matrixStack, Matrix4f projMatrix);
+    void draw(Matrix4f matrix4f, Matrix4f projMatrix);
 
     /**
      * Allocates the OpenGL resources according to the current Video settings

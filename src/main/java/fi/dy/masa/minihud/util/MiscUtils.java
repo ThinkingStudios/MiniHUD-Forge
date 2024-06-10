@@ -1,18 +1,22 @@
 package fi.dy.masa.minihud.util;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.block.entity.BeehiveBlockEntity;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BlockStateComponent;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.passive.AxolotlEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.recipe.AbstractCookingRecipe;
 import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -116,10 +120,11 @@ public class MiscUtils
 
     public static void addAxolotlTooltip(ItemStack stack, List<Text> lines)
     {
-        NbtCompound tag = stack.getNbt();
+        NbtComponent entityData = stack.getComponents().get(DataComponentTypes.BUCKET_ENTITY_DATA);
 
-        if (tag != null && tag.contains(AxolotlEntity.VARIANT_KEY, Constants.NBT.TAG_INT))
+        if (entityData != null)
         {
+            NbtCompound tag = entityData.copyNbt();
             int variantId = tag.getInt(AxolotlEntity.VARIANT_KEY);
             // FIXME 1.19.3+ this is not validated now... with AIOOB it will return the entry for ID 0
             AxolotlEntity.Variant variant = AxolotlEntity.Variant.byId(variantId);
@@ -138,33 +143,40 @@ public class MiscUtils
 
     public static void addBeeTooltip(ItemStack stack, List<Text> lines)
     {
-        NbtCompound stackTag = stack.getNbt();
+        List<BeehiveBlockEntity.BeeData> beeList = stack.getComponents().get(DataComponentTypes.BEES);
 
-        if (stackTag != null && stackTag.contains("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
+        if (beeList != null && beeList.isEmpty() == false)
         {
-            NbtCompound beTag = stackTag.getCompound("BlockEntityTag");
-            NbtList bees = beTag.getList("Bees", Constants.NBT.TAG_COMPOUND);
-            int count = bees.size();
+            int count = beeList.size();
             int babyCount = 0;
 
-            for (int i = 0; i < count; i++)
+            for (BeehiveBlockEntity.BeeData beeOccupant : beeList)
             {
-                NbtCompound beeTag = bees.getCompound(i);
-                NbtCompound entityDataTag = beeTag.getCompound("EntityData");
+                NbtComponent beeData = beeOccupant.entityData();
+                NbtCompound beeTag = beeData.copyNbt();
+                int beeTicks = beeOccupant.ticksInHive();
+                String beeName = "";
+                int beeAge = -1;
 
-                if (entityDataTag.contains("CustomName", Constants.NBT.TAG_STRING))
+                if (beeTag.contains("CustomName", Constants.NBT.TAG_STRING))
                 {
-                    String beeName = entityDataTag.getString("CustomName");
-                    lines.add(Math.min(1, lines.size()), Text.translatable("minihud.label.bee_tooltip.name", Text.Serialization.fromJson(beeName).getString()));
+                    beeName = beeTag.getString("CustomName");
+                }
+                if (beeTag.contains("Age", Constants.NBT.TAG_INT))
+                {
+                    beeAge = beeTag.getInt("Age");
+                }
+                if (beeAge + beeTicks < 0)
+                {
+                    babyCount++;
                 }
 
-                if (entityDataTag.contains("Age", Constants.NBT.TAG_INT) &&
-                    entityDataTag.getInt("Age") + beeTag.getInt("TickInHive") < 0)
+                if (beeName.isEmpty() == false)
                 {
-                    ++babyCount;
+                    Text beeText = Text.Serialization.fromJson(beeName, DataStorage.getInstance().getWorldRegistryManager());
+                    lines.add(Math.min(1, lines.size()), Text.translatable("minihud.label.bee_tooltip.name", beeText));
                 }
             }
-
             Text text;
 
             if (babyCount > 0)
@@ -182,20 +194,16 @@ public class MiscUtils
 
     public static void addHoneyTooltip(ItemStack stack, List<Text> lines)
     {
-        NbtCompound tag = stack.getNbt();
+        BlockStateComponent blockItemState = stack.getComponents().get(DataComponentTypes.BLOCK_STATE);
 
-        if (tag != null && tag.contains("BlockStateTag", Constants.NBT.TAG_COMPOUND))
+        if (blockItemState != null && blockItemState.isEmpty() == false)
         {
-            tag = tag.getCompound("BlockStateTag");
+            Integer honey = blockItemState.getValue(Properties.HONEY_LEVEL);
             String honeyLevel = "0";
 
-            if (tag != null && tag.contains("honey_level", Constants.NBT.TAG_STRING))
+            if (honey != null && (honey >= 0 && honey <= 5))
             {
-                honeyLevel = tag.getString("honey_level");
-            }
-            else if (tag != null && tag.contains("honey_level", Constants.NBT.TAG_INT))
-            {
-                honeyLevel = String.valueOf(tag.getInt("honey_level"));
+                honeyLevel = String.valueOf(honey);
             }
 
             lines.add(Math.min(1, lines.size()), Text.translatable("minihud.label.honey_info.level", honeyLevel));

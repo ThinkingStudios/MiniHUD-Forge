@@ -19,8 +19,6 @@ import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
-import net.minecraft.network.packet.s2c.custom.DebugPathCustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -31,21 +29,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.config.IConfigBoolean;
-import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
-import fi.dy.masa.minihud.mixin.IMixinEntityNavigation;
 
 public class DebugInfoUtils
 {
     private static boolean neighborUpdateEnabled;
-    private static boolean pathfindingEnabled;
+    private static boolean pathfindingEnabled = false;
     private static int tickCounter;
     private static final Map<Entity, Path> OLD_PATHS = new MapMaker().weakKeys().weakValues().makeMap();
 
     public static void sendPacketDebugPath(MinecraftServer server, int entityId, Path path, float maxDistance)
     {
-        DebugPathCustomPayload packet = new DebugPathCustomPayload(entityId, path, maxDistance);
-        server.getPlayerManager().sendToAll(new CustomPayloadS2CPacket(packet));
+        // FIXME --> This causes a custom_payload crash (Unregistered Vanilla channel)
+        //DebugPathCustomPayload packet = new DebugPathCustomPayload(entityId, path, maxDistance);
+        //server.getPlayerManager().sendToAll(new CustomPayloadS2CPacket(packet));
     }
 
     private static Path copyPath(Path path)
@@ -117,9 +114,10 @@ public class DebugInfoUtils
                         if (old == null || isSamepath == false || old.getCurrentNodeIndex() != path.getCurrentNodeIndex())
                         {
                             final int id = entity.getId();
-                            final float maxDistance = Configs.Generic.DEBUG_RENDERER_PATH_MAX_DIST.getBooleanValue() ? ((IMixinEntityNavigation) navigator).getMaxDistanceToWaypoint() : 0F;
+                            // FIXME
+                            //final float maxDistance = Configs.Generic.DEBUG_RENDERER_PATH_MAX_DIST.getBooleanValue() ? ((IMixinEntityNavigation) navigator).getMaxDistanceToWaypoint() : 0F;
 
-                            DebugInfoUtils.sendPacketDebugPath(server, id, path, maxDistance);
+                            //DebugInfoUtils.sendPacketDebugPath(server, id, path, maxDistance);
 
                             if (isSamepath == false)
                             {
@@ -160,10 +158,13 @@ public class DebugInfoUtils
         {
             neighborUpdateEnabled = config.getBooleanValue();
         }
+        // FIXME --> Pathfinding renderer causes a custom_payload crash (Unregistered Vanilla Payload)
+        /*
         else if (config == RendererToggle.DEBUG_PATH_FINDING)
         {
             pathfindingEnabled = config.getBooleanValue();
         }
+         */
         else if (config == RendererToggle.DEBUG_CHUNK_BORDER)
         {
             boolean enabled = MinecraftClient.getInstance().debugRenderer.toggleShowChunkBorder();
@@ -201,11 +202,13 @@ public class DebugInfoUtils
         {
             renderer.neighborUpdateDebugRenderer.render(matrixStack, vtx, cameraX, cameraY, cameraZ);
         }
-
+        // FIXME This causes a custom_payload crash
+        /*
         if (RendererToggle.DEBUG_PATH_FINDING.getBooleanValue())
         {
             renderer.pathfindingDebugRenderer.render(matrixStack, vtx, cameraX, cameraY, cameraZ);
         }
+         */
 
         if (RendererToggle.DEBUG_SOLID_FACES.getBooleanValue())
         {

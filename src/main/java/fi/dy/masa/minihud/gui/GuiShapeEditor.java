@@ -333,7 +333,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         GuiUtils.createVec3dInputsVertical(x2, y2, textFieldWidth, shape.getCorner2(), new Vec3dEditor(shape::getCorner2, shape::setCorner2, this), true, this);
 
         int x = x1 + 12;
-        
+
         ButtonGeneric btn = new ButtonGeneric(x, y1 + 50, -1, 14, StringUtils.translate("malilib.gui.button.render_layers_gui.set_to_player"));
         btn.setRenderDefaultBackground(false);
         this.addButton(btn, (b, mb) -> this.setPositionFromCamera(shape::setCorner1));

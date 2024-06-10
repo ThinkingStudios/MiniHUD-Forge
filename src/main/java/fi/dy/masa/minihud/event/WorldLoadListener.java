@@ -1,7 +1,7 @@
 package fi.dy.masa.minihud.event;
 
-import java.io.File;
 import javax.annotation.Nullable;
+import java.io.File;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.MinecraftClient;
@@ -33,6 +33,10 @@ public class WorldLoadListener implements IWorldLoadListener
                 this.writeDataGlobal();
             }
         }
+        if (worldAfter != null)
+        {
+            DataStorage.getInstance().onWorldPre();
+        }
     }
 
     @Override
@@ -53,6 +57,7 @@ public class WorldLoadListener implements IWorldLoadListener
             this.readStoredDataPerDimension();
             OverlayRenderer.resetRenderTimeout();
             DataStorage.getInstance().onWorldJoin();
+            DataStorage.getInstance().setWorldRegistryManager(worldAfter.getRegistryManager());
         }
     }
 

@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import fi.dy.masa.minihud.util.DataStorage;
 import fi.dy.masa.minihud.util.NotificationUtils;
 
@@ -38,8 +39,8 @@ public abstract class MixinClientPlayNetworkHandler
     @Inject(method = "onPlayerListHeader", at = @At("RETURN"))
     private void onHandlePlayerListHeaderFooter(net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket packetIn, CallbackInfo ci)
     {
-        DataStorage.getInstance().handleCarpetServerTPSData(packetIn.getFooter());
-        DataStorage.getInstance().getMobCapData().parsePlayerListFooterMobCapData(packetIn.getFooter());
+        DataStorage.getInstance().handleCarpetServerTPSData(packetIn.footer());
+        DataStorage.getInstance().getMobCapData().parsePlayerListFooterMobCapData(packetIn.footer());
     }
 
     @Inject(method = "onWorldTimeUpdate", at = @At("RETURN"))
@@ -51,6 +52,12 @@ public abstract class MixinClientPlayNetworkHandler
     @Inject(method = "onPlayerSpawnPosition", at = @At("RETURN"))
     private void onSetSpawn(net.minecraft.network.packet.s2c.play.PlayerSpawnPositionS2CPacket packet, CallbackInfo ci)
     {
-        DataStorage.getInstance().setWorldSpawnIfUnknown(packet.getPos());
+        DataStorage.getInstance().setWorldSpawn(packet.getPos());
+    }
+
+    @Inject(method = "onGameJoin", at = @At("RETURN"))
+    private void onPostGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
+    {
+        DataStorage.getInstance().setSimulationDistance(packet.simulationDistance());
     }
 }

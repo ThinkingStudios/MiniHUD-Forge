@@ -9,7 +9,6 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.ConduitBlockEntity;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -51,16 +50,16 @@ public class OverlayRendererConduitRange extends BaseBlockRangeOverlay<ConduitBl
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, Matrix4f projMatrix)
+    public void draw(Matrix4f matrix4f, Matrix4f projMatrix)
     {
         this.preRender();
 
-        this.renderObjects.get(0).draw(matrixStack, projMatrix);
+        this.renderObjects.get(0).draw(matrix4f, projMatrix);
 
         // Render the lines as quads with glPolygonMode(GL_LINE)
         RenderSystem.polygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
         RenderSystem.disableBlend();
-        this.renderObjects.get(0).draw(matrixStack, projMatrix);
+        this.renderObjects.get(0).draw(matrix4f, projMatrix);
         RenderSystem.polygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         RenderSystem.enableBlend();
 

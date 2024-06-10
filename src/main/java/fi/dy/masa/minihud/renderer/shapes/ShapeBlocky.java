@@ -10,7 +10,6 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -91,16 +90,17 @@ public abstract class ShapeBlocky extends ShapeBase
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, Matrix4f projMatrix)
+    public void draw(Matrix4f matrix4f, Matrix4f projMatrix)
     {
+        // FIXME Matrix4f
         this.preRender();
 
-        this.renderObjects.get(0).draw(matrixStack, projMatrix);
+        this.renderObjects.get(0).draw(matrix4f, projMatrix);
 
         // Render the lines as quads with glPolygonMode(GL_LINE)
         RenderSystem.polygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
         RenderSystem.disableBlend();
-        this.renderObjects.get(0).draw(matrixStack, projMatrix);
+        this.renderObjects.get(0).draw(matrix4f, projMatrix);
         RenderSystem.polygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         RenderSystem.enableBlend();
 

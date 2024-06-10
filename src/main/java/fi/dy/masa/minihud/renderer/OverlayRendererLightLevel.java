@@ -2,7 +2,6 @@ package fi.dy.masa.minihud.renderer;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.client.MinecraftClient;
@@ -32,6 +31,7 @@ import fi.dy.masa.malilib.gui.Message;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.PositionUtils;
+import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.minihud.Reference;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
@@ -400,7 +400,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
                 final int endZ   = Math.min((cz << 4) + 15, maxZ);
                 WorldChunk chunk = world.getChunk(cx, cz);
                 final int startY = Math.max(minY, world.getBottomY());
-                final int endY   = Math.min(maxY, chunk.getHighestNonEmptySectionYOffset() + 15 + 1);
+                final int endY = Math.min(maxY, WorldUtils.getHighestSectionYOffset(chunk) + 15 + 1);
 
                 for (int y = startY; y <= endY; ++y)
                 {

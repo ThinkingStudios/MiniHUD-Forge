@@ -237,7 +237,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
                     this.scheduledChunks.add(pos);
                 }
 
-                DataStorage.INSTANCE.addTask(task, chunk.getPos(), cameraBlockPos);
+                DataStorage.getInstance().addTask(task, chunk.getPos(), cameraBlockPos);
             }
         }
         //long post = System.nanoTime(); System.out.printf("scheduleTasksForMissingChunks: %.6fs, scheduled: %d\n", ((double) post - (double) pre) / 1000000000D, count);

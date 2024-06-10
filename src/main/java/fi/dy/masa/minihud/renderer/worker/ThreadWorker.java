@@ -16,7 +16,7 @@ public class ThreadWorker implements Runnable
         {
             try
             {
-                ChunkTask task = DataStorage.INSTANCE.getNextTask();
+                ChunkTask task = DataStorage.getInstance().getNextTask();
 
                 if (task != null)
                 {

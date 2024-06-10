@@ -1,16 +1,10 @@
 package fi.dy.masa.minihud.event;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import org.joml.Matrix4f;
 
 import net.minecraft.block.BeehiveBlock;
@@ -21,31 +15,31 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.AbstractHorseEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.passive.*;
 import net.minecraft.item.FilledMapItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.server.world.OptionalChunk;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.LightType;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
@@ -55,6 +49,7 @@ import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.interfaces.IRenderer;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.BlockUtils;
+import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.minihud.config.Configs;
@@ -75,7 +70,7 @@ public class RenderHandler implements IRenderer
     private final MinecraftClient mc;
     private final DataStorage data;
     private final Date date;
-    private final Map<ChunkPos, CompletableFuture<WorldChunk>> chunkFutures = new HashMap<>();
+    private final Map<ChunkPos, CompletableFuture<OptionalChunk<Chunk>>> chunkFutures = new HashMap<>();
     private final Set<InfoToggle> addedTypes = new HashSet<>();
     @Nullable private WorldChunk cachedClientChunk;
     private long infoUpdateTime;
@@ -149,19 +144,19 @@ public class RenderHandler implements IRenderer
     @Override
     public void onRenderTooltipLast(DrawContext drawContext, ItemStack stack, int x, int y)
     {
-        if (stack.getItem() instanceof FilledMapItem)
+        Item item = stack.getItem();
+        if (item instanceof FilledMapItem)
         {
             if (Configs.Generic.MAP_PREVIEW.getBooleanValue() &&
-                (Configs.Generic.MAP_PREVIEW_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown()))
+               (Configs.Generic.MAP_PREVIEW_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown()))
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderMapPreview(stack, x, y, Configs.Generic.MAP_PREVIEW_SIZE.getIntegerValue(), false);
             }
         }
-        else if (Configs.Generic.SHULKER_BOX_PREVIEW.getBooleanValue())
+        else if (stack.getComponents().contains(DataComponentTypes.CONTAINER) && InventoryUtils.shulkerBoxHasItems(stack))
         {
-            boolean render = Configs.Generic.SHULKER_DISPLAY_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown();
-
-            if (render)
+            if (Configs.Generic.SHULKER_BOX_PREVIEW.getBooleanValue() &&
+               (Configs.Generic.SHULKER_DISPLAY_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown()))
             {
                 fi.dy.masa.malilib.render.RenderUtils.renderShulkerBoxPreview(stack, x, y, Configs.Generic.SHULKER_DISPLAY_BACKGROUND_COLOR.getBooleanValue(), drawContext);
             }
@@ -169,12 +164,12 @@ public class RenderHandler implements IRenderer
     }
 
     @Override
-    public void onRenderWorldLast(MatrixStack matrixStack, Matrix4f projMatrix)
+    public void onRenderWorldLast(Matrix4f matrix4f, Matrix4f projMatrix)
     {
         if (Configs.Generic.MAIN_RENDERING_TOGGLE.getBooleanValue() &&
             this.mc.world != null && this.mc.player != null && this.mc.options.hudHidden == false)
         {
-            OverlayRenderer.renderOverlays(matrixStack, projMatrix, this.mc);
+            OverlayRenderer.renderOverlays(matrix4f, projMatrix, this.mc);
         }
     }
 
@@ -214,7 +209,7 @@ public class RenderHandler implements IRenderer
         }
 
         // Get the info line order based on the configs
-        List<LinePos> positions = new ArrayList<LinePos>();
+        List<LinePos> positions = new ArrayList<>();
 
         for (InfoToggle toggle : InfoToggle.values())
         {
@@ -384,7 +379,7 @@ public class RenderHandler implements IRenderer
                 String preMspt;
 
                 // Carpet server and integrated server have actual meaningful MSPT data available
-                if (this.data.isCarpetServer() || mc.isInSingleplayer())
+                if (this.data.hasCarpetServer() || mc.isInSingleplayer())
                 {
                     if      (mspt <= 40) { preMspt = GuiBase.TXT_GREEN; }
                     else if (mspt <= 45) { preMspt = GuiBase.TXT_YELLOW; }
@@ -663,25 +658,47 @@ public class RenderHandler implements IRenderer
             }
 
             AbstractHorseEntity horse = (AbstractHorseEntity) vehicle;
+            String AnimalType;
+
+            if (horse instanceof CamelEntity)
+            {
+                AnimalType = "Camel";
+            }
+            else if (horse instanceof DonkeyEntity)
+            {
+                AnimalType = "Donkey";
+            }
+            else if (horse instanceof MuleEntity)
+            {
+                AnimalType = "Mule";
+            }
+            else if (horse instanceof LlamaEntity || horse instanceof TraderLlamaEntity)
+            {
+                AnimalType = "Llama";
+            }
+            else
+            {
+                AnimalType = "Horse";
+            }
 
             if (horse.isSaddled())
             {
                 if (InfoToggle.HORSE_SPEED.getBooleanValue())
                 {
                     float speed = horse.getMovementSpeed();
-                    speed *= 42.163f;
-                    this.addLine(String.format("Horse Speed: %.3f m/s", speed));
+                    speed *= 42.1629629629629f;
+                    this.addLine(String.format(AnimalType+" Speed: %.3f m/s", speed));
                 }
 
                 if (InfoToggle.HORSE_JUMP.getBooleanValue())
                 {
-                    double jump = horse.getJumpStrength();
+                    double jump = horse.getAttributeValue(EntityAttributes.GENERIC_JUMP_STRENGTH);
                     double calculatedJumpHeight =
                             -0.1817584952d * jump * jump * jump +
                             3.689713992d * jump * jump +
                             2.128599134d * jump +
                             -0.343930367;
-                    this.addLine(String.format("Horse Jump: %.3f m", calculatedJumpHeight));
+                    this.addLine(String.format(AnimalType+" Jump: %.3f m", calculatedJumpHeight));
                 }
 
                 this.addedTypes.add(InfoToggle.HORSE_SPEED);
@@ -763,7 +780,7 @@ public class RenderHandler implements IRenderer
 
             if (worldServer != null && worldServer != mc.world)
             {
-                int chunksServer = ((ServerChunkManager) worldServer.getChunkManager()).getLoadedChunkCount();
+                int chunksServer = worldServer.getChunkManager().getLoadedChunkCount();
                 int chunksServerTot = ((ServerChunkManager) worldServer.getChunkManager()).getTotalChunksLoadedCount();
                 this.addLine(String.format("Server: %d / %d - Client: %s", chunksServer, chunksServerTot, chunksClient));
             }
@@ -1001,20 +1018,36 @@ public class RenderHandler implements IRenderer
     @Nullable
     private WorldChunk getChunk(ChunkPos chunkPos)
     {
-        CompletableFuture<WorldChunk> future = this.chunkFutures.get(chunkPos);
+        CompletableFuture<OptionalChunk<Chunk>> future = this.chunkFutures.get(chunkPos);
 
         if (future == null)
         {
             future = this.setupChunkFuture(chunkPos);
         }
 
-        return future.getNow(null);
+        OptionalChunk<Chunk> chunkResult = future.getNow(null);
+        if (chunkResult == null)
+        {
+            return null;
+        }
+        else
+        {
+            Chunk chunk = chunkResult.orElse(null);
+            if (chunk instanceof WorldChunk)
+            {
+                return (WorldChunk) chunk;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
-    private CompletableFuture<WorldChunk> setupChunkFuture(ChunkPos chunkPos)
+    private CompletableFuture<OptionalChunk<Chunk>> setupChunkFuture(ChunkPos chunkPos)
     {
         IntegratedServer server = this.mc.getServer();
-        CompletableFuture<WorldChunk> future = null;
+        CompletableFuture<OptionalChunk<Chunk>> future = null;
 
         if (server != null)
         {
@@ -1023,13 +1056,13 @@ public class RenderHandler implements IRenderer
             if (world != null)
             {
                 future = world.getChunkManager().getChunkFutureSyncOnMainThread(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false)
-                        .thenApply((either) -> either.map((chunk) -> (WorldChunk) chunk, (unloaded) -> null) );
+                        .thenApply((either) -> either.map((chunk) -> (WorldChunk) chunk) );
             }
         }
 
         if (future == null)
         {
-            future = CompletableFuture.completedFuture(this.getClientChunk(chunkPos));
+            future = CompletableFuture.completedFuture(OptionalChunk.of(this.getClientChunk(chunkPos)));
         }
 
         this.chunkFutures.put(chunkPos, future);
@@ -1089,7 +1122,7 @@ public class RenderHandler implements IRenderer
         }
 
         @Override
-        public int compareTo(LinePos other)
+        public int compareTo(@Nonnull LinePos other)
         {
             if (this.position < 0)
             {
