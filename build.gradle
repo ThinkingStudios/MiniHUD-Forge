@@ -87,7 +87,7 @@ publisher {
 
     setCurseID("${project.curseforge_id}")
     setModrinthID("${project.modrinth_id}")
-    setVersionType("release")
+    setVersionType("alpha")
     setChangelog(file("CHANGELOG.md").getText("UTF-8"))
     setVersion("${project.version}")
     setDisplayName("${project.version}")
