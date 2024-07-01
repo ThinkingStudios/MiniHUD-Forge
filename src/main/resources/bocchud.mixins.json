@@ -13,7 +13,6 @@
     "MixinClientPlayNetworkHandler",
     "MixinDebugRenderer",
     "MixinHeightmapDebugRenderer",
-    "MixinItemStack",
     "MixinMinecraftServer",
     "MixinNeighborUpdateDebugRenderer",
     "MixinScreen",

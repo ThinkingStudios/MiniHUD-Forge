@@ -1,2 +1,2 @@
 ## Change
-- update Forge & MaFgLib version
+- fix item stack issue (#16)
