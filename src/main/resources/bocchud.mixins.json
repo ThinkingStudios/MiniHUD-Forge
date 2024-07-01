@@ -19,7 +19,6 @@
     "MixinConduitBlockEntity",
     "MixinDebugRenderer",
     "MixinHeightmapDebugRenderer",
-    "MixinItemStack",
     "MixinMinecraftClient",
     "MixinMinecraftServer",
     "MixinNeighborUpdateDebugRenderer",

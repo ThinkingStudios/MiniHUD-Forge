@@ -18,5 +18,7 @@ public class BoccHUD {
             gui.setParent(screen);
             return gui;
         });
+
+        ClientEventHandler.register();
     }
 }
