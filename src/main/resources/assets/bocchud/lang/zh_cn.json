@@ -1,4 +1,6 @@
 {
+	"fml.menu.mods.info.description.bocchud": "MiniHUD 非官方 (Neo)Forge 移植。可配置 “迷你的F3” 信息线和各种叠加渲染器。",
+
     "malilib.gui.button.render_layers_gui.set_to_player": "定位至玩家",
 
     "minihud.gui.button.config_gui.colors": "颜色",
@@ -127,9 +129,11 @@
     "minihud.message.toggled_using_center_position": "切换 %s %s, 使用中心位置 %s",
     "minihud.message.toggled_using_position": "切换 %s %s, 使用位置 %s",
     "minihud.message.toggled_using_world_spawn": "切换 %s %s, 使用世界出生点 %s",
+	"minihud.message.toggled_using_player_spawn": "切换 %s %s，模拟距离 %s",
 
     "minihud.message.error.invalid_dropped_chunks_hash_size": "从聊天框中解析掉落方块的数值大小失败",
     "minihud.message.error.invalid_seed": "从聊天框中解析世界种子失败",
+	"minihud.message.error.invalid_spawn_chunk_radius": "无法解析聊天中的生成区块半径（0 < 32）",
     "minihud.message.error.shapes.select_shape_from_dropdown": "从下拉栏中选择要创建的形状类型",
 
     "minihud.message.distance_reference_point_set": "设置距离参考点位 %s",
@@ -137,6 +141,9 @@
     "minihud.message.seed_is": " MiniHUD 设置的当前世界种子为 '%s'",
     "minihud.message.seed_set": "MiniHUD: 设置世界种子为 '%s'",
     "minihud.message.spawn_set": "MiniHUD: 设置世界出生点到 %s",
+	"minihud.message.no_spawn_chunk_radius": "MiniHUD: 生成区块半径未知（默认为 2）",
+	"minihud.message.spawn_chunk_radius_is": "MiniHUD 中的生成区块半径当前设置为'%s'",
+	"minihud.message.spawn_chunk_radius_set": "MiniHUD: 将生成区块半径设置为 %s",
 	
 	"beeTooltips":"bee | 蜜蜂工具提示",
 	"Adds the number of contained bees to the tooltip of Bee Hive and Bee Nest items":"提示蜂箱和蜂巢物品中的蜜蜂数量",

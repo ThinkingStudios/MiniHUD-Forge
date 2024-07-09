@@ -1,4 +1,6 @@
 {
+    "fml.menu.mods.info.description.bocchud": "MiniHUD unofficial (Neo)Forge port. Configurable \"mini-F3\" info lines, and various overlay renderers.",
+
     "malilib.gui.button.render_layers_gui.set_to_player": "Set Here",
 
     "minihud.gui.button.config_gui.colors": "Colors",
@@ -16,7 +18,7 @@
     "minihud.gui.button.shape_renderer_toggle": "Shape Renderer: %s",
     "minihud.gui.button.shape_renderer.toggle_combine_quads": "Combine Quads: %s",
 
-    "minihud.gui.button.hover.shape_renderer.spawn_sphere.toggle_use_quadrants": "§7Corner Quarants uses basically 4 separate spheres at the corners\n§7of the rectangle area defined by the center and the margin distance.\n§7The corner quadrants was the old behavior, and it gets derpy (especially on the\n§7cardinal sides) if the margin increases to more than a few blocks.\n§7The new default is not using the corner quadrants anymore,\n§7but instead to kind of \"slide the sphere around the margin perimeter\"\n§7to create the final shape.",
+    "minihud.gui.button.hover.shape_renderer.spawn_sphere.toggle_use_quadrants": "§7Corner Quadrants uses basically 4 separate spheres at the corners\n§7of the rectangle area defined by the center and the margin distance.\n§7The corner quadrants was the old behavior, and it gets derpy (especially on the\n§7cardinal sides) if the margin increases to more than a few blocks.\n§7The new default is not using the corner quadrants anymore,\n§7but instead to kind of \"slide the sphere around the margin perimeter\"\n§7to create the final shape.",
 
     "minihud.gui.label.center_colon": "Center:",
     "minihud.gui.label.color": "Color:",
@@ -116,7 +118,7 @@
     "minihud.hotkeys.category.renderer_toggle_hotkeys": "Renderer Toggle hotkeys",
     "minihud.hotkeys.category.structure_toggle_hotkeys": "Structure Toggle hotkeys",
 
-    "minihud.message.toggled_debug_mode.collisions": "Toggled Collison Boxes debug rendering to %s",
+    "minihud.message.toggled_debug_mode.collisions": "Toggled Collision Boxes debug rendering to %s",
     "minihud.message.toggled_debug_mode.height_map": "Toggled Height Map debug rendering to %s",
     "minihud.message.toggled_debug_mode.neighbor_updates": "Toggled Neighbor Update debug rendering to %s",
     "minihud.message.toggled_debug_mode.pathfinding": "Toggled Pathfinding debug rendering to %s",
@@ -125,15 +127,20 @@
 
     "minihud.message.toggled_using_center_position": "Toggled %s %s, using the center position %s",
     "minihud.message.toggled_using_position": "Toggled %s %s, using the position %s",
-    "minihud.message.toggled_using_world_spawn": "Toggled %s %s, using the world spawn %s",
+    "minihud.message.toggled_using_world_spawn": "Toggled %s %s, World spawn %s",
+    "minihud.message.toggled_using_player_spawn": "Toggled %s %s, Simulation distance %s",
 
     "minihud.message.error.invalid_dropped_chunks_hash_size": "Failed to parse the dropped chunks HashSet size from chat",
     "minihud.message.error.invalid_seed": "Failed to parse the world seed from chat",
+    "minihud.message.error.invalid_spawn_chunk_radius": "Failed to parse the spawn chunk radius from chat (0 < 32)",
     "minihud.message.error.shapes.select_shape_from_dropdown": "Select the Shape type to create from the dropdown widget",
 
     "minihud.message.distance_reference_point_set": "Set distance reference point to %s",
     "minihud.message.no_seed": "MiniHUD: World seed is not known",
     "minihud.message.seed_is": "The world seed in MiniHUD is currently set to '%s'",
     "minihud.message.seed_set": "MiniHUD: Set the world seed to '%s'",
-    "minihud.message.spawn_set": "MiniHUD: Set the world spawn to %s"
+    "minihud.message.spawn_set": "MiniHUD: Set the world spawn to %s",
+    "minihud.message.no_spawn_chunk_radius": "MiniHUD: Spawn Chunk Radius is not known (Default 2)",
+    "minihud.message.spawn_chunk_radius_is": "The spawn chunk radius in MiniHUD is currently set to '%s'",
+    "minihud.message.spawn_chunk_radius_set": "MiniHUD: Set the Spawn Chunk Radius to %s"
 }
