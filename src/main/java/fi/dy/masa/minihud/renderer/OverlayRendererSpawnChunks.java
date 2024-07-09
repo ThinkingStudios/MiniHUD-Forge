@@ -26,15 +26,21 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
     protected final RendererToggle toggle;
     protected final boolean isPlayerFollowing;
 
-    public static void setNeedsUpdate()
-    {
-        needsUpdate = true;
-    }
-
     public OverlayRendererSpawnChunks(RendererToggle toggle)
     {
         this.toggle = toggle;
         this.isPlayerFollowing = toggle == RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER;
+    }
+
+    @Override
+    public String getName()
+    {
+        return "OverlayRendererSpawnChunks";
+    }
+
+    public static void setNeedsUpdate()
+    {
+        needsUpdate = true;
     }
 
     @Override
@@ -128,8 +134,8 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
 
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
-        BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
-        BUFFER_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_1 = TESSELLATOR_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_2 = TESSELLATOR_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
 
         final Color4f colorEntity = this.isPlayerFollowing ?
                 Configs.Colors.SPAWN_PLAYER_ENTITY_OVERLAY_COLOR.getColor() :
@@ -202,12 +208,12 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
      */
     public static void drawBlockBoundingBoxSidesBatchedQuads(BlockPos pos, Vec3d cameraPos, Color4f color, double expand, BufferBuilder buffer)
     {
-        double minX = pos.getX() - cameraPos.x - expand;
-        double minY = pos.getY() - cameraPos.y - expand;
-        double minZ = pos.getZ() - cameraPos.z - expand;
-        double maxX = pos.getX() - cameraPos.x + expand + 1;
-        double maxY = pos.getY() - cameraPos.y + expand + 1;
-        double maxZ = pos.getZ() - cameraPos.z + expand + 1;
+        float minX = (float) (pos.getX() - cameraPos.x - expand);
+        float minY = (float) (pos.getY() - cameraPos.y - expand);
+        float minZ = (float) (pos.getZ() - cameraPos.z - expand);
+        float maxX = (float) (pos.getX() - cameraPos.x + expand + 1);
+        float maxY = (float) (pos.getY() - cameraPos.y + expand + 1);
+        float maxZ = (float) (pos.getZ() - cameraPos.z + expand + 1);
 
         fi.dy.masa.malilib.render.RenderUtils.drawBoxAllSidesBatchedQuads(minX, minY, minZ, maxX, maxY, maxZ, color, buffer);
     }

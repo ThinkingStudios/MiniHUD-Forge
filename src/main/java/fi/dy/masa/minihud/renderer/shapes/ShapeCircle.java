@@ -61,8 +61,8 @@ public class ShapeCircle extends ShapeCircleBase
         Direction.Axis axis = this.mainAxis.getAxis();
         double expand = 0;
 
-        RenderObjectBase renderQuads = this.renderObjects.get(0);
-        BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
+        RenderObjectBase renderQuads = this.renderObjects.getFirst();
+        BUFFER_1 = TESSELLATOR_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
 
         if (this.getCombineQuads())
         {

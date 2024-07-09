@@ -32,6 +32,12 @@ public class OverlayRendererConduitRange extends BaseBlockRangeOverlay<ConduitBl
     }
 
     @Override
+    public String getName()
+    {
+        return "OverlayRendererConduitRange";
+    }
+
+    @Override
     public void allocateGlResources()
     {
         this.allocateBuffer(VertexFormat.DrawMode.QUADS);
@@ -40,13 +46,13 @@ public class OverlayRendererConduitRange extends BaseBlockRangeOverlay<ConduitBl
     @Override
     protected void startBuffers()
     {
-        BUFFER_1.begin(this.renderObjects.get(0).getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_1 = TESSELLATOR_1.begin(this.renderObjects.getFirst().getGlMode(), VertexFormats.POSITION_COLOR);
     }
 
     @Override
     protected void uploadBuffers()
     {
-        this.renderObjects.get(0).uploadData(BUFFER_1);
+        this.renderObjects.getFirst().uploadData(BUFFER_1);
     }
 
     @Override
@@ -54,12 +60,12 @@ public class OverlayRendererConduitRange extends BaseBlockRangeOverlay<ConduitBl
     {
         this.preRender();
 
-        this.renderObjects.get(0).draw(matrix4f, projMatrix);
+        this.renderObjects.getFirst().draw(matrix4f, projMatrix);
 
         // Render the lines as quads with glPolygonMode(GL_LINE)
         RenderSystem.polygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
         RenderSystem.disableBlend();
-        this.renderObjects.get(0).draw(matrix4f, projMatrix);
+        this.renderObjects.getFirst().draw(matrix4f, projMatrix);
         RenderSystem.polygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         RenderSystem.enableBlend();
 

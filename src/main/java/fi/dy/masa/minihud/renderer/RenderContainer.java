@@ -1,18 +1,19 @@
 package fi.dy.masa.minihud.renderer;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.google.gson.JsonObject;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.minihud.config.RendererToggle;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RenderContainer
 {
@@ -37,6 +38,7 @@ public class RenderContainer
         this.addRenderer(new OverlayRendererSpawnChunks(RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_REAL));
         this.addRenderer(new OverlayRendererSpawnChunks(RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER));
         this.addRenderer(OverlayRendererStructures.INSTANCE);
+        this.addRenderer(OverlayRendererVillagerInfo.INSTANCE);
     }
 
     public void addRenderer(OverlayRendererBase renderer)
@@ -75,7 +77,7 @@ public class RenderContainer
 
         for (OverlayRendererBase renderer : this.renderers)
         {
-            mc.getProfiler().push(() -> renderer.getClass().getName());
+            mc.getProfiler().push(renderer::getName);
 
             if (renderer.shouldRender(mc))
             {
@@ -122,8 +124,7 @@ public class RenderContainer
 
                     matrix4fstack.pushMatrix();
                     matrix4fstack.translate((float) (updatePos.x - cameraPos.x), (float) (updatePos.y - cameraPos.y), (float) (updatePos.z - cameraPos.z));
-                    renderer.draw(matrix4fstack, projMatrix);
-
+                    renderer.draw(matrix4fstack.get(matrix4f), projMatrix);
                     matrix4fstack.popMatrix();
                 }
 

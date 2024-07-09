@@ -6,6 +6,7 @@ import org.joml.Matrix4f;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormatElement;
 
@@ -28,7 +29,7 @@ public class RenderObjectVbo extends RenderObjectBase
         // This isn't really that nice and clean, but it'll do for now...
         for (VertexFormatElement el : this.format.getElements())
         {
-            if (el.getType() == VertexFormatElement.Type.UV)
+            if (el.type() == VertexFormatElement.UV.type())
             {
                 hasTexture = true;
                 break;
@@ -41,19 +42,22 @@ public class RenderObjectVbo extends RenderObjectBase
     @Override
     public void uploadData(BufferBuilder buffer)
     {
-        this.hasData = ! buffer.isBatchEmpty();
-        BufferBuilder.BuiltBuffer builtBuffer = buffer.end();
+        BuiltBuffer builtBuffer;
 
-        if (this.hasData)
+        try
         {
-            this.vertexBuffer.bind();
-            this.vertexBuffer.upload(builtBuffer);
-            VertexBuffer.unbind();
+            builtBuffer = buffer.endNullable();
+
+            if (builtBuffer != null)
+            {
+                this.hasData = true;
+                this.vertexBuffer.bind();
+                this.vertexBuffer.upload(builtBuffer);
+                VertexBuffer.unbind();
+                builtBuffer.close();
+            }
         }
-        else
-        {
-            builtBuffer.release();
-        }
+        catch (Exception ignored) { }
     }
 
     @Override

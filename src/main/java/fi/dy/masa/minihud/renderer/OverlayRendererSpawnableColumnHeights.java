@@ -22,6 +22,12 @@ public class OverlayRendererSpawnableColumnHeights extends OverlayRendererBase
     private final BlockPos.Mutable posMutable = new BlockPos.Mutable();
     private long lastCheckTime;
 
+    @Override
+    public String getName()
+    {
+        return "OverlayRendererSpawnableColumnHeights";
+    }
+
     public static void markChunkChanged(int cx, int cz)
     {
         if (RendererToggle.OVERLAY_SPAWNABLE_COLUMN_HEIGHTS.getBooleanValue())
@@ -94,8 +100,8 @@ public class OverlayRendererSpawnableColumnHeights extends OverlayRendererBase
 
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
-        BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
-        BUFFER_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_1 = TESSELLATOR_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_2 = TESSELLATOR_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
 
         for (int x = xStart; x <= xEnd; ++x)
         {
@@ -111,10 +117,10 @@ public class OverlayRendererSpawnableColumnHeights extends OverlayRendererBase
                 final double minZ = z + 0.25 - cameraPos.z;
                 final double maxZ = minZ + 0.5;
 
-                fi.dy.masa.malilib.render.RenderUtils.drawBoxHorizontalSidesBatchedQuads(minX, minY, minZ, maxX, maxY, maxZ, color, BUFFER_1);
-                fi.dy.masa.malilib.render.RenderUtils.drawBoxTopBatchedQuads(minX, minZ, maxX, maxY, maxZ, color, BUFFER_1);
+                fi.dy.masa.malilib.render.RenderUtils.drawBoxHorizontalSidesBatchedQuads((float) minX, (float) minY, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, color, BUFFER_1);
+                fi.dy.masa.malilib.render.RenderUtils.drawBoxTopBatchedQuads((float) minX, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, color, BUFFER_1);
 
-                fi.dy.masa.malilib.render.RenderUtils.drawBoxAllEdgesBatchedLines(minX, minY, minZ, maxX, maxY, maxZ, color, BUFFER_2);
+                fi.dy.masa.malilib.render.RenderUtils.drawBoxAllEdgesBatchedLines((float) minX, (float) minY, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, color, BUFFER_2);
             }
         }
 

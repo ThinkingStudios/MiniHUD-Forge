@@ -8,18 +8,16 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix4f;
 import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public abstract class OverlayRendererBase implements IOverlayRenderer
 {
-    protected static final BufferBuilder BUFFER_1 = new BufferBuilder(2097152);
-    protected static final BufferBuilder BUFFER_2 = new BufferBuilder(2097152);
-    //protected static final BufferBuilder BUFFER_3 = new BufferBuilder(2097152);
+    protected static final Tessellator TESSELLATOR_1 = new Tessellator(2097152);
+    protected static final Tessellator TESSELLATOR_2 = new Tessellator(2097152);
+    protected static BufferBuilder BUFFER_1;
+    protected static BufferBuilder BUFFER_2;
 
     protected final List<RenderObjectBase> renderObjects = new ArrayList<>();
     protected boolean renderThrough;

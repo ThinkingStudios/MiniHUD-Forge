@@ -12,6 +12,7 @@ import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.Reference;
+import fi.dy.masa.minihud.data.EntitiesDataStorage;
 import fi.dy.masa.minihud.renderer.OverlayRenderer;
 import fi.dy.masa.minihud.renderer.RenderContainer;
 import fi.dy.masa.minihud.renderer.shapes.ShapeManager;
@@ -36,6 +37,7 @@ public class WorldLoadListener implements IWorldLoadListener
         if (worldAfter != null)
         {
             DataStorage.getInstance().onWorldPre();
+            EntitiesDataStorage.getInstance().onWorldPre();
         }
     }
 
@@ -44,6 +46,7 @@ public class WorldLoadListener implements IWorldLoadListener
     {
         // Clear the cached data
         DataStorage.getInstance().reset(worldAfter == null);
+        EntitiesDataStorage.getInstance().reset(worldAfter == null);
 
         // Logging in to a world or changing dimensions or respawning
         if (worldAfter != null)
@@ -58,6 +61,7 @@ public class WorldLoadListener implements IWorldLoadListener
             OverlayRenderer.resetRenderTimeout();
             DataStorage.getInstance().onWorldJoin();
             DataStorage.getInstance().setWorldRegistryManager(worldAfter.getRegistryManager());
+            EntitiesDataStorage.getInstance().onWorldJoin();
         }
     }
 
@@ -67,6 +71,7 @@ public class WorldLoadListener implements IWorldLoadListener
         JsonObject root = new JsonObject();
 
         root.add("data_storage", DataStorage.getInstance().toJson());
+        root.add("block_entities", EntitiesDataStorage.getInstance().toJson());
         root.add("shapes", ShapeManager.INSTANCE.toJson());
 
         JsonUtils.writeJsonToFile(root, file);
@@ -100,6 +105,11 @@ public class WorldLoadListener implements IWorldLoadListener
             if (JsonUtils.hasObject(root, "data_storage"))
             {
                 DataStorage.getInstance().fromJson(JsonUtils.getNestedObject(root, "data_storage", false));
+            }
+
+            if (JsonUtils.hasObject(root, "block_entities"))
+            {
+                EntitiesDataStorage.getInstance().fromJson(JsonUtils.getNestedObject(root, "block_entities", false));
             }
         }
     }

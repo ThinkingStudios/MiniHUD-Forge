@@ -1,17 +1,34 @@
 package fi.dy.masa.minihud.event;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import org.joml.Matrix4f;
-
+import fi.dy.masa.malilib.config.HudAlignment;
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.interfaces.IRenderer;
+import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.util.BlockUtils;
+import fi.dy.masa.malilib.util.InventoryUtils;
+import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.WorldUtils;
+import fi.dy.masa.minihud.MiniHUD;
+import fi.dy.masa.minihud.config.Configs;
+import fi.dy.masa.minihud.config.InfoToggle;
+import fi.dy.masa.minihud.config.RendererToggle;
+import fi.dy.masa.minihud.data.EntitiesDataStorage;
+import fi.dy.masa.minihud.data.MobCapDataHandler;
+import fi.dy.masa.minihud.mixin.IMixinPassiveEntity;
+import fi.dy.masa.minihud.mixin.IMixinServerWorld;
+import fi.dy.masa.minihud.mixin.IMixinWorldRenderer;
+import fi.dy.masa.minihud.renderer.OverlayRenderer;
+import fi.dy.masa.minihud.util.DataStorage;
+import fi.dy.masa.minihud.util.IServerEntityManager;
+import fi.dy.masa.minihud.util.MiscUtils;
+import fi.dy.masa.minihud.util.RayTraceUtils;
 import net.minecraft.block.BeehiveBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.ChestBlock;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.ChestType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.PlayerListEntry;
@@ -19,6 +36,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Tameable;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.*;
 import net.minecraft.item.FilledMapItem;
@@ -43,25 +61,14 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.joml.Matrix4f;
 
-import fi.dy.masa.malilib.config.HudAlignment;
-import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.interfaces.IRenderer;
-import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.BlockUtils;
-import fi.dy.masa.malilib.util.InventoryUtils;
-import fi.dy.masa.malilib.util.StringUtils;
-import fi.dy.masa.malilib.util.WorldUtils;
-import fi.dy.masa.minihud.config.Configs;
-import fi.dy.masa.minihud.config.InfoToggle;
-import fi.dy.masa.minihud.config.RendererToggle;
-import fi.dy.masa.minihud.data.MobCapDataHandler;
-import fi.dy.masa.minihud.mixin.IMixinServerWorld;
-import fi.dy.masa.minihud.mixin.IMixinWorldRenderer;
-import fi.dy.masa.minihud.renderer.OverlayRenderer;
-import fi.dy.masa.minihud.util.DataStorage;
-import fi.dy.masa.minihud.util.IServerEntityManager;
-import fi.dy.masa.minihud.util.MiscUtils;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class RenderHandler implements IRenderer
 {
@@ -97,12 +104,12 @@ public class RenderHandler implements IRenderer
 
     public static void fixDebugRendererState()
     {
-        if (Configs.Generic.FIX_VANILLA_DEBUG_RENDERERS.getBooleanValue())
-        {
+        //if (Configs.Generic.FIX_VANILLA_DEBUG_RENDERERS.getBooleanValue())
+        //{
             //RenderSystem.disableLighting();
             //RenderUtils.color(1, 1, 1, 1);
             //OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
-        }
+        //}
     }
 
     @Override
@@ -138,6 +145,15 @@ public class RenderHandler implements IRenderer
             boolean useShadow = Configs.Generic.USE_FONT_SHADOW.getBooleanValue();
 
             RenderUtils.renderText(x, y, Configs.Generic.FONT_SCALE.getDoubleValue(), textColor, bgColor, alignment, useBackground, useShadow, this.lines, context);
+        }
+
+        if (Configs.Generic.INVENTORY_PREVIEW.getKeybind().isKeybindHeld())
+        {
+            var inventory = RayTraceUtils.getTargetInventory(this.mc);
+            if (inventory != null)
+            {
+                fi.dy.masa.minihud.renderer.RenderUtils.renderInventoryOverlay(inventory, context);
+            }
         }
     }
 
@@ -650,7 +666,9 @@ public class RenderHandler implements IRenderer
                 return;
             }
 
-            Entity vehicle = this.mc.player.getVehicle();
+            World bestWorld = WorldUtils.getBestWorld(mc);
+            Entity targeted = this.getTargetEntity(world, this.mc);
+            Entity vehicle = targeted == null ? this.mc.player.getVehicle() : targeted;
 
             if ((vehicle instanceof AbstractHorseEntity) == false)
             {
@@ -681,29 +699,26 @@ public class RenderHandler implements IRenderer
                 AnimalType = "Horse";
             }
 
-            if (horse.isSaddled())
+            if (InfoToggle.HORSE_SPEED.getBooleanValue())
             {
-                if (InfoToggle.HORSE_SPEED.getBooleanValue())
-                {
-                    float speed = horse.getMovementSpeed();
-                    speed *= 42.1629629629629f;
-                    this.addLine(String.format(AnimalType+" Speed: %.3f m/s", speed));
-                }
-
-                if (InfoToggle.HORSE_JUMP.getBooleanValue())
-                {
-                    double jump = horse.getAttributeValue(EntityAttributes.GENERIC_JUMP_STRENGTH);
-                    double calculatedJumpHeight =
-                            -0.1817584952d * jump * jump * jump +
-                            3.689713992d * jump * jump +
-                            2.128599134d * jump +
-                            -0.343930367;
-                    this.addLine(String.format(AnimalType+" Jump: %.3f m", calculatedJumpHeight));
-                }
-
-                this.addedTypes.add(InfoToggle.HORSE_SPEED);
-                this.addedTypes.add(InfoToggle.HORSE_JUMP);
+                float speed = horse.getMovementSpeed() > 0 ? horse.getMovementSpeed() : (float) horse.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+                speed *= 42.1629629629629f;
+                this.addLine(String.format(AnimalType + " Speed: %.3f m/s", speed));
             }
+
+            if (InfoToggle.HORSE_JUMP.getBooleanValue())
+            {
+                double jump = horse.getAttributeValue(EntityAttributes.GENERIC_JUMP_STRENGTH);
+                double calculatedJumpHeight =
+                        -0.1817584952d * jump * jump * jump +
+                                3.689713992d * jump * jump +
+                                2.128599134d * jump +
+                                -0.343930367;
+                this.addLine(String.format(AnimalType + " Jump: %.3f m", calculatedJumpHeight));
+            }
+
+            this.addedTypes.add(InfoToggle.HORSE_SPEED);
+            this.addedTypes.add(InfoToggle.HORSE_JUMP);
         }
         else if (type == InfoToggle.ROTATION_YAW ||
                  type == InfoToggle.ROTATION_PITCH ||
@@ -903,13 +918,29 @@ public class RenderHandler implements IRenderer
         {
             if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.ENTITY)
             {
-                Entity lookedEntity = ((EntityHitResult) mc.crosshairTarget).getEntity();
-
-                if (lookedEntity instanceof LivingEntity)
+                Entity lookedEntity = this.getTargetEntity(world, mc);
+                if (lookedEntity instanceof LivingEntity living)
                 {
-                    LivingEntity living = (LivingEntity) lookedEntity;
-                    this.addLine(String.format("Entity: %s - HP: %.1f / %.1f",
-                            living.getName().getString(), living.getHealth(), living.getMaxHealth()));
+                    String entityLine = String.format("Entity: %s - HP: %.1f / %.1f", living.getName().getString(), living.getHealth(), living.getMaxHealth());
+
+                    if (living instanceof Tameable tamable)
+                    {
+                        LivingEntity owner = tamable.getOwner();
+                        if (owner != null)
+                        {
+                            entityLine = entityLine+" - Owner: "+owner.getName().getLiteralString();
+                        }
+                    }
+                    if (living instanceof PassiveEntity passive)
+                    {
+                        if (passive.getBreedingAge() < 0)
+                        {
+                            int untilGrown = ((IMixinPassiveEntity) passive).getRealBreedingAge() * (-1);
+                            entityLine = entityLine+ " [" + DurationFormatUtils.formatDurationWords(untilGrown * 50, true, true) + " remaining]";
+                        }
+                    }
+
+                    this.addLine(entityLine);
                 }
                 else
                 {
@@ -921,12 +952,12 @@ public class RenderHandler implements IRenderer
         {
             if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.ENTITY)
             {
-                Entity lookedEntity = ((EntityHitResult) mc.crosshairTarget).getEntity();
+                Entity lookedEntity = this.getTargetEntity(world, mc);
                 Identifier regName = EntityType.getId(lookedEntity.getType());
 
                 if (regName != null)
                 {
-                    this.addLine(String.format("Entity reg name: %s", regName.toString()));
+                    this.addLine(String.format("Entity reg name: %s", regName));
                 }
             }
         }
@@ -972,18 +1003,54 @@ public class RenderHandler implements IRenderer
     }
 
     @Nullable
-    private BlockEntity getTargetedBlockEntity(World world, MinecraftClient mc)
+    public Entity getTargetEntity(World world, MinecraftClient mc)
+    {
+        if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.ENTITY)
+        {
+            Entity lookedEntity = ((EntityHitResult) mc.crosshairTarget).getEntity();
+            if (!(world instanceof ServerWorld))
+            {
+                EntitiesDataStorage.getInstance().requestEntity(lookedEntity.getId());
+            }
+            return lookedEntity;
+        }
+        return null;
+    }
+
+    @Nullable
+    public BlockEntity getTargetedBlockEntity(World world, MinecraftClient mc)
     {
         if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.BLOCK)
         {
             BlockPos posLooking = ((BlockHitResult) mc.crosshairTarget).getBlockPos();
             WorldChunk chunk = this.getChunk(new ChunkPos(posLooking));
 
+            requestBlockEntityAt(world, posLooking);
             // The method in World now checks that the caller is from the same thread...
             return chunk != null ? chunk.getBlockEntity(posLooking) : null;
         }
 
         return null;
+    }
+
+    public void requestBlockEntityAt(World world, BlockPos pos)
+    {
+        if (!(world instanceof ServerWorld))
+        {
+            EntitiesDataStorage.getInstance().requestBlockEntity(world, pos);
+
+            BlockState state = world.getBlockState(pos);
+            if (state.getBlock() instanceof ChestBlock)
+            {
+                ChestType type = state.get(ChestBlock.CHEST_TYPE);
+
+                if (type != ChestType.SINGLE)
+                {
+                    BlockPos posAdj = pos.offset(ChestBlock.getFacing(state));
+                    EntitiesDataStorage.getInstance().requestBlockEntity(world, posAdj);
+                }
+            }
+        }
     }
 
     @Nullable

@@ -29,6 +29,12 @@ public class OverlayRendererRandomTickableChunks extends OverlayRendererBase
     protected double maxX;
     protected double maxZ;
 
+    @Override
+    public String getName()
+    {
+        return "OverlayRendererRandomTickableChunks";
+    }
+
     public static void setNeedsUpdate()
     {
         needsUpdate = true;
@@ -85,8 +91,8 @@ public class OverlayRendererRandomTickableChunks extends OverlayRendererBase
 
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
-        BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
-        BUFFER_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_1 = TESSELLATOR_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_2 = TESSELLATOR_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
 
         Set<ChunkPos> chunks = this.getRandomTickableChunks(this.pos);
 
@@ -141,33 +147,33 @@ public class OverlayRendererRandomTickableChunks extends OverlayRendererBase
 
     private void renderChunkEdge(ChunkPos pos, Direction side, Vec3d cameraPos, Color4f color, World world)
     {
-        double minX, minZ, maxX, maxZ;
+        float minX, minZ, maxX, maxZ;
 
         switch (side)
         {
             case NORTH:
-                minX = (double) (pos.x << 4);
-                minZ = (double) (pos.z << 4);
-                maxX = (double) (pos.x << 4) + 16.0;
-                maxZ = (double) (pos.z << 4);
+                minX = (float) (pos.x << 4);
+                minZ = (float) (pos.z << 4);
+                maxX = (float) ((double) (pos.x << 4) + 16.0);
+                maxZ = (float) (pos.z << 4);
                 break;
             case SOUTH:
-                minX = (double) (pos.x << 4);
-                minZ = (double) (pos.z << 4) + 16.0;
-                maxX = (double) (pos.x << 4) + 16.0;
-                maxZ = (double) (pos.z << 4) + 16.0;
+                minX = (float) (pos.x << 4);
+                minZ = (float) ((double) (pos.z << 4) + 16.0);
+                maxX = (float) ((double) (pos.x << 4) + 16.0);
+                maxZ = (float) ((double) (pos.z << 4) + 16.0);
                 break;
             case WEST:
-                minX = (double) (pos.x << 4);
-                minZ = (double) (pos.z << 4);
-                maxX = (double) (pos.x << 4);
-                maxZ = (double) (pos.z << 4) + 16.0;
+                minX = (float) (pos.x << 4);
+                minZ = (float) (pos.z << 4);
+                maxX = (float) (pos.x << 4);
+                maxZ = (float) ((double) (pos.z << 4) + 16.0);
                 break;
             case EAST:
-                minX = (double) (pos.x << 4) + 16.0;
-                minZ = (double) (pos.z << 4);
-                maxX = (double) (pos.x << 4) + 16.0;
-                maxZ = (double) (pos.z << 4) + 16.0;
+                minX = (float) ((double) (pos.x << 4) + 16.0);
+                minZ = (float) (pos.z << 4);
+                maxX = (float) ((double) (pos.x << 4) + 16.0);
+                maxZ = (float) ((double) (pos.z << 4) + 16.0);
                 break;
             default:
                 return;

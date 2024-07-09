@@ -21,9 +21,16 @@ import fi.dy.masa.minihud.util.StructureType;
 public class OverlayRendererStructures extends OverlayRendererBase
 {
     public static final OverlayRendererStructures INSTANCE = new OverlayRendererStructures();
+    private boolean wasEmpty = true;
 
     private OverlayRendererStructures()
     {
+    }
+
+    @Override
+    public String getName()
+    {
+        return "OverlayRendererStructures";
     }
 
     @Override
@@ -62,18 +69,30 @@ public class OverlayRendererStructures extends OverlayRendererBase
         int maxRange = (mc.options.getViewDistance().getValue() + 4) * 16;
         List<StructureData> data = this.getStructuresToRender(this.lastUpdatePos, maxRange);
 
-        RenderObjectBase renderQuads = this.renderObjects.get(0);
-        RenderObjectBase renderLines = this.renderObjects.get(1);
-        BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
-        BUFFER_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
-
         if (data.isEmpty() == false)
         {
-            this.renderStructureBoxes(data, cameraPos);
-        }
+            if (this.wasEmpty)
+            {
+                this.allocateGlResources();
+            }
 
-        renderQuads.uploadData(BUFFER_1);
-        renderLines.uploadData(BUFFER_2);
+            RenderObjectBase renderQuads = this.renderObjects.get(0);
+            RenderObjectBase renderLines = this.renderObjects.get(1);
+            BUFFER_1 = TESSELLATOR_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
+            BUFFER_2 = TESSELLATOR_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
+
+            this.renderStructureBoxes(data, cameraPos);
+
+            renderQuads.uploadData(BUFFER_1);
+            renderLines.uploadData(BUFFER_2);
+
+            this.wasEmpty = false;
+        }
+        else
+        {
+            this.deleteGlResources();
+            this.wasEmpty = true;
+        }
     }
 
     private void renderStructureBoxes(List<StructureData> wrappedData, Vec3d cameraPos)
@@ -107,7 +126,7 @@ public class OverlayRendererStructures extends OverlayRendererBase
 
     private List<StructureData> getStructuresToRender(BlockPos playerPos, int maxRange)
     {
-        ArrayListMultimap<StructureType, StructureData> structures = DataStorage.getInstance().getCopyOfStructureData();
+        ArrayListMultimap<StructureType, StructureData> structures = DataStorage.getInstance().getCopyOfStructureDataWithinRange(playerPos, maxRange);
         List<StructureData> data = new ArrayList<>();
 
         for (StructureType type : structures.keySet())
@@ -117,13 +136,7 @@ public class OverlayRendererStructures extends OverlayRendererBase
                 continue;
             }
 
-            for (StructureData structure : structures.get(type))
-            {
-                if (MiscUtils.isStructureWithinRange(structure.getBoundingBox(), playerPos, maxRange))
-                {
-                    data.add(structure);
-                }
-            }
+            data.addAll(structures.get(type));
         }
 
         return data;

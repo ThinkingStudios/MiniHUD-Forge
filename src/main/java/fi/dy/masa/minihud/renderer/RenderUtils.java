@@ -1,21 +1,22 @@
 package fi.dy.masa.minihud.renderer;
 
-import java.util.Collection;
+import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.minihud.gui.InventoryOverlayScreen;
+import fi.dy.masa.minihud.renderer.shapes.SideQuad;
+import fi.dy.masa.minihud.util.RayTraceUtils;
+import fi.dy.masa.minihud.util.ShapeRenderType;
+import fi.dy.masa.minihud.util.shape.SphereUtils;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import fi.dy.masa.malilib.util.Color4f;
-import fi.dy.masa.malilib.util.EntityUtils;
-import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.malilib.util.PositionUtils;
-import fi.dy.masa.minihud.renderer.shapes.SideQuad;
-import fi.dy.masa.minihud.util.ShapeRenderType;
-import fi.dy.masa.minihud.util.shape.SphereUtils;
+
+import java.util.Collection;
 
 public class RenderUtils
 {
@@ -55,13 +56,13 @@ public class RenderUtils
             if (rangeMinZ <= boxMinZ && rangeMaxZ >= boxMinZ)
             {
                 minZ = maxZ = boxMinZ;
-                renderWallWithLines(minX, minY, minZ, maxX, maxY, maxZ, lineIntervalH, lineIntervalV, alignLinesToModulo, cameraPos, color, bufferQuads, bufferLines);
+                renderWallWithLines((float) minX, (float) minY, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, lineIntervalH, lineIntervalV, alignLinesToModulo, cameraPos, color, bufferQuads, bufferLines);
             }
 
             if (rangeMinZ <= boxMaxZ && rangeMaxZ >= boxMaxZ)
             {
                 minZ = maxZ = boxMaxZ + 1;
-                renderWallWithLines(minX, minY, minZ, maxX, maxY, maxZ, lineIntervalH, lineIntervalV, alignLinesToModulo, cameraPos, color, bufferQuads, bufferLines);
+                renderWallWithLines((float) minX, (float) minY, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, lineIntervalH, lineIntervalV, alignLinesToModulo, cameraPos, color, bufferQuads, bufferLines);
             }
         }
 
@@ -74,34 +75,34 @@ public class RenderUtils
             if (rangeMinX <= boxMinX && rangeMaxX >= boxMinX)
             {
                 minX = maxX = boxMinX;
-                renderWallWithLines(minX, minY, minZ, maxX, maxY, maxZ, lineIntervalH, lineIntervalV, alignLinesToModulo, cameraPos, color, bufferQuads, bufferLines);
+                renderWallWithLines((float) minX, (float) minY, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, lineIntervalH, lineIntervalV, alignLinesToModulo, cameraPos, color, bufferQuads, bufferLines);
             }
 
             if (rangeMinX <= boxMaxX && rangeMaxX >= boxMaxX)
             {
                 minX = maxX = boxMaxX + 1;
-                renderWallWithLines(minX, minY, minZ, maxX, maxY, maxZ, lineIntervalH, lineIntervalV, alignLinesToModulo, cameraPos, color, bufferQuads, bufferLines);
+                renderWallWithLines((float) minX, (float) minY, (float) minZ, (float) maxX, (float) maxY, (float) maxZ, lineIntervalH, lineIntervalV, alignLinesToModulo, cameraPos, color, bufferQuads, bufferLines);
             }
         }
     }
 
     public static void renderWallWithLines(
-            double minX, double minY, double minZ,
-            double maxX, double maxY, double maxZ,
+            float minX, float minY, float minZ,
+            float maxX, float maxY, float maxZ,
             double lineIntervalH, double lineIntervalV,
             boolean alignLinesToModulo,
             Vec3d cameraPos,
             Color4f color,
             BufferBuilder bufferQuads, BufferBuilder bufferLines)
     {
-        double cx = cameraPos.x;
-        double cy = cameraPos.y;
-        double cz = cameraPos.z;
+        float cx = (float) cameraPos.x;
+        float cy = (float) cameraPos.y;
+        float cz = (float) cameraPos.z;
 
-        bufferQuads.vertex(minX - cx, maxY - cy, minZ - cz).color(color.r, color.g, color.b, color.a).next();
-        bufferQuads.vertex(minX - cx, minY - cy, minZ - cz).color(color.r, color.g, color.b, color.a).next();
-        bufferQuads.vertex(maxX - cx, minY - cy, maxZ - cz).color(color.r, color.g, color.b, color.a).next();
-        bufferQuads.vertex(maxX - cx, maxY - cy, maxZ - cz).color(color.r, color.g, color.b, color.a).next();
+        bufferQuads.vertex(minX - cx, maxY - cy, minZ - cz).color(color.r, color.g, color.b, color.a);
+        bufferQuads.vertex(minX - cx, minY - cy, minZ - cz).color(color.r, color.g, color.b, color.a);
+        bufferQuads.vertex(maxX - cx, minY - cy, maxZ - cz).color(color.r, color.g, color.b, color.a);
+        bufferQuads.vertex(maxX - cx, maxY - cy, maxZ - cz).color(color.r, color.g, color.b, color.a);
 
         if (lineIntervalV > 0.0)
         {
@@ -109,8 +110,8 @@ public class RenderUtils
 
             while (lineY <= maxY)
             {
-                bufferLines.vertex(minX - cx, lineY - cy, minZ - cz).color(color.r, color.g, color.b, 1.0F).next();
-                bufferLines.vertex(maxX - cx, lineY - cy, maxZ - cz).color(color.r, color.g, color.b, 1.0F).next();
+                bufferLines.vertex(minX - cx, (float) (lineY - cy), minZ - cz).color(color.r, color.g, color.b, 1.0F);
+                bufferLines.vertex(maxX - cx, (float) (lineY - cy), maxZ - cz).color(color.r, color.g, color.b, 1.0F);
                 lineY += lineIntervalV;
             }
         }
@@ -123,8 +124,8 @@ public class RenderUtils
 
                 while (lineZ <= maxZ)
                 {
-                    bufferLines.vertex(minX - cx, minY - cy, lineZ - cz).color(color.r, color.g, color.b, 1.0F).next();
-                    bufferLines.vertex(minX - cx, maxY - cy, lineZ - cz).color(color.r, color.g, color.b, 1.0F).next();
+                    bufferLines.vertex(minX - cx, minY - cy, (float) (lineZ - cz)).color(color.r, color.g, color.b, 1.0F);
+                    bufferLines.vertex(minX - cx, maxY - cy, (float) (lineZ - cz)).color(color.r, color.g, color.b, 1.0F);
                     lineZ += lineIntervalH;
                 }
             }
@@ -134,8 +135,8 @@ public class RenderUtils
 
                 while (lineX <= maxX)
                 {
-                    bufferLines.vertex(lineX - cx, minY - cy, minZ - cz).color(color.r, color.g, color.b, 1.0F).next();
-                    bufferLines.vertex(lineX - cx, maxY - cy, minZ - cz).color(color.r, color.g, color.b, 1.0F).next();
+                    bufferLines.vertex((float) (lineX - cx), minY - cy, minZ - cz).color(color.r, color.g, color.b, 1.0F);
+                    bufferLines.vertex((float) (lineX - cx), maxY - cy, minZ - cz).color(color.r, color.g, color.b, 1.0F);
                     lineX += lineIntervalH;
                 }
             }
@@ -153,58 +154,58 @@ public class RenderUtils
         int x = BlockPos.unpackLongX(posLong);
         int y = BlockPos.unpackLongY(posLong);
         int z = BlockPos.unpackLongZ(posLong);
-        double offsetX = x - cameraPos.x;
-        double offsetY = y - cameraPos.y;
-        double offsetZ = z - cameraPos.z;
-        double minX = offsetX - expand;
-        double minY = offsetY - expand;
-        double minZ = offsetZ - expand;
-        double maxX = offsetX + expand + 1;
-        double maxY = offsetY + expand + 1;
-        double maxZ = offsetZ + expand + 1;
+        float offsetX = (float) (x - cameraPos.x);
+        float offsetY = (float) (y - cameraPos.y);
+        float offsetZ = (float) (z - cameraPos.z);
+        float minX = (float) (offsetX - expand);
+        float minY = (float) (offsetY - expand);
+        float minZ = (float) (offsetZ - expand);
+        float maxX = (float) (offsetX + expand + 1);
+        float maxY = (float) (offsetY + expand + 1);
+        float maxZ = (float) (offsetZ + expand + 1);
 
         switch (side)
         {
             case DOWN:
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case UP:
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case NORTH:
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case SOUTH:
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case WEST:
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case EAST:
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
                 break;
         }
     }
@@ -323,12 +324,12 @@ public class RenderUtils
     public static void renderInsetQuad(int x, int y, int z, int width, int height, Direction side,
                                        double inset, Color4f color, Vec3d cameraPos, BufferBuilder buffer)
     {
-        double minX = x - cameraPos.x;
-        double minY = y - cameraPos.y;
-        double minZ = z - cameraPos.z;
-        double maxX = minX;
-        double maxY = minY;
-        double maxZ = minZ;
+        float minX = (float) (x - cameraPos.x);
+        float minY = (float) (y - cameraPos.y);
+        float minZ = (float) (z - cameraPos.z);
+        float maxX = minX;
+        float maxY = minY;
+        float maxZ = minZ;
 
         if (side.getAxis() == Direction.Axis.Z)
         {
@@ -349,50 +350,50 @@ public class RenderUtils
         switch (side)
         {
             case WEST:
-                minX += inset;
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
+                minX += (float) inset;
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
                 break;
             case EAST:
-                maxX += 1 - inset;
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+                maxX += (float) (1 - inset);
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case NORTH:
-                minZ += inset;
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
+                minZ += (float) inset;
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case SOUTH:
-                maxZ += 1 - inset;
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
+                maxZ += (float) (1 - inset);
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case DOWN:
-                minY += inset;
-                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).next();
+                minY += (float) inset;
+                buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, minY, minZ).color(color.r, color.g, color.b, color.a);
                 break;
 
             case UP:
-                maxY += 1 - inset;
-                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).next();
+                maxY += (float) (1 - inset);
+                buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a);
                 break;
         }
     }
@@ -406,23 +407,23 @@ public class RenderUtils
                                               Vec3d cameraPos,
                                               BufferBuilder buffer)
     {
-        double minX = minPos.getX() - cameraPos.x;
-        double minY = minPos.getY() - cameraPos.y;
-        double minZ = minPos.getZ() - cameraPos.z;
+        float minX = (float) (minPos.getX() - cameraPos.x);
+        float minY = (float) (minPos.getY() - cameraPos.y);
+        float minZ = (float) (minPos.getZ() - cameraPos.z);
 
         switch (side)
         {
-            case WEST   -> minX += inset;
-            case EAST   -> minX += 1 - inset;
-            case NORTH  -> minZ += inset;
-            case SOUTH  -> minZ += 1 - inset;
-            case DOWN   -> minY += inset;
-            case UP     -> minY += 1 - inset;
+            case WEST   -> minX += (float) inset;
+            case EAST   -> minX += (float) (1 - inset);
+            case NORTH  -> minZ += (float) inset;
+            case SOUTH  -> minZ += (float) (1 - inset);
+            case DOWN   -> minY += (float) inset;
+            case UP     -> minY += (float) (1 - inset);
         }
 
-        double maxX = minX;
-        double maxY = minY;
-        double maxZ = minZ;
+        float maxX = minX;
+        float maxY = minY;
+        float maxZ = minZ;
 
         if (side.getAxis() == Direction.Axis.Z)
         {
@@ -443,25 +444,25 @@ public class RenderUtils
         if (side.getAxis() == Direction.Axis.Y)
         {
             // Line at the "start" end of the quad
-            buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, 1f).next();
-            buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, 1f).next();
+            buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, 1f);
+            buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, 1f);
 
-            for (double z = minZ; z < maxZ + 0.5; z += 1.0)
+            for (float z = minZ; z < maxZ + 0.5; z += 1.0F)
             {
-                buffer.vertex(minX, minY, z).color(color.r, color.g, color.b, 1f).next();
-                buffer.vertex(maxX, maxY, z).color(color.r, color.g, color.b, 1f).next();
+                buffer.vertex(minX, minY, z).color(color.r, color.g, color.b, 1f);
+                buffer.vertex(maxX, maxY, z).color(color.r, color.g, color.b, 1f);
             }
         }
         else
         {
             // Vertical line at the "start" end of the quad
-            buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, 1f).next();
-            buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, 1f).next();
+            buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, 1f);
+            buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, 1f);
 
-            for (double y = minY; y < maxY + 0.5; y += 1.0)
+            for (float y = minY; y < maxY + 0.5; y += 1.0F)
             {
-                buffer.vertex(minX, y, minZ).color(color.r, color.g, color.b, 1f).next();
-                buffer.vertex(maxX, y, maxZ).color(color.r, color.g, color.b, 1f).next();
+                buffer.vertex(minX, y, minZ).color(color.r, color.g, color.b, 1f);
+                buffer.vertex(maxX, y, maxZ).color(color.r, color.g, color.b, 1f);
             }
         }
     }
@@ -487,5 +488,12 @@ public class RenderUtils
 
             return remainder == 0.0 ? value : value + interval - remainder;
         }
+    }
+
+    public static void renderInventoryOverlay(RayTraceUtils.InventoryPreviewData inventory, DrawContext drawContext)
+    {
+        var screen = new InventoryOverlayScreen(inventory);
+        screen.init(MinecraftClient.getInstance(), 0, 0);
+        screen.render(drawContext, 0, 0, 0);
     }
 }

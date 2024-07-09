@@ -8,6 +8,11 @@ import net.minecraft.util.math.Vec3d;
 public interface IOverlayRenderer
 {
     /**
+     * Return's a profiler friendly name for this renderer.
+     */
+    String getName();
+
+    /**
      * Returns the camera position when the renderer was last updated
      */
     Vec3d getUpdatePosition();

@@ -1,6 +1,5 @@
 package fi.dy.masa.minihud.renderer;
 
-import fi.dy.masa.malilib.util.WorldUtils;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.block.entity.BlockEntity;
@@ -16,6 +15,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import fi.dy.masa.malilib.config.IConfigBoolean;
+import fi.dy.masa.malilib.util.WorldUtils;
 
 public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends OverlayRendererBase
 {
@@ -23,8 +23,10 @@ public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends Overl
     protected final LongOpenHashSet blockPositions = new LongOpenHashSet();
     protected final BlockEntityType<T> blockEntityType;
     protected final Class<T> blockEntityClass;
-    protected boolean needsFullRebuild;
+    //protected boolean needsFullRebuild;
+    //private boolean blockPositionsInRange = false;
     protected boolean needsUpdate;
+    private boolean wasEmpty = true;
     protected int updateDistance = 48;
 
     protected BaseBlockRangeOverlay(IConfigBoolean renderToggleConfig,
@@ -53,7 +55,7 @@ public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends Overl
         }
 
         this.needsUpdate = true;
-        this.needsFullRebuild = true;
+        //this.needsFullRebuild = true;
     }
 
     public void onBlockStatusChange(BlockPos pos)
@@ -85,29 +87,50 @@ public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends Overl
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
-        this.startBuffers();
+        // This way creates a bit more visual lag when rebuilding the blockPositions,
+        // but it makes the dynamic reallocation work as opposed to not working
+        boolean blockPositionsInRange = this.fetchAllTargetBlockEntityPositions(mc.world, entity.getBlockPos(), mc);
 
+        /*
         synchronized (this.blockPositions)
         {
             if (this.needsFullRebuild)
             {
-                this.blockPositions.clear();
-                this.fetchAllTargetBlockEntityPositions(mc.world, entity.getBlockPos(), mc);
+                this.blockPositionsInRange = this.fetchAllTargetBlockEntityPositions(mc.world, entity.getBlockPos(), mc);
                 this.needsFullRebuild = false;
             }
+        }
+         */
+
+        //MiniHUD.printDebug("BaseBlockRangeOverlay#update(): wasEmpty: {} // beInRange: {}", this.wasEmpty, beInRange);
+
+        if (blockPositionsInRange)
+        {
+            if (this.wasEmpty)
+            {
+                this.allocateGlResources();
+                this.wasEmpty = false;
+            }
+
+            this.startBuffers();
 
             this.renderBlockRanges(entity.getEntityWorld(), cameraPos, mc);
+            this.uploadBuffers();
         }
-
-        this.uploadBuffers();
+        else
+        {
+            this.deleteGlResources();
+            this.allocateGlResources();         // Need to reallocate right away for Conduit Range Renderer to not crash the game
+            this.wasEmpty = true;
+        }
 
         this.needsUpdate = false;
     }
 
     protected void startBuffers()
     {
-        BUFFER_1.begin(this.renderObjects.get(0).getGlMode(), VertexFormats.POSITION_COLOR);
-        BUFFER_2.begin(this.renderObjects.get(1).getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_1 = TESSELLATOR_1.begin(this.renderObjects.get(0).getGlMode(), VertexFormats.POSITION_COLOR);
+        BUFFER_2 = TESSELLATOR_2.begin(this.renderObjects.get(1).getGlMode(), VertexFormats.POSITION_COLOR);
     }
 
     protected void uploadBuffers()
@@ -116,12 +139,13 @@ public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends Overl
         this.renderObjects.get(1).uploadData(BUFFER_2);
     }
 
-    protected void fetchAllTargetBlockEntityPositions(ClientWorld world, BlockPos centerPos, MinecraftClient mc)
+    protected boolean fetchAllTargetBlockEntityPositions(ClientWorld world, BlockPos centerPos, MinecraftClient mc)
     {
         ClientChunkManager chunkManager = world.getChunkManager();
         int centerCX = centerPos.getX() >> 4;
         int centerCZ = centerPos.getZ() >> 4;
         int chunkRadius = mc.options.getViewDistance().getValue();
+        this.blockPositions.clear();
 
         for (int cz = centerCZ - chunkRadius; cz <= centerCZ + chunkRadius; ++cz)
         {
@@ -141,6 +165,8 @@ public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends Overl
                 }
             }
         }
+
+        return this.blockPositions.isEmpty() == false && this.blockPositions.size() > 0;
     }
 
     protected void renderBlockRanges(World world, Vec3d cameraPos, MinecraftClient mc)

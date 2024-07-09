@@ -28,6 +28,12 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
     protected long seed;
     protected double topY;
 
+    @Override
+    public String getName()
+    {
+        return "OverlayRendererSlimeChunks";
+    }
+
     public static void setNeedsUpdate()
     {
         needsUpdate = true;
@@ -111,8 +117,8 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
 
             RenderObjectBase renderQuads = this.renderObjects.get(0);
             RenderObjectBase renderLines = this.renderObjects.get(1);
-            BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
-            BUFFER_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
+            BUFFER_1 = TESSELLATOR_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
+            BUFFER_2 = TESSELLATOR_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
             int minY = world != null ? world.getBottomY() : -64;
             int topY = (int) Math.floor(this.topY);
 

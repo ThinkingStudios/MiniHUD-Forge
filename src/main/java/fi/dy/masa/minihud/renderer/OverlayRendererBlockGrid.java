@@ -20,6 +20,12 @@ import fi.dy.masa.minihud.util.BlockGridMode;
 public class OverlayRendererBlockGrid extends OverlayRendererBase
 {
     @Override
+    public String getName()
+    {
+        return "OverlayRendererBlockGrid";
+    }
+
+    @Override
     public boolean shouldRender(MinecraftClient mc)
     {
         return RendererToggle.OVERLAY_BLOCK_GRID.getBooleanValue();
@@ -44,8 +50,8 @@ public class OverlayRendererBlockGrid extends OverlayRendererBase
         Color4f color = Configs.Colors.BLOCK_GRID_OVERLAY_COLOR.getColor();
         int radius = Configs.Generic.BLOCK_GRID_OVERLAY_RADIUS.getIntegerValue();
 
-        RenderObjectBase renderLines = this.renderObjects.get(0);
-        BUFFER_1.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
+        RenderObjectBase renderLines = this.renderObjects.getFirst();
+        BUFFER_1 = TESSELLATOR_1.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
         BlockGridMode mode = (BlockGridMode) Configs.Generic.BLOCK_GRID_OVERLAY_MODE.getOptionListValue();
 
         switch (mode)
@@ -83,8 +89,8 @@ public class OverlayRendererBlockGrid extends OverlayRendererBase
         {
             for (double y = startY; y <= endY; y += 1.0D)
             {
-                buffer.vertex(x, y, startZ).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(x, y, endZ  ).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex((float) x, (float) y, (float) startZ).color(color.r, color.g, color.b, color.a);
+                buffer.vertex((float) x, (float) y, (float) endZ).color(color.r, color.g, color.b, color.a);
             }
         }
 
@@ -92,8 +98,8 @@ public class OverlayRendererBlockGrid extends OverlayRendererBase
         {
             for (double z = startZ; z <= endZ; z += 1.0D)
             {
-                buffer.vertex(x, startY, z).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(x, endY  , z).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex((float) x, (float) startY, (float) z).color(color.r, color.g, color.b, color.a);
+                buffer.vertex((float) x, (float) endY, (float) z).color(color.r, color.g, color.b, color.a);
             }
         }
 
@@ -101,8 +107,8 @@ public class OverlayRendererBlockGrid extends OverlayRendererBase
         {
             for (double y = startY; y <= endY; y += 1.0D)
             {
-                buffer.vertex(startX, y, z).color(color.r, color.g, color.b, color.a).next();
-                buffer.vertex(endX  , y, z).color(color.r, color.g, color.b, color.a).next();
+                buffer.vertex((float) startX, (float) y, (float) z).color(color.r, color.g, color.b, color.a);
+                buffer.vertex((float) endX, (float) y, (float) z).color(color.r, color.g, color.b, color.a);
             }
         }
     }

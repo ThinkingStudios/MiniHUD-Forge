@@ -4,6 +4,7 @@ import org.thinkingstudio.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
@@ -63,7 +64,7 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
 
     public void decodeStructuresPacket(Identifier channel, ServuxStructuresPacket packet)
     {
-        if (channel.equals(CHANNEL_ID) == false)
+        if (!channel.equals(CHANNEL_ID))
         {
             return;
         }
@@ -82,7 +83,7 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
                 {
                     try
                     {
-                        NbtCompound nbt = fullPacket.readNbt();
+                        NbtCompound nbt = (NbtCompound) fullPacket.readNbt(NbtSizeTracker.ofUnlimitedBytes());
                         this.readingSessionKey = -1;
 
                         if (nbt != null)
@@ -105,7 +106,7 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
             }
             case PACKET_S2C_METADATA ->
             {
-                if (DataStorage.getInstance().receiveServuxMetadata(packet.getCompound()))
+                if (DataStorage.getInstance().receiveServuxStrucutresMetadata(packet.getCompound()))
                 {
                     this.servuxRegistered = true;
                 }
@@ -151,11 +152,11 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
 
     public void encodeStructuresPacket(ServuxStructuresPacket packet)
     {
-        if (ServuxStructuresHandler.INSTANCE.sendPlayPayload(new ServuxStructuresPacket.Payload(packet)) == false)
+        if (!ServuxStructuresHandler.INSTANCE.sendPlayPayload(new ServuxStructuresPacket.Payload(packet)))
         {
             if (this.failures > MAX_FAILURES)
             {
-                MiniHUD.logger.warn("encodeStructuresPacket(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
+                MiniHUD.printDebug("encodeStructuresPacket(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
                 this.servuxRegistered = false;
                 ServuxStructuresHandler.INSTANCE.unregisterPlayReceiver();
                 DataStorage.getInstance().onPacketFailure();

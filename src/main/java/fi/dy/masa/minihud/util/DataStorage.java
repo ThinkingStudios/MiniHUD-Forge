@@ -1,5 +1,6 @@
 package fi.dy.masa.minihud.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -116,7 +117,7 @@ public class DataStorage
 
     public Identifier getNetworkChannel() { return ServuxStructuresHandler.CHANNEL_ID; }
 
-    public IPluginClientPlayHandler<ServuxStructuresPacket.Payload> getPacketHandler() { return HANDLER; }
+    public IPluginClientPlayHandler<ServuxStructuresPacket.Payload> getNetworkHandler() { return HANDLER; }
 
     public MobCapDataHandler getMobCapData()
     {
@@ -810,6 +811,48 @@ public class DataStorage
         return copy;
     }
 
+    /**
+     * Get all structures withinRange of the player (Helps reduce overhead)
+     * @param pos (Player Position)
+     * @param maxRange (maxChunkRange)
+     * @return (The list)
+     */
+    public ArrayListMultimap<StructureType, StructureData> getCopyOfStructureDataWithinRange(BlockPos pos, int maxRange)
+    {
+        ArrayListMultimap<StructureType, StructureData> copy = ArrayListMultimap.create();
+
+        if (RendererToggle.OVERLAY_STRUCTURE_MAIN_TOGGLE.getBooleanValue() == false)
+        {
+            return copy;
+        }
+
+        synchronized (this.structures)
+        {
+            for (StructureType type : StructureType.VALUES)
+            {
+                Collection<StructureData> values = this.structures.get(type);
+                Collection<StructureData> valuesCopy = new ArrayList<>();
+
+                if (values.isEmpty() == false)
+                {
+                    for (StructureData structure : values)
+                    {
+                        if (MiscUtils.isStructureWithinRange(structure.getBoundingBox(), pos, maxRange))
+                        {
+                            valuesCopy.add(structure);
+                        }
+                    }
+
+                    copy.putAll(type, valuesCopy);
+                }
+            }
+
+            this.structureRendererNeedsUpdate = false;
+        }
+
+        return copy;
+    }
+
     public void updateStructureData()
     {
         if (this.mc != null && this.mc.world != null && this.mc.player != null)
@@ -872,12 +915,12 @@ public class DataStorage
         // Will re-add if they update it
     }
 
-    public boolean receiveServuxMetadata(NbtCompound data)
+    public boolean receiveServuxStrucutresMetadata(NbtCompound data)
     {
         if (this.servuxServer == false && this.hasIntegratedServer == false &&
             this.shouldRegisterStructureChannel)
         {
-            MiniHUD.printDebug("DataStorage#checkServuxMetadata(): received METADATA from Servux");
+            MiniHUD.printDebug("DataStorage#receiveServuxStrucutresMetadata(): received METADATA from Servux");
 
             if (data.getInt("version") != ServuxStructuresPacket.PROTOCOL_VERSION)
             {
@@ -930,7 +973,7 @@ public class DataStorage
                 MiniHUD.printDebug("DataStorage#unregisterStructureChannel(): for {}", this.servuxVersion != null ? this.servuxVersion : "<unknown>");
 
                 HANDLER.encodeStructuresPacket(new ServuxStructuresPacket(ServuxStructuresPacket.Type.PACKET_C2S_STRUCTURES_UNREGISTER, new NbtCompound()));
-                HANDLER.reset(this.getNetworkChannel());
+                HANDLER.reset(HANDLER.getPayloadChannel());
             }
         }
         this.shouldRegisterStructureChannel = false;

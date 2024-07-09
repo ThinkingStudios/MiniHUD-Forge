@@ -92,7 +92,6 @@ public abstract class ShapeBlocky extends ShapeBase
     @Override
     public void draw(Matrix4f matrix4f, Matrix4f projMatrix)
     {
-        // FIXME Matrix4f
         this.preRender();
 
         this.renderObjects.get(0).draw(matrix4f, projMatrix);
