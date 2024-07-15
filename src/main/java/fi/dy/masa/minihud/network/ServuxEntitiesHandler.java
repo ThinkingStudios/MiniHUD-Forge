@@ -1,9 +1,10 @@
 package fi.dy.masa.minihud.network;
 
 import io.netty.buffer.Unpooled;
+import lol.bai.badpackets.api.play.ClientPlayContext;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.thinkingstudio.fabric.api.client.networking.v1.ClientPlayNetworking;
+//import org.thinkingstudio.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
@@ -25,9 +26,9 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
     private final static ServuxEntitiesHandler<ServuxEntitiesPacket.Payload> INSTANCE = new ServuxEntitiesHandler<>()
     {
         @Override
-        public void receive(ServuxEntitiesPacket.Payload payload, ClientPlayNetworking.Context context)
+        public void receive(ClientPlayContext context, ServuxEntitiesPacket.Payload payload)
         {
-            ServuxEntitiesHandler.INSTANCE.receivePlayPayload(payload, context);
+            ServuxEntitiesHandler.INSTANCE.receivePlayPayload(context, payload);
         }
     };
     public static ServuxEntitiesHandler<ServuxEntitiesPacket.Payload> getInstance() { return INSTANCE; }
@@ -130,7 +131,7 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
     }
 
     @Override
-    public void receivePlayPayload(T payload, ClientPlayNetworking.Context ctx)
+    public void receivePlayPayload(ClientPlayContext ctx, T payload)
     {
         if (payload.getId().id().equals(CHANNEL_ID))
         {
