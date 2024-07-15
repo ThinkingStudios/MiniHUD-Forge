@@ -1,6 +1,7 @@
 package fi.dy.masa.minihud.network;
 
-import org.thinkingstudio.fabric.api.client.networking.v1.ClientPlayNetworking;
+//import org.thinkingstudio.fabric.api.client.networking.v1.ClientPlayNetworking;
+import lol.bai.badpackets.api.play.ClientPlayContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -23,9 +24,9 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
     private final static ServuxStructuresHandler<ServuxStructuresPacket.Payload> INSTANCE = new ServuxStructuresHandler<>()
     {
         @Override
-        public void receive(ServuxStructuresPacket.Payload payload, ClientPlayNetworking.Context context)
+        public void receive(ClientPlayContext context, ServuxStructuresPacket.Payload payload)
         {
-            ServuxStructuresHandler.INSTANCE.receivePlayPayload(payload, context);
+            ServuxStructuresHandler.INSTANCE.receivePlayPayload(context, payload);
         }
     };
     public static ServuxStructuresHandler<ServuxStructuresPacket.Payload> getInstance() { return INSTANCE; }
@@ -135,7 +136,7 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
     }
 
     @Override
-    public void receivePlayPayload(T payload, ClientPlayNetworking.Context ctx)
+    public void receivePlayPayload(ClientPlayContext ctx, T payload)
     {
         if (payload.getId().id().equals(CHANNEL_ID))
         {

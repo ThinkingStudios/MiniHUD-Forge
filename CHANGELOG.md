@@ -1,2 +1,3 @@
 ## Change
-- sync from `sakura-ryoko/minihud`
+- update mafglib version
+- `neonetwork` -> `badpackets`
