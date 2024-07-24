@@ -8,7 +8,6 @@ import fi.dy.masa.malilib.util.BlockUtils;
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
-import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.InfoToggle;
 import fi.dy.masa.minihud.config.RendererToggle;
@@ -17,6 +16,8 @@ import fi.dy.masa.minihud.data.MobCapDataHandler;
 import fi.dy.masa.minihud.mixin.IMixinPassiveEntity;
 import fi.dy.masa.minihud.mixin.IMixinServerWorld;
 import fi.dy.masa.minihud.mixin.IMixinWorldRenderer;
+import fi.dy.masa.minihud.mixin.IMixinZombieVillagerEntity;
+import fi.dy.masa.minihud.network.ServuxEntitiesPacket;
 import fi.dy.masa.minihud.renderer.OverlayRenderer;
 import fi.dy.masa.minihud.util.DataStorage;
 import fi.dy.masa.minihud.util.IServerEntityManager;
@@ -38,6 +39,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Tameable;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.Item;
@@ -61,6 +64,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
+import net.minecraft.world.level.LevelProperties;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.joml.Matrix4f;
 
@@ -147,7 +151,8 @@ public class RenderHandler implements IRenderer
             RenderUtils.renderText(x, y, Configs.Generic.FONT_SCALE.getDoubleValue(), textColor, bgColor, alignment, useBackground, useShadow, this.lines, context);
         }
 
-        if (Configs.Generic.INVENTORY_PREVIEW.getKeybind().isKeybindHeld())
+        if (Configs.Generic.INVENTORY_PREVIEW_ENABLED.getBooleanValue() &&
+            Configs.Generic.INVENTORY_PREVIEW.getKeybind().isKeybindHeld())
         {
             var inventory = RayTraceUtils.getTargetInventory(this.mc);
             if (inventory != null)
@@ -415,6 +420,49 @@ public class RenderHandler implements IRenderer
             else
             {
                 this.addLine("Server TPS: <no valid data>");
+            }
+        }
+        else if (type == InfoToggle.SERVUX)
+        {
+            if (EntitiesDataStorage.getInstance().hasServuxServer())
+            {
+                this.addLine("Servux: %s // Protocol v%d // pB: %02d, pE: %02d".formatted(
+                        EntitiesDataStorage.getInstance().getServuxVersion(),
+                        ServuxEntitiesPacket.PROTOCOL_VERSION,
+                        EntitiesDataStorage.getInstance().getPendingBLockEntitiesCount(),
+                        EntitiesDataStorage.getInstance().getPendingEntitiesCount()
+                ));
+            }
+        }
+        else if (type == InfoToggle.WEATHER)
+        {
+            World bestWorld = WorldUtils.getBestWorld(mc);
+            if (bestWorld.getLevelProperties().isThundering())
+            {
+                if (bestWorld.getLevelProperties() instanceof LevelProperties lp)
+                {
+                    // 50 = 1000 (ms/s) / 20 (ticks/s)
+                    this.addLine("Weather: Thundering, "+ DurationFormatUtils.formatDurationWords(lp.getThunderTime() * 50L, true, true) +" remaining");
+                }
+                else
+                {
+                    this.addLine("Weather: Thundering");
+                }
+            }
+            else if (bestWorld.getLevelProperties().isRaining())
+            {
+                if (bestWorld.getLevelProperties() instanceof LevelProperties lp)
+                {
+                    this.addLine("Weather: Raining, "+ DurationFormatUtils.formatDurationWords(lp.getRainTime() * 50L, true, true) +" remaining");
+                }
+                else
+                {
+                    this.addLine("Weather: Raining");
+                }
+            }
+            else
+            {
+                this.addLine("Weather: Clear");
             }
         }
         else if (type == InfoToggle.MOB_CAPS)
@@ -804,6 +852,14 @@ public class RenderHandler implements IRenderer
                 this.addLine(chunksClient);
             }
         }
+        else if (type == InfoToggle.PANDA_GENE)
+        {
+            if (this.getTargetEntity(world, mc) instanceof PandaEntity panda)
+            {
+                this.addLine("Main gene: " + panda.getMainGene().asString() + (panda.getMainGene().isRecessive() ? " (recessive)" : " (dominant)"));
+                this.addLine("Hidden gene: " + panda.getHiddenGene().asString() + (panda.getHiddenGene().isRecessive() ? " (recessive)" : " (dominant)"));
+            }
+        }
         else if (type == InfoToggle.PARTICLE_COUNT)
         {
             this.addLine(String.format("P: %s", mc.particleManager.getDebugString()));
@@ -945,6 +1001,62 @@ public class RenderHandler implements IRenderer
                 else
                 {
                     this.addLine(String.format("Entity: %s", lookedEntity.getName().getString()));
+                }
+            }
+        }
+        else if (type == InfoToggle.LOOKING_AT_EFFECTS)
+        {
+            if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.ENTITY)
+            {
+                Entity lookedEntity = this.getTargetEntity(world, mc);
+                if (lookedEntity instanceof LivingEntity living)
+                {
+                    Collection<StatusEffectInstance> effects = living.getStatusEffects();
+                    Iterator<StatusEffectInstance> iter = effects.iterator();
+
+                    while (iter.hasNext())
+                    {
+                        StatusEffectInstance effect = iter.next();
+
+                        if (effect.isInfinite() || effect.getDuration() > 0)
+                        {
+                            StringBuilder effectsLine = new StringBuilder();
+
+                            effectsLine.append("Status Effect: ");
+                            effectsLine.append(effect.getEffectType().getIdAsString() + " / ");
+
+                            if (effect.getAmplifier() > 0)
+                            {
+                                effectsLine.append("x"+effect.getAmplifier()+" / ");
+                            }
+
+                            if (effect.isInfinite())
+                            {
+                                effectsLine.append("INF");
+                            }
+                            else
+                            {
+                                effectsLine.append(DurationFormatUtils.formatDurationWords((effect.getDuration() / 20) * 1000, true, true));
+                            }
+
+                            this.addLine(String.format("%s remaining", effectsLine.toString()));
+                        }
+                    }
+                }
+            }
+        }
+        else if (type == InfoToggle.ZOMBIE_CONVERSION)
+        {
+            if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.ENTITY)
+            {
+                Entity lookedEntity = this.getTargetEntity(world, mc);
+                if (lookedEntity instanceof ZombieVillagerEntity zombie)
+                {
+                    int conversionTimer = ((IMixinZombieVillagerEntity) zombie).conversionTimer();
+                    if (conversionTimer > 0)
+                    {
+                        this.addLine(String.format("Zombie Villager Cures in: %s", DurationFormatUtils.formatDurationWords((conversionTimer / 20) * 1000, true, true)));
+                    }
                 }
             }
         }

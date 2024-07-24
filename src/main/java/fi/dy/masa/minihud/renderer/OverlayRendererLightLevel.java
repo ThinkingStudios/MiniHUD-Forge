@@ -50,6 +50,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
 
     private static boolean tagsBroken;
     private static boolean needsUpdate;
+    private boolean wasEmpty = true;
 
     @Override
     public String getName()
@@ -86,14 +87,29 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
+        if (mc.world == null)
+        {
+            this.deleteGlResources();
+            needsUpdate = false;
+            return;
+        }
         BlockPos pos = PositionUtils.getEntityBlockPos(entity);
         int lastSize = this.lightInfos.size();
 
+        if (this.wasEmpty)
+        {
+            this.lightInfos.clear();
+            lastSize = 0;
+        }
+
+        //System.out.printf("LL last size: %d\n", lastSize);
+
         if (this.updateLightLevels(mc.world, pos))
         {
-            if (lastSize == 0)
+            if (lastSize == 0 || this.wasEmpty)
             {
                 this.allocateGlResources();
+                this.wasEmpty = false;
             }
 
             RenderObjectBase renderQuads = this.renderObjects.get(0);
@@ -110,6 +126,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
         else
         {
             this.deleteGlResources();
+            this.wasEmpty = true;
         }
 
         //long pre = System.nanoTime();
@@ -390,6 +407,8 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
     {
         this.lightInfos.clear();
 
+        //System.out.printf("LL center %s\n", center.toShortString());
+
         int radius = Configs.Generic.LIGHT_LEVEL_RANGE.getIntegerValue();
         final int minX = center.getX() - radius;
         final int minY = center.getY() - radius;
@@ -459,9 +478,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
                                 if (autoHeight == false || topY < 1)
                                 {
                                     float posY = topY >= 0 ? y + (float) topY : y;
-
                                     this.lightInfos.add(new LightLevelInfo(mutablePos.asLong(), posY, block, sky));
-
                                     //y += 2; // if the spot is spawnable, that means the next spawnable spot can be the third block up
                                 }
                             }

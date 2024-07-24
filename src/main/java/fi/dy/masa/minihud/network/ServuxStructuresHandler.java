@@ -1,6 +1,5 @@
 package fi.dy.masa.minihud.network;
 
-//import org.thinkingstudio.fabric.api.client.networking.v1.ClientPlayNetworking;
 import lol.bai.badpackets.api.play.ClientPlayContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
