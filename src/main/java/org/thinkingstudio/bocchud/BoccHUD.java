@@ -15,7 +15,7 @@ public class BoccHUD {
         if (FMLLoader.getDist().isClient()) {
             MiniHUD.onInitialize();
 
-            NeoUtils.getInstance().registerModConfigScreen(modContainer, (screen) -> {
+            NeoUtils.getInstance().registerConfigScreen(modContainer, (screen) -> {
                 GuiConfigs gui = new GuiConfigs();
                 gui.setParent(screen);
                 return gui;
