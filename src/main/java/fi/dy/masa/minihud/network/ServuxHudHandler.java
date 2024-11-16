@@ -2,6 +2,8 @@ package fi.dy.masa.minihud.network;
 
 import lol.bai.badpackets.api.play.ClientPlayContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
@@ -77,8 +79,14 @@ public abstract class ServuxHudHandler<T extends CustomPayload> implements IPlug
                     this.servuxRegistered = true;
                 }
             }
-            case PACKET_S2C_SPAWN_DATA -> HudDataManager.getInstance().receiveSpawnMetadata(packet.getCompound());
-            case PACKET_S2C_WEATHER_TICK -> HudDataManager.getInstance().receiveWeatherData(packet.getCompound());
+            case PACKET_S2C_SPAWN_DATA ->
+            {
+                HudDataManager.getInstance().receiveSpawnMetadata(packet.getCompound());
+            }
+            case PACKET_S2C_WEATHER_TICK ->
+            {
+                HudDataManager.getInstance().receiveWeatherData(packet.getCompound());
+            }
             case PACKET_S2C_NBT_RESPONSE_DATA ->
             {
                 if (this.readingSessionKey == -1)
@@ -94,8 +102,7 @@ public abstract class ServuxHudHandler<T extends CustomPayload> implements IPlug
                     try
                     {
                         this.readingSessionKey = -1;
-                        // TODO 1.21.2+
-                        //HudDataManager.getInstance().receiveRecipeManager((NbtCompound) fullPacket.readNbt(NbtSizeTracker.ofUnlimitedBytes()));
+                        HudDataManager.getInstance().receiveRecipeManager((NbtCompound) fullPacket.readNbt(NbtSizeTracker.ofUnlimitedBytes()));
                     }
                     catch (Exception e)
                     {

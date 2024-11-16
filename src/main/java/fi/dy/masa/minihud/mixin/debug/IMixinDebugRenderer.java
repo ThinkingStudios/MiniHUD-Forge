@@ -10,9 +10,6 @@ public interface IMixinDebugRenderer
     @Accessor("showChunkBorder")
     boolean minihud_getShowChunkBorder();
 
-    // TODO 1.21.2+
-    /*
     @Accessor("showOctree")
     boolean minihud_getShowOctree();
-     */
 }

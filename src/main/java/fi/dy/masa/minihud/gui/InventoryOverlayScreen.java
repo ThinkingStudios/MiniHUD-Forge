@@ -94,7 +94,7 @@ public class InventoryOverlayScreen extends Screen implements Drawable
 
             /*
             MiniHUD.logger.warn("render():0: type [{}], previewData.type [{}], previewData.inv [{}], previewData.be [{}], previewData.ent [{}], previewData.nbt [{}]", type.toString(), previewData.type().toString(),
-                                previewData.inv() != null, previewData.be() != null, previewData.entity() != null, previewData.nbt() != null ? previewData.nbt().getString("id") : null);
+                                 previewData.inv() != null, previewData.be() != null, previewData.entity() != null, previewData.nbt() != null ? previewData.nbt().getString("id") : null);
             MiniHUD.logger.error("0: -> inv.type [{}] // nbt.type [{}]", previewData.inv() != null ? InventoryOverlay.getInventoryType(previewData.inv()) : null, previewData.nbt() != null ? InventoryOverlay.getInventoryType(previewData.nbt()) : null);
              */
 
@@ -117,7 +117,6 @@ public class InventoryOverlayScreen extends Screen implements Drawable
             {
                 Inventory horseInv = new SimpleInventory(armourItems.toArray(new ItemStack[0]));
                 InventoryOverlay.renderInventoryBackground(type, xInv, yInv, 1, horseInv.size(), mc);
-                // TODO 1.21.2+
                 //InventoryOverlay.renderInventoryBackgroundSlots(type, horseInv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, drawContext);
                 InventoryOverlay.renderInventoryStacks(type, horseInv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, 1, 0, horseInv.size(), mc, drawContext, mouseX, mouseY);
                 xInv += 32 + 4;
@@ -132,13 +131,14 @@ public class InventoryOverlayScreen extends Screen implements Drawable
             if (totalSlots > 0 && previewData.inv() != null)
             {
                 InventoryOverlay.renderInventoryBackground(type, xInv, yInv, props.slotsPerRow, totalSlots, mc);
-                // TODO 1.21.2+
+
                 /*
                 if (type == InventoryOverlay.InventoryRenderType.BREWING_STAND)
                 {
                     InventoryOverlay.renderBrewerBackgroundSlots(previewData.inv(), xInv, yInv, drawContext);
                 }
-                */
+                 */
+
                 //dumpInvStacks(previewData.inv(), world);
                 InventoryOverlay.renderInventoryStacks(type, previewData.inv(), xInv + props.slotOffsetX, yInv + props.slotOffsetY, props.slotsPerRow, startSlot, totalSlots, lockedSlots, mc, drawContext, mouseX, mouseY);
             }
@@ -217,7 +217,7 @@ public class InventoryOverlayScreen extends Screen implements Drawable
             }
             else
             {
-                System.out.printf("slot[%d]: [%s]\n", i, inv.getStack(i).encode(world.getRegistryManager()));
+                System.out.printf("slot[%d]: [%s]\n", i, inv.getStack(i).toNbt(world.getRegistryManager()));
             }
         }
 

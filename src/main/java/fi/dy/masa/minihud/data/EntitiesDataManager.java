@@ -409,7 +409,7 @@ public class EntitiesDataManager implements IClientTickHandler
         else if (world.getBlockState(pos).getBlock() instanceof BlockEntityProvider)
         {
             if (!DataStorage.getInstance().hasIntegratedServer() &&
-                    Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
+                Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
             {
                 this.pendingBlockEntitiesQueue.add(pos);
             }
@@ -441,7 +441,7 @@ public class EntitiesDataManager implements IClientTickHandler
         }
 
         if (!DataStorage.getInstance().hasIntegratedServer() &&
-                Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
+            Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
         {
             this.pendingEntitiesQueue.add(entityId);
         }

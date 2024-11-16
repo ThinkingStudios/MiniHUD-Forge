@@ -13,7 +13,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
@@ -41,13 +41,11 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.structure.Structure;
 import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.Reference;
-import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
 import fi.dy.masa.minihud.data.HudDataManager;
 import fi.dy.masa.minihud.data.MobCapDataHandler;
@@ -574,6 +572,7 @@ public class DataStorage
                 {
                     Object[] o = text.getArgs();
                     String rule = o[0].toString();
+
                     if (rule.equals("spawnChunkRadius"))
                     {
                         int value = Integer.parseInt(o[1].toString());
@@ -970,7 +969,7 @@ public class DataStorage
                 {
                     Structure structure = entry.getKey();
                     StructureStart start = entry.getValue();
-                    Identifier id = world.getRegistryManager().get(RegistryKeys.STRUCTURE).getId(structure);
+                    Identifier id = world.getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE).getId(structure);
                     StructureType type = StructureType.fromStructureId(id != null ? id.toString() : "?");
 
                     if (type.isEnabled() &&
@@ -1023,15 +1022,9 @@ public class DataStorage
         return obj;
     }
 
-    /**
-     * This function now checks for stale JSON data.
-     * It only compares it if we have an Integrated Server running, and they are marked as valid.
-     * @param obj ()
-     */
     public void fromJson(JsonObject obj)
     {
         Vec3d pos = JsonUtils.vec3dFromJson(obj, "distance_pos");
-
         this.distanceReferencePoint = Objects.requireNonNullElse(pos, Vec3d.ZERO);
 
         // Backwards compat

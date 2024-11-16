@@ -101,7 +101,8 @@
     "minihud.config.generic.comment.blockGridOverlayRadius": "The radius of the block grid lines to render",
     "minihud.config.generic.comment.bundlePreview": "Enables rendering a preview of the Bundle contents,\nwhen you hold shift while hovering over a Bundle item",
     "minihud.config.generic.comment.bundleDisplayBgColor": "Enables tinting/coloring the Bundle display\nbackground texture with the dye color of the bundle",
-    "minihud.config.generic.comment.bundleDisplayRequireShift": "Whether or not holding shift is required for the Bundle preview\n§6NOTE: Disabling this causes the Vanilla Bundle tooltip to be fully disabled.",    "minihud.config.generic.comment.coordinateFormat": "The format string for the coordinate line.\nNeeds to have three %%f format strings!\nDefault: x: %%.1f y: %%.1f z: %%.1f",
+    "minihud.config.generic.comment.bundleDisplayRequireShift": "Whether or not holding shift is required for the Bundle preview\n§6NOTE: Disabling this causes the Vanilla Bundle tooltip to be fully disabled.",
+    "minihud.config.generic.comment.coordinateFormat": "The format string for the coordinate line.\nNeeds to have three %%f format strings!\nDefault: x: %%.1f y: %%.1f z: %%.1f",
     "minihud.config.generic.comment.dateFormatReal": "The format string for real time, see the Java SimpleDateFormat\nclass for the format patterns, if needed.",
     "minihud.config.generic.comment.dateFormatMinecraft": "The format string for the Minecraft time.\nThe supported placeholders are: {DAY_1}, {DAY}, {HOUR}, {MIN}, {SEC}, {MOON}.\n{DAY_1} starts the day counter from 1, {DAY} starts from 0.",
     "minihud.config.generic.comment.debugMessages": "Enables some debug messages in the game console",
@@ -435,6 +436,7 @@
     "minihud.config.render_toggle.comment.overlayStructureMainToggle": "Main toggle for all structure bounding boxes",
     "minihud.config.render_toggle.comment.overlayVillagerInfo": "Toggle the villager offers render.\nDisplays the enchantment books it sells.",
     "minihud.config.render_toggle.comment.shapeRenderer": "The main toggle for the shape renderer",
+
     "minihud.config.render_toggle.comment.debugDataMainToggle": "Toggles the Debug Data Service from either\nSingle Player, or via Servux, and this\ndisables all optional Debug Renderers.",
     "minihud.config.render_toggle.comment.debugBrainEnabled": "Toggles the vanilla Brain debug renderer\n§6WARNING! This requires Server-Side data\n§6from Single Player or Servux.",
     "minihud.config.render_toggle.comment.debugBeeDataEnabled": "Toggles the vanilla Bee Data debug renderer\n§6WARNING! This requires Server-Side data\n§6from Single Player or Servux.",
@@ -479,6 +481,7 @@
     "minihud.config.render_toggle.prettyName.overlayStructureMainToggle": "Structure Bounding Boxes main",
     "minihud.config.render_toggle.prettyName.overlayVillagerInfo": "Villager offers overlay",
     "minihud.config.render_toggle.prettyName.shapeRenderer": "Shape Renderer",
+
     "minihud.config.render_toggle.prettyName.debugDataMainToggle": "Debug Data Main Toggle",
     "minihud.config.render_toggle.prettyName.debugBrainEnabled": "Brain Data",
     "minihud.config.render_toggle.prettyName.debugBeeDataEnabled": "Bee Data",

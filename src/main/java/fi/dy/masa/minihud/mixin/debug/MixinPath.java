@@ -27,7 +27,7 @@ public class MixinPath
     private void minihud_PathfindingFix(PacketByteBuf buf, CallbackInfo ci)
     {
         this.debugNodeInfos = new Path.DebugNodeInfo(this.nodes.stream().filter((pathNode) ->
-                                  !pathNode.visited).toArray(PathNode[]::new), this.nodes.stream().filter((pathNode) ->
-                                  pathNode.visited).toArray(PathNode[]::new), Set.of(new TargetPathNode(this.target.getX(), this.target.getY(), this.target.getZ())));
+                              !pathNode.visited).toArray(PathNode[]::new), this.nodes.stream().filter((pathNode) ->
+                               pathNode.visited).toArray(PathNode[]::new), Set.of(new TargetPathNode(this.target.getX(), this.target.getY(), this.target.getZ())));
     }
 }

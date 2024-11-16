@@ -199,7 +199,7 @@ public class DebugDataManager
     public boolean receiveMetadata(NbtCompound data)
     {
         if (!this.hasServuxServer() && !DataStorage.getInstance().hasIntegratedServer() &&
-                this.shouldRegisterDebugService)
+            this.shouldRegisterDebugService)
         {
             MiniHUD.printDebug("DebugDataManager#receiveMetadata(): received METADATA from Servux");
 
@@ -299,11 +299,11 @@ public class DebugDataManager
         if (RendererToggle.DEBUG_VILLAGE_SECTIONS.getBooleanValue())
         {
             world.getPointOfInterestStorage().getType(pos).ifPresent((registryEntry) ->
-                                                                     {
-                                                                         int tickets = world.getPointOfInterestStorage().getFreeTickets(pos);
-                                                                         String name = registryEntry.getIdAsString();
-                                                                         this.sendDebugData(world, new DebugPoiAddedCustomPayload(pos, name, tickets));
-                                                                     });
+             {
+                 int tickets = world.getPointOfInterestStorage().getFreeTickets(pos);
+                 String name = registryEntry.getIdAsString();
+                 this.sendDebugData(world, new DebugPoiAddedCustomPayload(pos, name, tickets));
+             });
         }
     }
 
@@ -341,7 +341,7 @@ public class DebugDataManager
         }
         if (RendererToggle.DEBUG_VILLAGE_SECTIONS.getBooleanValue())
         {
-            Registry<Structure> registry = world.getRegistryManager().get(RegistryKeys.STRUCTURE);
+            Registry<Structure> registry = world.getRegistryManager().getOrThrow(RegistryKeys.STRUCTURE);
             ChunkSectionPos chunkSectionPos = ChunkSectionPos.from(pos);
             Iterator<RegistryEntry<Structure>> iterator = registry.iterateEntries(StructureTags.VILLAGE).iterator();
 
@@ -422,7 +422,7 @@ public class DebugDataManager
         if (RendererToggle.DEBUG_GOAL_SELECTOR.getBooleanValue())
         {
             List<DebugGoalSelectorCustomPayload.Goal> goals = ((IMixinMobEntity) mob).minihud_getGoalSelector().getGoals().stream().map((goal) ->
-                                                                                                                                                new DebugGoalSelectorCustomPayload.Goal(goal.getPriority(), goal.isRunning(), goal.getGoal().toString())).toList();
+                                      new DebugGoalSelectorCustomPayload.Goal(goal.getPriority(), goal.isRunning(), goal.getGoal().toString())).toList();
 
             this.sendDebugData(world, new DebugGoalSelectorCustomPayload(mob.getId(), mob.getBlockPos(), goals));
         }
@@ -476,20 +476,20 @@ public class DebugDataManager
                 inventory = villager.getInventory().toString();
                 wantsGolem = villager.canSummonGolem(serverWorld.getTime());
                 villager.getGossip().getEntityReputationAssociatedGossips().forEach((uuid, associatedGossip) ->
-                                                                                    {
-                                                                                        Entity gossipEntity = serverWorld.getEntity(uuid);
+                    {
+                        Entity gossipEntity = serverWorld.getEntity(uuid);
 
-                                                                                        if (gossipEntity != null)
-                                                                                        {
-                                                                                            String name = NameGenerator.name(gossipEntity);
+                        if (gossipEntity != null)
+                        {
+                            String name = NameGenerator.name(gossipEntity);
 
-                                                                                            for (Object2IntMap.Entry<VillageGossipType> typeEntry : associatedGossip.object2IntEntrySet())
-                                                                                            {
-                                                                                                Map.Entry<VillageGossipType, Integer> entry = (Map.Entry) typeEntry;
-                                                                                                gossips.add(name + ": " + entry.getKey().asString() + " " + entry.getValue());
-                                                                                            }
-                                                                                        }
-                                                                                    });
+                            for (Object2IntMap.Entry<VillageGossipType> typeEntry : associatedGossip.object2IntEntrySet())
+                            {
+                                Map.Entry<VillageGossipType, Integer> entry = (Map.Entry) typeEntry;
+                                gossips.add(name + ": " + entry.getKey().asString() + " " + entry.getValue());
+                            }
+                        }
+                    });
 
                 Brain<?> brain = villager.getBrain();
                 addPoi(brain, MemoryModuleType.HOME, pois);
@@ -529,9 +529,9 @@ public class DebugDataManager
         {
             this.sendDebugData(world, new DebugBeeCustomPayload(
                     new DebugBeeCustomPayload.Bee(bee.getUuid(), bee.getId(), bee.getPos(),
-                                                  bee.getNavigation().getCurrentPath(), bee.getHivePos(), bee.getFlowerPos(), bee.getMoveGoalTicks(),
-                                                  bee.getGoalSelector().getGoals().stream().map((prioritizedGoal) ->
-                                                                                                        prioritizedGoal.getGoal().toString()).collect(Collectors.toSet()), bee.getPossibleHives())));
+                          bee.getNavigation().getCurrentPath(), bee.getHivePos(), bee.getFlowerPos(), bee.getMoveGoalTicks(),
+                          bee.getGoalSelector().getGoals().stream().map((prioritizedGoal) ->
+                              prioritizedGoal.getGoal().toString()).collect(Collectors.toSet()), bee.getPossibleHives())));
 
         }
     }

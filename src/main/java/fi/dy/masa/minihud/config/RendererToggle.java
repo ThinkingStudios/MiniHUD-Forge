@@ -42,8 +42,7 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
     DEBUG_BRAIN                         ("debugBrainEnabled",           ""),
     DEBUG_BREEZE_JUMP                   ("debugBreezeJumpEnabled",      ""),
     DEBUG_CHUNK_BORDER                  ("debugChunkBorder",            ""),
-    // TODO 1.21.2+
-    //DEBUG_CHUNK_DEBUG                   ("debugChunkDebug",             ""),
+    DEBUG_CHUNK_DEBUG                   ("debugChunkDebug",             ""),
     DEBUG_CHUNK_INFO                    ("debugChunkInfo",              ""),
     DEBUG_CHUNK_LOADING                 ("debugChunkLoading",           ""),
     DEBUG_CHUNK_OCCLUSION               ("debugChunkOcclusion",         ""),
@@ -55,8 +54,7 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
     //DEBUG_GAME_TEST                     ("debugGameTestEnabled",        ""),
     DEBUG_GAME_EVENT                    ("debugGameEventsEnabled",      ""),
     DEBUG_GOAL_SELECTOR                 ("debugGoalSelectorEnabled",    ""),
-    // TODO 1.21.2+
-    //DEBUG_OCTREEE                       ("debugOctreeEnabled",          ""),
+    DEBUG_OCTREEE                       ("debugOctreeEnabled",          ""),
     DEBUG_PATH_FINDING                  ("debugPathfindingEnabled",     ""),
     DEBUG_RAID_CENTER                   ("debugRaidCenterEnabled",      ""),
     // todo
@@ -71,7 +69,7 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
     DEBUG_WORLDGEN                      ("debugWorldGenEnabled",        "");
 
     public static final ImmutableList<RendererToggle> VALUES = ImmutableList.copyOf(values());
-    private static final String translateNameBase = Reference.ID+".config.render_toggle";
+    private static final String RENDER_KEY = Reference.ID+".config.render_toggle";
 
     private final String name;
     private final String comment;
@@ -87,6 +85,11 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
         this(name, defaultHotkey, KeybindSettings.DEFAULT, buildTranslateName(name, "comment"), buildTranslateName(name, "prettyName"), buildTranslateName(name, "name"));
     }
 
+    RendererToggle(String name, String defaultHotkey, String comment)
+    {
+        this(name, defaultHotkey, KeybindSettings.DEFAULT, comment, StringUtils.splitCamelCase(name), name);
+    }
+
     RendererToggle(String name, String defaultHotkey, String comment, String prettyName)
     {
         this(name, defaultHotkey, KeybindSettings.DEFAULT, comment, prettyName, name);
@@ -100,6 +103,11 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
     RendererToggle(String name, String defaultHotkey, KeybindSettings settings)
     {
         this(name, defaultHotkey, settings, buildTranslateName(name, "comment"), buildTranslateName(name, "prettyName"), buildTranslateName(name, "name"));
+    }
+
+    RendererToggle(String name, String defaultHotkey, KeybindSettings settings, String comment)
+    {
+        this(name, defaultHotkey, settings, comment, StringUtils.splitCamelCase(name), name);
     }
 
     RendererToggle(String name, String defaultHotkey, KeybindSettings settings, String comment, String prettyName)
@@ -234,7 +242,7 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
 
     private static String buildTranslateName(String name, String type)
     {
-        return translateNameBase + "." + type + "." + name;
+        return RENDER_KEY + "." + type + "." + name;
     }
 
     @Override

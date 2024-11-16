@@ -80,8 +80,7 @@ public class KeyCallbacks
         RendererToggle.DEBUG_CHUNK_OCCLUSION.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
         RendererToggle.DEBUG_NEIGHBOR_UPDATES.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
         //RendererToggle.DEBUG_PATH_FINDING.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
-        // TODO 1.21.2+
-        //RendererToggle.DEBUG_OCTREEE.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
+        RendererToggle.DEBUG_OCTREEE.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
     }
 
     private static void updateBeaconOverlay()

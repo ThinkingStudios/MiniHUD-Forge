@@ -133,7 +133,7 @@ public class RendererCallbacks
 
                 if (radius < 0)
                 {
-                    HudDataManager.getInstance().setSpawnChunkRadius(2, true); // 1.20.5 Vanilla Default
+                    HudDataManager.getInstance().setSpawnChunkRadius(2, true);   // 1.20.5 Vanilla Default
                     radius = 2;
                 }
                 if (radius > 0)

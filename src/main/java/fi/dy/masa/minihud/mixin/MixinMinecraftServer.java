@@ -23,8 +23,7 @@ public abstract class MixinMinecraftServer
         DebugInfoUtils.onServerTickEnd((MinecraftServer) (Object) this);
     }
 
-    @Inject(method = "prepareStartRegion",
-            at = @At(value = "INVOKE",
+    @Inject(method = "prepareStartRegion", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/util/math/MathHelper;square(I)I", shift = At.Shift.BEFORE)
     )
     private void onPrepareStartRegion(WorldGenerationProgressListener worldGenerationProgressListener, CallbackInfo ci,

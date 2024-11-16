@@ -1,12 +1,22 @@
 package fi.dy.masa.minihud.data;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import javax.annotation.Nullable;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.recipe.PreparedRecipes;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeManager;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -24,6 +34,7 @@ import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.Reference;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
+import fi.dy.masa.minihud.mixin.IMixinServerRecipeManager;
 import fi.dy.masa.minihud.network.ServuxHudHandler;
 import fi.dy.masa.minihud.network.ServuxHudPacket;
 import fi.dy.masa.minihud.network.ServuxStructuresPacket;
@@ -55,7 +66,7 @@ public class HudDataManager
     private int rainWeatherTimer;
     private int thunderWeatherTimer;
 
-    //private PreparedRecipes preparedRecipes;
+    private PreparedRecipes preparedRecipes;
     private int recipeCount;
 
     public HudDataManager()
@@ -74,7 +85,7 @@ public class HudDataManager
         this.clearWeatherTimer = -1;
         this.rainWeatherTimer = -1;
         this.thunderWeatherTimer = -1;
-        //this.preparedRecipes = PreparedRecipes.EMPTY;
+        this.preparedRecipes = PreparedRecipes.EMPTY;
         this.recipeCount = 0;
     }
 
@@ -105,7 +116,7 @@ public class HudDataManager
             this.worldSpawn = BlockPos.ORIGIN;
             this.worldSpawnValid = false;
             this.spawnChunkRadiusValid = false;
-            //this.preparedRecipes = PreparedRecipes.EMPTY;
+            this.preparedRecipes = PreparedRecipes.EMPTY;
             this.recipeCount = 0;
         }
 
@@ -376,8 +387,6 @@ public class HudDataManager
         return -1;
     }
 
-    // TODO 1.21.2+
-    /*
     public boolean hasRecipes()
     {
         return !this.preparedRecipes.equals(PreparedRecipes.EMPTY);
@@ -401,7 +410,6 @@ public class HudDataManager
     {
         return this.recipeCount;
     }
-     */
 
     public @Nullable RecipeManager getRecipeManager()
     {
@@ -549,8 +557,6 @@ public class HudDataManager
         }
     }
 
-    // TODO 1.21.2+
-    /*
     public void receiveRecipeManager(NbtCompound data)
     {
         if (!DataStorage.getInstance().hasIntegratedServer() && data.contains("RecipeManager"))
@@ -599,7 +605,6 @@ public class HudDataManager
             }
         }
     }
-     */
 
     public JsonObject toJson()
     {

@@ -31,6 +31,9 @@ import net.minecraft.block.enums.ChestType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Fog;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -74,6 +77,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.LightType;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.World;
@@ -92,6 +96,8 @@ import javax.annotation.Nullable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 
 public class RenderHandler implements IRenderer
 {
@@ -147,7 +153,7 @@ public class RenderHandler implements IRenderer
     }
 
     @Override
-    public void onRenderGameOverlayPost(DrawContext drawContext)
+    public void onRenderGameOverlayPostAdvanced(DrawContext drawContext, float partialTicks, Profiler profiler, MinecraftClient mc)
     {
         if (Configs.Generic.MAIN_RENDERING_TOGGLE.getBooleanValue() == false)
         {
@@ -179,6 +185,7 @@ public class RenderHandler implements IRenderer
             boolean useShadow = Configs.Generic.USE_FONT_SHADOW.getBooleanValue();
 
             RenderUtils.renderText(x, y, Configs.Generic.FONT_SCALE.getDoubleValue(), textColor, bgColor, alignment, useBackground, useShadow, this.lines, drawContext);
+            RenderUtils.forceDraw(drawContext);
         }
 
         if (Configs.Generic.INVENTORY_PREVIEW_ENABLED.getBooleanValue() &&
@@ -205,7 +212,7 @@ public class RenderHandler implements IRenderer
             if (Configs.Generic.MAP_PREVIEW.getBooleanValue() &&
                (Configs.Generic.MAP_PREVIEW_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown()))
             {
-                RenderUtils.renderMapPreview(stack, x, y, Configs.Generic.MAP_PREVIEW_SIZE.getIntegerValue(), false);
+                RenderUtils.renderMapPreview(stack, x, y, Configs.Generic.MAP_PREVIEW_SIZE.getIntegerValue(), false, drawContext);
             }
         }
         else if (stack.getComponents().contains(DataComponentTypes.CONTAINER) && InventoryUtils.shulkerBoxHasItems(stack))
@@ -250,7 +257,7 @@ public class RenderHandler implements IRenderer
         else if (stack.getComponents().contains(DataComponentTypes.BUNDLE_CONTENTS) && InventoryUtils.bundleHasItems(stack))
         {
             if (Configs.Generic.BUNDLE_PREVIEW.getBooleanValue() &&
-                    (Configs.Generic.BUNDLE_DISPLAY_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown()))
+                (Configs.Generic.BUNDLE_DISPLAY_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown()))
             {
                 RenderUtils.renderBundlePreview(stack, x, y, Configs.Generic.BUNDLE_DISPLAY_BACKGROUND_COLOR.getBooleanValue(), drawContext);
             }
@@ -258,12 +265,12 @@ public class RenderHandler implements IRenderer
     }
 
     @Override
-    public void onRenderWorldLast(Matrix4f posMatrix, Matrix4f projMatrix)
+    public void onRenderWorldPreWeather(Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, Profiler profiler)
     {
         if (Configs.Generic.MAIN_RENDERING_TOGGLE.getBooleanValue() &&
             this.mc.world != null && this.mc.player != null && this.mc.options.hudHidden == false)
         {
-            OverlayRenderer.renderOverlays(posMatrix, projMatrix, this.mc);
+            OverlayRenderer.renderOverlays(posMatrix, projMatrix, this.mc, frustum, camera, fog, profiler);
         }
     }
 
@@ -830,7 +837,8 @@ public class RenderHandler implements IRenderer
             {
                 return;
             }
-            if (Configs.Generic.INFO_LINES_USES_NBT.getBooleanValue()&& !pair.getRight().isEmpty())
+
+            if (Configs.Generic.INFO_LINES_USES_NBT.getBooleanValue() && !pair.getRight().isEmpty())
             {
                 BlockEntityType<?> beType = BlockUtils.getBlockEntityTypeFromNbt(pair.getRight());
 
@@ -838,12 +846,46 @@ public class RenderHandler implements IRenderer
                     beType.equals(BlockEntityType.BLAST_FURNACE) ||
                     beType.equals(BlockEntityType.SMOKER))
                 {
-                    this.addLineI18n("minihud.info_line.furnace_xp", MiscUtils.getFurnaceXpAmount(bestWorld, pair.getRight()));
+                    if (bestWorld instanceof ServerWorld serverWorld)
+                    {
+                        int exp = MiscUtils.getFurnaceXpAmount(serverWorld, pair.getRight());
+
+                        if (exp > 0)
+                        {
+                            this.addLineI18n("minihud.info_line.furnace_xp", exp);
+                        }
+                    }
+                    else if (this.getHudData().hasServuxServer() && this.getHudData().hasRecipes())
+                    {
+                        int exp = MiscUtils.getFurnaceXpAmount(pair.getRight());
+
+                        if (exp > 0)
+                        {
+                            this.addLineI18n("minihud.info_line.furnace_xp", exp);
+                        }
+                    }
                 }
             }
             else if (pair.getLeft() instanceof AbstractFurnaceBlockEntity furnace)
             {
-                this.addLineI18n("minihud.info_line.furnace_xp", MiscUtils.getFurnaceXpAmount(bestWorld, furnace));
+                if (bestWorld instanceof ServerWorld serverWorld)
+                {
+                    int exp = MiscUtils.getFurnaceXpAmount(serverWorld, furnace);
+
+                    if (exp > 0)
+                    {
+                        this.addLineI18n("minihud.info_line.furnace_xp", exp);
+                    }
+                }
+                else if (this.getHudData().hasServuxServer() && this.getHudData().hasRecipes())
+                {
+                    int exp = MiscUtils.getFurnaceXpAmount(furnace);
+
+                    if (exp > 0)
+                    {
+                        this.addLineI18n("minihud.info_line.furnace_xp", exp);
+                    }
+                }
             }
         }
         else if (type == InfoToggle.HORSE_SPEED ||
@@ -899,9 +941,9 @@ public class RenderHandler implements IRenderer
             }
             else
             {
-                //speed = horse.getMovementSpeed() > 0 ? horse.getMovementSpeed() : horse.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-                speed = horse.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-                jump = horse.getAttributeValue(EntityAttributes.GENERIC_JUMP_STRENGTH);
+                //speed = horse.getMovementSpeed() > 0 ? horse.getMovementSpeed() : horse.getAttributeValue(EntityAttributes.MOVEMENT_SPEED);
+                speed = horse.getAttributeValue(EntityAttributes.MOVEMENT_SPEED);
+                jump = horse.getAttributeValue(EntityAttributes.JUMP_STRENGTH);
             }
 
             if (InfoToggle.HORSE_SPEED.getBooleanValue() && speed > 0d)
@@ -1074,7 +1116,7 @@ public class RenderHandler implements IRenderer
             if (clientChunk.isEmpty() == false)
             {
                 Biome biome = mc.world.getBiome(pos).value();
-                Identifier id = mc.world.getRegistryManager().get(RegistryKeys.BIOME).getId(biome);
+                Identifier id = mc.world.getRegistryManager().getOrThrow(RegistryKeys.BIOME).getId(biome);
                 String translationKey = "biome." + id.toString().replace(":", ".");
                 String biomeName = StringUtils.translate(translationKey);
                 if (biomeName.equals(translationKey))
@@ -1092,7 +1134,7 @@ public class RenderHandler implements IRenderer
             if (clientChunk.isEmpty() == false)
             {
                 Biome biome = mc.world.getBiome(pos).value();
-                Identifier rl = mc.world.getRegistryManager().get(RegistryKeys.BIOME).getId(biome);
+                Identifier rl = mc.world.getRegistryManager().getOrThrow(RegistryKeys.BIOME).getId(biome);
                 String name = rl != null ? rl.toString() : "?";
                 this.addLineI18n("minihud.info_line.biome_reg_name", name);
             }
@@ -1249,7 +1291,7 @@ public class RenderHandler implements IRenderer
                     return;
                 }
                 if (Configs.Generic.INFO_LINES_USES_NBT.getBooleanValue() &&
-                    pair.getLeft() instanceof LivingEntity living && !pair.getRight().isEmpty())
+                        pair.getLeft() instanceof LivingEntity living && !pair.getRight().isEmpty())
                 {
                     NbtCompound nbt = pair.getRight();
                     EntityType<?> entityType = EntityUtils.getEntityTypeFromNbt(nbt);

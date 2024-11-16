@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "fi.dy.masa.minihud.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
     "IMixinAbstractFurnaceBlockEntity",
@@ -12,11 +12,11 @@
     "IMixinDataQueryHandler",
     "IMixinEntity",
     "IMixinEntityNavigation",
-    "IMixinLeashable",
     "IMixinMerchantEntity",
     "IMixinMinecraftServer",
     "IMixinPassiveEntity",
     "IMixinPiglinEntity",
+    "IMixinServerRecipeManager",
     "IMixinServerWorld",
     "IMixinSkeletonEntity",
     "IMixinWorld",
@@ -24,9 +24,9 @@
     "IMixinZombieEntity",
     "IMixinZombieVillagerEntity",
     "MixinBeaconBlockEntity",
-    "MixinBundleItem",
     "MixinChatScreen",
     "MixinChunkTicketManager",
+    "MixinClientCommonNetworkHandler",
     "MixinClientPlayerInteractionManager",
     "MixinClientPlayNetworkHandler",
     "MixinConduitBlockEntity",
@@ -34,6 +34,7 @@
     "MixinLanguage",
     "MixinMinecraftClient",
     "MixinMinecraftServer",
+    "MixinResourcePackSendS2CPacket",
     "MixinServerEntityManager",
     "MixinServerWorld",
     "MixinSubtitlesHud",
@@ -41,8 +42,11 @@
     "debug.IMixinMobEntity",
     "debug.MixinDebugInfoSender",
     "debug.MixinDebugRenderer",
-    "debug.MixinPath",
     "debug.MixinSharedConstants"
+  ],
+  "mixins": [
+    "MixinBundleItem",
+    "debug.MixinPath"
   ],
   "injectors": {
     "defaultRequire": 1

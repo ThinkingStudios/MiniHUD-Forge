@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import com.google.common.collect.MapMaker;
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.netty.buffer.Unpooled;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.render.debug.NeighborUpdateDebugRenderer;
@@ -53,18 +54,23 @@ public class DebugInfoUtils
     {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         //path.toBuf(buf); // This won't work because the DebugNodeInfo is not set
+
         buf.writeBoolean(path.reachesTarget());
         buf.writeInt(path.getCurrentNodeIndex());
         buf.writeBlockPos(path.getTarget());
+
         int size = path.getLength();
         buf.writeVarInt(path.getLength());
+
         for (int i = 0; i < size; ++i)
         {
             path.getNode(i).write(buf);
         }
+
         buf.writeVarInt(0); // number of nodes in DebugNodeInfo
         buf.writeVarInt(0); // number of entries in openSet
         buf.writeVarInt(0); // number of entries in closedSet
+
         return Path.fromBuf(buf);
     }
      */
@@ -98,32 +104,41 @@ public class DebugInfoUtils
         // Send the custom packet with the Path data, if that debug renderer is enabled
         /*
         MinecraftClient mc = MinecraftClient.getInstance();
+
         if (pathfindingEnabled && mc.world != null && ++tickCounter >= 10)
         {
             tickCounter = 0;
             ServerWorld world = server.getWorld(mc.world.getRegistryKey());
+
             if (world != null)
             {
                 TypeFilter<Entity, MobEntity> filter = TypeFilter.instanceOf(MobEntity.class);
                 Predicate<MobEntity> predicate = LivingEntity::isAlive;
+
                 for (MobEntity entity : world.getEntitiesByType(filter, predicate))
                 {
                     EntityNavigation navigator = entity.getNavigation();
+
                     if (navigator != null && isAnyPlayerWithinRange(world, entity, 64))
                     {
                         final Path path = navigator.getCurrentPath();
+
                         if (path == null)
                         {
                             continue;
                         }
+
                         Path old = OLD_PATHS.get(entity);
                         boolean isSamepath = old != null && old.equalsPath(path);
+
                         if (old == null || isSamepath == false || old.getCurrentNodeIndex() != path.getCurrentNodeIndex())
                         {
                             final int id = entity.getId();
                             // FIXME
                             //final float maxDistance = Configs.Generic.DEBUG_RENDERER_PATH_MAX_DIST.getBooleanValue() ? ((IMixinEntityNavigation) navigator).getMaxDistanceToWaypoint() : 0F;
+
                             //DebugInfoUtils.sendPacketDebugPath(server, id, path, maxDistance);
+
                             if (isSamepath == false)
                             {
                                 OLD_PATHS.put(entity, copyPath(path));
@@ -145,14 +160,17 @@ public class DebugInfoUtils
     {
         List<ServerPlayerEntity> players = world.getPlayers();
         double squaredRange = range * range;
+
         for (PlayerEntity player : players)
         {
             double distSq = player.squaredDistanceTo(entity.getX(), entity.getY(), entity.getZ());
+
             if (range < 0.0 || distSq < squaredRange)
             {
                 return true;
             }
         }
+
         return false;
     }
      */
@@ -193,8 +211,6 @@ public class DebugInfoUtils
         {
             MinecraftClient.getInstance().debugChunkOcclusion = config.getBooleanValue();
         }
-        // TODO 1.21.2+
-        /*
         else if (config == RendererToggle.DEBUG_OCTREEE)
         {
             boolean enabled = ((IMixinDebugRenderer) MinecraftClient.getInstance().debugRenderer).minihud_getShowOctree();
@@ -213,7 +229,6 @@ public class DebugInfoUtils
                 MiniHUD.logger.warn("Toggled Vanilla 'Octree' Debug Renderer OFF.");
             }
         }
-         */
     }
 
     private static void debugWarn(String key, Object... args)
@@ -224,8 +239,9 @@ public class DebugInfoUtils
                 .append(Text.translatable(key, args)));
     }
 
-    public static void renderVanillaDebug(MatrixStack matrixStack, VertexConsumerProvider.Immediate vtx,
-            double cameraX, double cameraY, double cameraZ)
+    public static void renderVanillaDebug(MatrixStack matrixStack, Frustum frustum,
+                                          VertexConsumerProvider.Immediate vtx,
+                                          double cameraX, double cameraY, double cameraZ)
     {
         if (RendererToggle.DEBUG_DATA_MAIN_TOGGLE.getBooleanValue() == false)
         {
@@ -255,13 +271,10 @@ public class DebugInfoUtils
         {
             renderer.chunkLoadingDebugRenderer.render(matrixStack, vtx, cameraX, cameraY, cameraZ);
         }
-        // TODO 1.21.2+
-        /*
         if (RendererToggle.DEBUG_CHUNK_DEBUG.getBooleanValue())
         {
             renderer.chunkDebugRenderer.render(matrixStack, vtx, cameraX, cameraY, cameraZ);
         }
-         */
         if (RendererToggle.DEBUG_SUPPORTING_BLOCK.getBooleanValue())
         {
             renderer.supportingBlockDebugRenderer.render(matrixStack, vtx, cameraX, cameraY, cameraZ);
@@ -347,12 +360,9 @@ public class DebugInfoUtils
 
     public static void onToggleVanillaDebugOctree(boolean toggle)
     {
-        // TODO 1.21.2.+
-        /*
         if (toggle != RendererToggle.DEBUG_OCTREEE.getBooleanValue())
         {
             RendererToggle.DEBUG_OCTREEE.setBooleanValue(toggle);
         }
-         */
     }
 }
