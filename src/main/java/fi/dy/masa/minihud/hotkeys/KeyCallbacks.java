@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.hotkeys.*;
+import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererCallbacks;
 import fi.dy.masa.minihud.config.RendererToggle;
@@ -73,11 +74,14 @@ public class KeyCallbacks
         RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_REAL.setValueChangeCallback(RendererCallbacks::onSpawnChunksRealToggled);
         RendererToggle.OVERLAY_STRUCTURE_MAIN_TOGGLE.setValueChangeCallback(RendererCallbacks::onStructuresToggled);
 
+        RendererToggle.DEBUG_DATA_MAIN_TOGGLE.setValueChangeCallback(RendererCallbacks::onDebugServiceToggled);
         RendererToggle.DEBUG_CHUNK_BORDER.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
         RendererToggle.DEBUG_CHUNK_INFO.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
         RendererToggle.DEBUG_CHUNK_OCCLUSION.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
         RendererToggle.DEBUG_NEIGHBOR_UPDATES.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
         //RendererToggle.DEBUG_PATH_FINDING.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
+        // TODO 1.21.2+
+        //RendererToggle.DEBUG_OCTREEE.setValueChangeCallback(DebugInfoUtils::toggleDebugRenderer);
     }
 
     private static void updateBeaconOverlay()
@@ -139,7 +143,9 @@ public class KeyCallbacks
                 else if (Configs.Generic.INVENTORY_PREVIEW_ENABLED.getBooleanValue() &&
                         Configs.Generic.INVENTORY_PREVIEW.getKeybind().isKeybindHeld())
                 {
-                    RayTraceUtils.InventoryPreviewData inventory = RayTraceUtils.getTargetInventory(mc);
+                    //RayTraceUtils.InventoryPreviewData inventory = RayTraceUtils.getTargetInventory(mc);
+                    InventoryOverlay.Context inventory = RayTraceUtils.getTargetInventory(mc, false);
+
                     if (inventory != null)
                     {
                         mc.setScreen(new InventoryOverlayScreen(inventory));

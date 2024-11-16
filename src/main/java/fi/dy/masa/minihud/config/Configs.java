@@ -37,17 +37,23 @@ public class Configs implements IConfigHandler
         public static final ConfigString        BLOCK_POS_FORMAT_STRING             = new ConfigString("blockPosFormat", "Block: %d, %d, %d", "minihud.config.generic.comment.blockPosFormat").translatedName("minihud.config.generic.name.blockPosFormat");
         public static final ConfigOptionList    BLOCK_GRID_OVERLAY_MODE             = new ConfigOptionList("blockGridOverlayMode", BlockGridMode.ALL, "minihud.config.generic.comment.blockGridOverlayMode").translatedName("minihud.config.generic.name.blockGridOverlayMode");
         public static final ConfigInteger       BLOCK_GRID_OVERLAY_RADIUS           = new ConfigInteger("blockGridOverlayRadius", 32, 0, 128, "minihud.config.generic.comment.blockGridOverlayRadius").translatedName("minihud.config.generic.name.blockGridOverlayRadius");
+        public static final ConfigBoolean       BUNDLE_PREVIEW                      = new ConfigBoolean("bundlePreview", false, "minihud.config.generic.comment.bundlePreview").translatedName("minihud.config.generic.name.bundlePreview");
+        public static final ConfigBoolean       BUNDLE_DISPLAY_BACKGROUND_COLOR     = new ConfigBoolean("bundleDisplayBgColor", true, "minihud.config.generic.comment.bundleDisplayBgColor").translatedName("minihud.config.generic.name.bundleDisplayBgColor");
+        public static final ConfigBoolean       BUNDLE_DISPLAY_REQUIRE_SHIFT        = new ConfigBoolean("bundleDisplayRequireShift", true, "minihud.config.generic.comment.bundleDisplayRequireShift").translatedName("minihud.config.generic.name.bundleDisplayRequireShift");
         public static final ConfigString        COORDINATE_FORMAT_STRING            = new ConfigString("coordinateFormat", "x: %.1f y: %.1f z: %.1f", "minihud.config.generic.comment.coordinateFormat").translatedName("minihud.config.generic.name.coordinateFormat");
         public static final ConfigString        DATE_FORMAT_REAL                    = new ConfigString("dateFormatReal", "yyyy-MM-dd HH:mm:ss", "minihud.config.generic.comment.dateFormatReal").translatedName("minihud.config.generic.name.dateFormatReal");
         public static final ConfigString        DATE_FORMAT_MINECRAFT               = new ConfigString("dateFormatMinecraft", "MC time: (day {DAY}) {HOUR}:{MIN}:xx", "minihud.config.generic.comment.dateFormatMinecraft").translatedName("minihud.config.generic.name.dateFormatMinecraft");
         public static final ConfigBoolean       DEBUG_MESSAGES                      = new ConfigBoolean("debugMessages", false, "minihud.config.generic.comment.debugMessages").translatedName("minihud.config.generic.name.debugMessages");
+        //public static final ConfigBoolean       DEBUG_DEVELOPMENT_MODE              = new ConfigBoolean("debugDevelopmentMode", false, "minihud.config.generic.comment.debugDevelopmentMode").translatedName("minihud.config.generic.name.debugDevelopmentMode");
         //public static final ConfigBoolean       DEBUG_RENDERER_PATH_MAX_DIST        = new ConfigBoolean("debugRendererPathFindingEnablePointWidth", true, "minihud.config.generic.comment.debugRendererPathFindingEnablePointWidth").translatedName("minihud.config.generic.name.debugRendererPathFindingEnablePointWidth");
         public static final ConfigBoolean       DONT_RESET_SEED_ON_DIMENSION_CHANGE = new ConfigBoolean("dontClearStoredSeedOnDimensionChange", true, "minihud.config.generic.comment.dontClearStoredSeedOnDimensionChange").translatedName("minihud.config.generic.name.dontClearStoredSeedOnDimensionChange");
         public static final ConfigBoolean       ENTITY_DATA_SYNC                    = new ConfigBoolean("entityDataSync", true, "minihud.config.generic.comment.entityDataSync").translatedName("minihud.config.generic.name.entityDataSync");
         public static final ConfigBoolean       ENTITY_DATA_SYNC_BACKUP             = new ConfigBoolean("entityDataSyncBackup", true, "minihud.config.generic.comment.entityDataSyncBackup").translatedName("minihud.config.generic.name.entityDataSyncBackup");
+        public static final ConfigBoolean       ENTITY_DATA_LOAD_NBT                = new ConfigBoolean("entityDataSyncLoadNbt", false, "minihud.config.generic.comment.entityDataSyncLoadNbt").translatedName("minihud.config.generic.name.entityDataSyncLoadNbt");
         //public static final ConfigBoolean       FIX_VANILLA_DEBUG_RENDERERS         = new ConfigBoolean("enableVanillaDebugRendererFix", true, "minihud.config.generic.comment.enableVanillaDebugRendererFix").translatedName("minihud.config.generic.name.enableVanillaDebugRendererFix");
         public static final ConfigDouble        FONT_SCALE                          = new ConfigDouble("fontScale", 0.5, 0.01, 100.0, "minihud.config.generic.comment.fontScale").translatedName("minihud.config.generic.name.fontScale");
         public static final ConfigOptionList    HUD_ALIGNMENT                       = new ConfigOptionList("hudAlignment", HudAlignment.TOP_LEFT, "minihud.config.generic.comment.hudAlignment").translatedName("minihud.config.generic.name.hudAlignment");
+        public static final ConfigBoolean       INFO_LINES_USES_NBT                 = new ConfigBoolean("infoLinesUsesNbt", true, "minihud.config.generic.comment.infoLinesUsesNbt").translatedName("minihud.config.generic.name.infoLinesUsesNbt");
         public static final ConfigHotkey        INVENTORY_PREVIEW                   = new ConfigHotkey("inventoryPreview", "LEFT_ALT", KeybindSettings.PRESS_ALLOWEXTRA, "minihud.config.generic.comment.inventoryPreview").translatedName("minihud.config.generic.name.inventoryPreview");
         public static final ConfigBoolean       INVENTORY_PREVIEW_ENABLED           = new ConfigBoolean("inventoryPreviewEnabled", false, "minihud.config.generic.comment.inventoryPreviewEnabled").translatedName("minihud.config.generic.name.inventoryPreviewEnabled");
         public static final ConfigHotkey        INVENTORY_PREVIEW_TOGGLE_SCREEN     = new ConfigHotkey("inventoryPreviewToggleScreen", "BUTTON_3", KeybindSettings.create(KeybindSettings.Context.ANY, KeyAction.PRESS, true, true, false, true), "minihud.config.generic.comment.inventoryPreviewToggleScreen").translatedName("minihud.config.generic.name.inventoryPreviewToggleScreen");
@@ -85,6 +91,7 @@ public class Configs implements IConfigHandler
         public static final ConfigHotkey        SHAPE_EDITOR                        = new ConfigHotkey("shapeEditor", "", "minihud.config.generic.comment.shapeEditor").translatedName("minihud.config.generic.name.shapeEditor");
         public static final ConfigBoolean       SHULKER_BOX_PREVIEW                 = new ConfigBoolean("shulkerBoxPreview", false, "minihud.config.generic.comment.shulkerBoxPreview").translatedName("minihud.config.generic.name.shulkerBoxPreview");
         public static final ConfigBoolean       SHULKER_DISPLAY_BACKGROUND_COLOR    = new ConfigBoolean("shulkerDisplayBgColor", true, "minihud.config.generic.comment.shulkerDisplayBgColor").translatedName("minihud.config.generic.name.shulkerDisplayBgColor");
+        public static final ConfigBoolean       SHULKER_DISPLAY_ENDER_CHEST         = new ConfigBoolean("shulkerDisplayEnderChest", false, "minihud.config.generic.comment.shulkerDisplayEnderChest").translatedName("minihud.config.generic.name.shulkerDisplayEnderChest");
         public static final ConfigBoolean       SHULKER_DISPLAY_REQUIRE_SHIFT       = new ConfigBoolean("shulkerDisplayRequireShift", true, "minihud.config.generic.comment.shulkerDisplayRequireShift").translatedName("minihud.config.generic.name.shulkerDisplayRequireShift");
         public static final ConfigBoolean       SLIME_CHUNK_TOP_TO_PLAYER           = new ConfigBoolean("slimeChunkTopToPlayer", true, "minihud.config.generic.comment.slimeChunkTopToPlayer").translatedName("minihud.config.generic.name.slimeChunkTopToPlayer");
         public static final ConfigInteger       SLIME_CHUNK_OVERLAY_RADIUS          = new ConfigInteger("slimeChunkOverlayRadius", -1, -1, 40, "minihud.config.generic.comment.slimeChunkOverlayRadius").translatedName("minihud.config.generic.name.slimeChunkOverlayRadius");
@@ -105,6 +112,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       USE_TEXT_BACKGROUND                 = new ConfigBoolean("useTextBackground", true, "minihud.config.generic.comment.useTextBackground").translatedName("minihud.config.generic.name.useTextBackground");
         public static final ConfigBoolean       VILLAGER_CONVERSION_TICKS           = new ConfigBoolean("villagerConversionTicks", true, "minihud.config.generic.comment.villagerConversionTicks").translatedName("minihud.config.generic.name.villagerConversionTicks");
         public static final ConfigBoolean       VILLAGER_OFFER_ENCHANTMENT_BOOKS    = new ConfigBoolean("villagerOfferEnchantmentBooks", true, "minihud.config.generic.comment.villagerOfferEnchantmentBooks").translatedName("minihud.config.generic.name.villagerOfferEnchantmentBooks");
+        public static final ConfigBoolean       VILLAGER_OFFER_PRICE_RANGE          = new ConfigBoolean("villagerOfferPriceRange", true, "minihud.config.generic.comment.villagerOfferPriceRange").translatedName("minihud.config.generic.name.villagerOfferPriceRange");
         public static final ConfigBoolean       VILLAGER_OFFER_HIGHEST_LEVEL_ONLY   = new ConfigBoolean("villagerOfferHighestLevelOnly", false, "minihud.config.generic.comment.villagerOfferHighestLevelOnly").translatedName("minihud.config.generic.name.villagerOfferHighestLevelOnly");
         public static final ConfigBoolean       VILLAGER_OFFER_LOWEST_PRICE_NEARBY  = new ConfigBoolean("villagerOfferLowestPriceNearby" , false, "minihud.config.generic.comment.villagerOfferLowestPriceNearby").translatedName("minihud.config.generic.name.villagerOfferLowestPriceNearby");
         public static final ConfigDouble        VILLAGER_OFFER_PRICE_THRESHOLD      = new ConfigDouble("villagerOfferPriceThreshold", 1, 0, 1, "minihud.config.generic.comment.villagerOfferPriceThreshold").translatedName("minihud.config.generic.name.villagerOfferPriceThreshold");
@@ -114,11 +122,17 @@ public class Configs implements IConfigHandler
                 BEE_TOOLTIPS,
                 HONEY_TOOLTIPS,
                 BIOME_OVERLAY_SINGLE_COLOR,
+                BUNDLE_PREVIEW,
+                BUNDLE_DISPLAY_BACKGROUND_COLOR,
+                BUNDLE_DISPLAY_REQUIRE_SHIFT,
                 DEBUG_MESSAGES,
+                //DEBUG_DEVELOPMENT_MODE,
                 //DEBUG_RENDERER_PATH_MAX_DIST,
                 DONT_RESET_SEED_ON_DIMENSION_CHANGE,
                 ENTITY_DATA_SYNC,
                 ENTITY_DATA_SYNC_BACKUP,
+                ENTITY_DATA_LOAD_NBT,
+                INFO_LINES_USES_NBT,
                 //FIX_VANILLA_DEBUG_RENDERERS,
                 LIGHT_LEVEL_AUTO_HEIGHT,
                 LIGHT_LEVEL_COLLISION_CHECK,
@@ -133,6 +147,7 @@ public class Configs implements IConfigHandler
                 REQUIRE_SNEAK,
                 SHULKER_BOX_PREVIEW,
                 SHULKER_DISPLAY_BACKGROUND_COLOR,
+                SHULKER_DISPLAY_ENDER_CHEST,
                 SHULKER_DISPLAY_REQUIRE_SHIFT,
                 SLIME_CHUNK_TOP_TO_PLAYER,
                 SORT_LINES_BY_LENGTH,
@@ -190,6 +205,7 @@ public class Configs implements IConfigHandler
                 INVENTORY_PREVIEW_TOGGLE_SCREEN,
                 VILLAGER_CONVERSION_TICKS,
                 VILLAGER_OFFER_ENCHANTMENT_BOOKS,
+                VILLAGER_OFFER_PRICE_RANGE,
                 VILLAGER_OFFER_HIGHEST_LEVEL_ONLY,
                 VILLAGER_OFFER_LOWEST_PRICE_NEARBY,
                 VILLAGER_OFFER_PRICE_THRESHOLD

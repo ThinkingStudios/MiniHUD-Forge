@@ -15,6 +15,7 @@ import fi.dy.masa.malilib.interfaces.IValueChangeCallback;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.minihud.MiniHUD;
+import fi.dy.masa.minihud.Reference;
 
 import javax.annotation.Nullable;
 
@@ -36,17 +37,41 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
     OVERLAY_VILLAGER_INFO               ("overlayVillagerInfo",         ""),
     SHAPE_RENDERER                      ("shapeRenderer",               ""),
 
+    DEBUG_DATA_MAIN_TOGGLE              ("debugDataMainToggle",         ""),
+    DEBUG_BEEDATA                       ("debugBeeDataEnabled",         ""),
+    DEBUG_BRAIN                         ("debugBrainEnabled",           ""),
+    DEBUG_BREEZE_JUMP                   ("debugBreezeJumpEnabled",      ""),
     DEBUG_CHUNK_BORDER                  ("debugChunkBorder",            ""),
+    // TODO 1.21.2+
+    //DEBUG_CHUNK_DEBUG                   ("debugChunkDebug",             ""),
     DEBUG_CHUNK_INFO                    ("debugChunkInfo",              ""),
+    DEBUG_CHUNK_LOADING                 ("debugChunkLoading",           ""),
     DEBUG_CHUNK_OCCLUSION               ("debugChunkOcclusion",         ""),
     DEBUG_COLLISION_BOXES               ("debugCollisionBoxEnabled",    ""),
+    DEBUG_HEIGHTMAP                     ("debugHeightmapEnabled",       ""),
+    DEBUG_LIGHT                         ("debugLightEnabled",           ""),
     DEBUG_NEIGHBOR_UPDATES              ("debugNeighborsUpdateEnabled", ""),
-    //DEBUG_PATH_FINDING                  ("debugPathfindingEnabled",     ""),
+    // todo
+    //DEBUG_GAME_TEST                     ("debugGameTestEnabled",        ""),
+    DEBUG_GAME_EVENT                    ("debugGameEventsEnabled",      ""),
+    DEBUG_GOAL_SELECTOR                 ("debugGoalSelectorEnabled",    ""),
+    // TODO 1.21.2+
+    //DEBUG_OCTREEE                       ("debugOctreeEnabled",          ""),
+    DEBUG_PATH_FINDING                  ("debugPathfindingEnabled",     ""),
+    DEBUG_RAID_CENTER                   ("debugRaidCenterEnabled",      ""),
+    // todo
+    //DEBUG_REDSTONE_UPDATE_ORDER         ("debugRedstoneUpdateOrder",    ""),
+    DEBUG_SKYLIGHT                      ("debugSkylightEnabled",        ""),
     DEBUG_SOLID_FACES                   ("debugSolidFaceEnabled",       ""),
-    DEBUG_WATER                         ("debugWaterEnabled",           "");
+    DEBUG_STRUCTURES                    ("debugStructuresEnabled",      ""),
+    DEBUG_SUPPORTING_BLOCK              ("debugSupportingBlock",        ""),
+    DEBUG_WATER                         ("debugWaterEnabled",           ""),
+    DEBUG_VILLAGE                       ("debugVillageEnabled",         ""),
+    DEBUG_VILLAGE_SECTIONS              ("debugVillageSectionsEnabled", ""),
+    DEBUG_WORLDGEN                      ("debugWorldGenEnabled",        "");
 
     public static final ImmutableList<RendererToggle> VALUES = ImmutableList.copyOf(values());
-    private static final String translateNameBase = "minihud.config.render_toggle";
+    private static final String translateNameBase = Reference.ID+".config.render_toggle";
 
     private final String name;
     private final String comment;

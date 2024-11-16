@@ -1,5 +1,6 @@
 package fi.dy.masa.minihud.mixin;
 
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.llamalad7.mixinextras.sugar.Local;

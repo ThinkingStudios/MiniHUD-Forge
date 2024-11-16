@@ -36,6 +36,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
 
     // Player
     BLOCK_BREAK_SPEED       ("infoBlockBreakSpeed",         false, ""),
+    PLAYER_EXPERIENCE       ("infoPlayerExperience",        false, ""),
     SPEED                   ("infoSpeed",                   false, ""),
     SPEED_AXIS              ("infoSpeedAxis",               false, ""),
     SPEED_HV                ("infoSpeedHV",                 false, ""),
@@ -80,17 +81,19 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     FURNACE_XP              ("infoFurnaceXp",               false, ""),
 
     // Entity
-    LOOKING_AT_ENTITY       ("infoLookingAtEntity",         false, ""),
     ENTITY_REG_NAME         ("infoEntityRegistryName",      false, ""),
+    LOOKING_AT_ENTITY       ("infoLookingAtEntity",         false, ""),
     LOOKING_AT_EFFECTS      ("infoLookingAtEffects",        false, ""),
+    LOOKING_AT_PLAYER_EXP   ("infoLookingAtPlayerExp",      false, ""),
     ZOMBIE_CONVERSION       ("infoZombieConversion",        false, ""),
     HORSE_SPEED             ("infoHorseSpeed",              false, ""),
     HORSE_JUMP              ("infoHorseJump",               false, ""),
     PANDA_GENE              ("infoPandaGene",               false, ""),
+    ENTITY_VARIANT          ("infoEntityVariant",           false, ""),
     ;
 
     public static final ImmutableList<InfoToggle> VALUES = ImmutableList.copyOf(values());
-    private static final String translateNameBase = Reference.ORIGINAL_ID+".config.info_toggle";
+    private static final String translateNameBase = Reference.ID+".config.info_toggle";
 
     private final String name;
     private final String comment;

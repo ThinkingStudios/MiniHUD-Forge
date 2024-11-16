@@ -1,7 +1,7 @@
-package fi.dy.masa.minihud.mixin;
+package fi.dy.masa.minihud.mixin.debug;
 
-//@Mixin(CollisionDebugRenderer.class)
-public abstract class MixinCollisionDebugRenderer
+//@Mixin(HeightmapDebugRenderer.class)
+public abstract class MixinHeightmapDebugRenderer
 {
     /*
     @Inject(method = "render", at = @At("HEAD"))
@@ -9,5 +9,5 @@ public abstract class MixinCollisionDebugRenderer
     {
         RenderHandler.fixDebugRendererState();
     }
-    */
+     */
 }

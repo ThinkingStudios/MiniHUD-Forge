@@ -3,6 +3,7 @@ package fi.dy.masa.minihud.util;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
 import fi.dy.masa.minihud.event.RenderHandler;
 
 public class InventoryUtils
@@ -11,7 +12,7 @@ public class InventoryUtils
     {
         Inventory inv = fi.dy.masa.malilib.util.InventoryUtils.getInventory(world, pos);
 
-        if ((inv == null || inv.isEmpty()) && DataStorage.getInstance().hasIntegratedServer() == false)
+        if ((inv == null || inv.isEmpty()) && !DataStorage.getInstance().hasIntegratedServer())
         {
             RenderHandler.getInstance().requestBlockEntityAt(world, pos);
         }

@@ -1,11 +1,12 @@
 package fi.dy.masa.minihud.util;
 
-import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.component.DataComponentTypes;
@@ -16,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.AbstractCookingRecipe;
 import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -24,6 +26,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import fi.dy.masa.malilib.util.BlockUtils;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.minihud.mixin.IMixinAbstractFurnaceBlockEntity;
@@ -118,6 +122,11 @@ public class MiscUtils
                bb1.maxX == bb2.maxX && bb1.maxY == bb2.maxY && bb1.maxZ == bb2.maxZ;
     }
 
+    public static int getSpawnableChunksCount(@Nonnull ServerWorld world)
+    {
+        return world.getChunkManager().chunkLoadingManager.getTicketManager().getTickedChunkCount();
+    }
+
     public static void addAxolotlTooltip(ItemStack stack, List<Text> lines)
     {
         NbtComponent entityData = stack.getComponents().get(DataComponentTypes.BUCKET_ENTITY_DATA);
@@ -173,7 +182,17 @@ public class MiscUtils
 
                 if (beeName.isEmpty() == false)
                 {
-                    Text beeText = Text.Serialization.fromJson(beeName, DataStorage.getInstance().getWorldRegistryManager());
+                    Text beeText;
+
+                    try
+                    {
+                        beeText = Text.Serialization.fromJson(beeName, DataStorage.getInstance().getWorldRegistryManager());
+                    }
+                    catch (Exception ignored)
+                    {
+                        beeText = Text.of(beeName);
+                    }
+
                     lines.add(Math.min(1, lines.size()), Text.translatable("minihud.label.bee_tooltip.name", beeText));
                 }
             }
@@ -210,17 +229,34 @@ public class MiscUtils
         }
     }
 
-    public static int getFurnaceXpAmount(AbstractFurnaceBlockEntity be)
+    public static int getFurnaceXpAmount(World world, AbstractFurnaceBlockEntity be)
     {
         Object2IntOpenHashMap<Identifier> recipes = ((IMixinAbstractFurnaceBlockEntity) be).minihud_getUsedRecipes();
-        World world = be.getWorld();
         double xp = 0.0;
 
         for (Object2IntMap.Entry<Identifier> entry : recipes.object2IntEntrySet())
         {
-            Optional<RecipeEntry<?>> recipeOpt = world.getRecipeManager().get(entry.getKey());
+            RecipeEntry<?> recipeEntry = world.getRecipeManager().get(entry.getKey()).orElse(null);
 
-            if (recipeOpt.isPresent() && recipeOpt.get().value() instanceof AbstractCookingRecipe recipe)
+            if (recipeEntry != null && recipeEntry.value() instanceof AbstractCookingRecipe recipe)
+            {
+                xp += entry.getIntValue() * recipe.getExperience();
+            }
+        }
+
+        return (int) xp;
+    }
+
+    public static int getFurnaceXpAmount(World world, @Nonnull NbtCompound nbt)
+    {
+        Object2IntOpenHashMap<Identifier> recipes = BlockUtils.getRecipesUsedFromNbt(nbt);
+        double xp = 0.0;
+
+        for (Object2IntMap.Entry<Identifier> entry : recipes.object2IntEntrySet())
+        {
+            RecipeEntry<?> recipeEntry = world.getRecipeManager().get(entry.getKey()).orElse(null);
+
+            if (recipeEntry != null && recipeEntry.value() instanceof AbstractCookingRecipe recipe)
             {
                 xp += entry.getIntValue() * recipe.getExperience();
             }

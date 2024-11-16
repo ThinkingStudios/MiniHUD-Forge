@@ -43,7 +43,7 @@ public enum StructureToggle
     private final ConfigColor colorMain;
     private final ConfigColor colorComponents;
     private final IHotkey hotkey;
-    private static final String translateNameBase = Reference.ORIGINAL_ID+".config.structure_toggle";
+    private static final String translateNameBase = Reference.ID+".config.structure_toggle";
 
     StructureToggle(String name, String defaultHotkey, String colorMain, String colorComponents, String comment, String prettyName)
     {

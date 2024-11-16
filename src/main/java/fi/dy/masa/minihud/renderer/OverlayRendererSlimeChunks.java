@@ -16,7 +16,7 @@ import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
-import fi.dy.masa.minihud.util.DataStorage;
+import fi.dy.masa.minihud.data.HudDataManager;
 import fi.dy.masa.minihud.util.MiscUtils;
 
 public class OverlayRendererSlimeChunks extends OverlayRendererBase
@@ -27,6 +27,8 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
     protected boolean wasSeedKnown;
     protected long seed;
     protected double topY;
+
+    private boolean wasEmpty = true;
 
     @Override
     public String getName()
@@ -62,7 +64,7 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
     public boolean shouldRender(MinecraftClient mc)
     {
         return RendererToggle.OVERLAY_SLIME_CHUNKS_OVERLAY.getBooleanValue() && mc.world != null &&
-                DataStorage.getInstance().isWorldSeedKnown(mc.world) &&
+                HudDataManager.getInstance().isWorldSeedKnown(mc.world) &&
                 MiscUtils.isOverworld(mc.world);
     }
 
@@ -75,8 +77,8 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
         }
 
         World world = entity.getEntityWorld();
-        boolean isSeedKnown = DataStorage.getInstance().isWorldSeedKnown(world);
-        long seed = DataStorage.getInstance().getWorldSeed(world);
+        boolean isSeedKnown = HudDataManager.getInstance().isWorldSeedKnown(world);
+        long seed = HudDataManager.getInstance().getWorldSeed(world);
 
         if (this.topY != overlayTopY || this.wasSeedKnown != isSeedKnown || this.seed != seed)
         {
@@ -94,7 +96,7 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
-        DataStorage data = DataStorage.getInstance();
+        HudDataManager data = HudDataManager.getInstance();
         World world = entity.getEntityWorld();
         this.topY = overlayTopY;
         this.wasSeedKnown = data.isWorldSeedKnown(world);
@@ -115,12 +117,19 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
                 r = mc.options.getViewDistance().getValue();
             }
 
+            if (this.wasEmpty)
+            {
+                this.allocateGlResources();
+                this.wasEmpty = false;
+            }
+
             RenderObjectBase renderQuads = this.renderObjects.get(0);
             RenderObjectBase renderLines = this.renderObjects.get(1);
             BUFFER_1 = TESSELLATOR_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
             BUFFER_2 = TESSELLATOR_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
             int minY = world != null ? world.getBottomY() : -64;
             int topY = (int) Math.floor(this.topY);
+            int count = 0;
 
             for (int xOff = -r; xOff <= r; xOff++)
             {
@@ -134,12 +143,21 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
                         pos1.set( cx << 4,       minY,  cz << 4      );
                         pos2.set((cx << 4) + 15, topY, (cz << 4) + 15);
                         fi.dy.masa.malilib.render.RenderUtils.drawBoxWithEdgesBatched(pos1, pos2, cameraPos, colorLines, colorSides, BUFFER_1, BUFFER_2);
+                        count++;
                     }
                 }
             }
 
-            renderQuads.uploadData(BUFFER_1);
-            renderLines.uploadData(BUFFER_2);
+            if (count > 0)
+            {
+                renderQuads.uploadData(BUFFER_1);
+                renderLines.uploadData(BUFFER_2);
+            }
+            else
+            {
+                this.deleteGlResources();
+                this.wasEmpty = true;
+            }
         }
 
         needsUpdate = false;
