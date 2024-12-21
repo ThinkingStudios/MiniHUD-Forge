@@ -19,14 +19,22 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.InventoryUtils;
+import fi.dy.masa.malilib.util.WorldUtils;
+import fi.dy.masa.malilib.util.game.BlockUtils;
+import fi.dy.masa.malilib.util.game.wrap.GameWrap;
+import fi.dy.masa.malilib.util.nbt.NbtBlockUtils;
+import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.data.EntitiesDataManager;
@@ -94,8 +102,9 @@ public class InventoryOverlayScreen extends Screen implements Drawable
 
             /*
             MiniHUD.logger.warn("render():0: type [{}], previewData.type [{}], previewData.inv [{}], previewData.be [{}], previewData.ent [{}], previewData.nbt [{}]", type.toString(), previewData.type().toString(),
-                                previewData.inv() != null, previewData.be() != null, previewData.entity() != null, previewData.nbt() != null ? previewData.nbt().getString("id") : null);
+                                 previewData.inv() != null, previewData.be() != null, previewData.entity() != null, previewData.nbt() != null ? previewData.nbt().getString("id") : null);
             MiniHUD.logger.error("0: -> inv.type [{}] // nbt.type [{}]", previewData.inv() != null ? InventoryOverlay.getInventoryType(previewData.inv()) : null, previewData.nbt() != null ? InventoryOverlay.getInventoryType(previewData.nbt()) : null);
+            MiniHUD.logger.error("1: -> inv.size [{}] // inv.isEmpty [{}]", previewData.inv() != null ? previewData.inv().size() : -1, previewData.inv() != null ? previewData.inv().isEmpty() : -1);
              */
 
             if (previewData.entity() != null)
@@ -110,15 +119,14 @@ public class InventoryOverlayScreen extends Screen implements Drawable
             }
             else if (previewData.nbt() != null && previewData.nbt().contains(NbtKeys.DISABLED_SLOTS))
             {
-                lockedSlots = BlockUtils.getDisabledSlotsFromNbt(previewData.nbt());
+                lockedSlots = NbtBlockUtils.getDisabledSlotsFromNbt(previewData.nbt());
             }
 
             if (!armourItems.isEmpty())
             {
                 Inventory horseInv = new SimpleInventory(armourItems.toArray(new ItemStack[0]));
                 InventoryOverlay.renderInventoryBackground(type, xInv, yInv, 1, horseInv.size(), mc);
-                // TODO 1.21.2+
-                //InventoryOverlay.renderInventoryBackgroundSlots(type, horseInv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, drawContext);
+                InventoryOverlay.renderInventoryBackgroundSlots(type, horseInv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, drawContext);
                 InventoryOverlay.renderInventoryStacks(type, horseInv, xInv + props.slotOffsetX, yInv + props.slotOffsetY, 1, 0, horseInv.size(), mc, drawContext, mouseX, mouseY);
                 xInv += 32 + 4;
             }
@@ -132,13 +140,15 @@ public class InventoryOverlayScreen extends Screen implements Drawable
             if (totalSlots > 0 && previewData.inv() != null)
             {
                 InventoryOverlay.renderInventoryBackground(type, xInv, yInv, props.slotsPerRow, totalSlots, mc);
-                // TODO 1.21.2+
+
+                // TODO 1.21.4+
                 /*
                 if (type == InventoryOverlay.InventoryRenderType.BREWING_STAND)
                 {
                     InventoryOverlay.renderBrewerBackgroundSlots(previewData.inv(), xInv, yInv, drawContext);
                 }
-                */
+                 */
+
                 //dumpInvStacks(previewData.inv(), world);
                 InventoryOverlay.renderInventoryStacks(type, previewData.inv(), xInv + props.slotOffsetX, yInv + props.slotOffsetY, props.slotsPerRow, startSlot, totalSlots, lockedSlots, mc, drawContext, mouseX, mouseY);
             }
@@ -197,7 +207,7 @@ public class InventoryOverlayScreen extends Screen implements Drawable
         return false;
     }
 
-    public static void dumpInvStacks(Inventory inv, World world)
+    public static void dumpInvStacks(Inventory inv, World world, boolean showTooltip)
     {
         System.out.print("dumpInvStacks() -->\n");
 
@@ -218,6 +228,18 @@ public class InventoryOverlayScreen extends Screen implements Drawable
             else
             {
                 System.out.printf("slot[%d]: [%s]\n", i, inv.getStack(i).encode(world.getRegistryManager()));
+
+                if (showTooltip)
+                {
+                    List<Text> toolTips = inv.getStack(i).getTooltip(Item.TooltipContext.create(world), GameWrap.getClientPlayer(), TooltipType.ADVANCED);
+                    int j = 0;
+
+                    for (Text entry : toolTips)
+                    {
+                        System.out.printf("Tooltip[%d]: [%s]\n", j, entry.getString());
+                        j++;
+                    }
+                }
             }
         }
 

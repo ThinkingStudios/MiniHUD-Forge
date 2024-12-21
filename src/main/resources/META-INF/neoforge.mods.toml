@@ -11,7 +11,7 @@ logoFile="icon.png" #optional
 credits="masa" #optional
 authors="TexTrue, ThinkingStudio" #optional
 description = '''
-MiniHUD unofficial forge port.
+MiniHUD unofficial (Neo)Forge port.
 
 Configurable "mini-F3" info lines, and various overlay renderers.
 '''

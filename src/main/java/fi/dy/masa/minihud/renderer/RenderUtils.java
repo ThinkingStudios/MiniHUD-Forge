@@ -31,6 +31,7 @@ import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.data.EntitiesDataManager;
 import fi.dy.masa.minihud.gui.InventoryOverlayScreen;
@@ -512,7 +513,6 @@ public class RenderUtils
         }
     }
 
-    //public static void renderInventoryOverlay(RayTraceUtils.InventoryPreviewData inventory, DrawContext drawContext)
     public static void renderInventoryOverlay(InventoryOverlay.Context inventory, DrawContext drawContext)
     {
         var screen = new InventoryOverlayScreen(inventory);

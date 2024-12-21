@@ -191,18 +191,12 @@ public class SphereUtils
         double dist = center.squaredDistanceTo(x, y, z);
         double diff = squareRadius - dist;
 
-        if (diff > 0)
+        if (diff >= 0)
         {
             return true;
         }
-
-        double xAdj = (double) blockX + escapeDirection.getOffsetX() + 0.5;
-        double yAdj = (double) blockY + escapeDirection.getOffsetY() + 0.5;
-        double zAdj = (double) blockZ + escapeDirection.getOffsetZ() + 0.5;
-        double distAdj = center.squaredDistanceTo(xAdj, yAdj, zAdj);
-        double diffAdj = squareRadius - distAdj;
-
-        return diffAdj > 0 && Math.abs(diff) < Math.abs(diffAdj);
+        
+        return false;
     }
 
     /**

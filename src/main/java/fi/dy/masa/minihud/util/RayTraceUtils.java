@@ -25,6 +25,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -37,9 +38,12 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 import fi.dy.masa.malilib.render.InventoryOverlay;
+import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.InventoryUtils;
-import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.WorldUtils;
+import fi.dy.masa.malilib.util.nbt.NbtBlockUtils;
+import fi.dy.masa.malilib.util.nbt.NbtKeys;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.data.EntitiesDataManager;
 import fi.dy.masa.minihud.event.RenderHandler;
@@ -48,6 +52,9 @@ import fi.dy.masa.minihud.mixin.IMixinPiglinEntity;
 
 public class RayTraceUtils
 {
+    private static Pair<BlockPos, InventoryOverlay.Context> lastBlockEntityContext = null;
+    private static Pair<Integer,  InventoryOverlay.Context> lastEntityContext = null;
+
     @Nonnull
     public static HitResult getRayTraceFromEntity(World worldIn, Entity entityIn, boolean useLiquids)
     {
@@ -172,8 +179,23 @@ public class RayTraceUtils
                 }
 
                 //MiniHUD.logger.warn("getTarget():2: pos [{}], be [{}], nbt [{}]", pos.toShortString(), be != null, nbt != null);
+                InventoryOverlay.Context ctx = getTargetInventoryFromBlock(world, pos, be, nbt);
+                //dumpContext(ctx);
 
-                return getTargetInventoryFromBlock(world, pos, be, nbt);
+                if (lastBlockEntityContext != null && !lastBlockEntityContext.getLeft().equals(pos))
+                {
+                    lastBlockEntityContext = null;
+                }
+
+                if (ctx != null && ctx.inv() != null)
+                {
+                    lastBlockEntityContext = Pair.of(pos, ctx);
+                    return ctx;
+                }
+                else if (lastBlockEntityContext != null && lastBlockEntityContext.getLeft().equals(pos))
+                {
+                    return lastBlockEntityContext.getRight();
+                }
             }
 
             return null;
@@ -202,11 +224,57 @@ public class RayTraceUtils
             }
 
             //MiniHUD.logger.error("getTarget(): Entity [{}] raw NBT [{}]", entity.getId(), nbt.toString());
+            InventoryOverlay.Context ctx = getTargetInventoryFromEntity(world.getEntityById(entity.getId()), nbt);
+            //dumpContext(ctx);
 
-            return getTargetInventoryFromEntity(world.getEntityById(entity.getId()), nbt);
+            if (lastEntityContext != null && !lastEntityContext.getLeft().equals(entity.getId()))
+            {
+                lastEntityContext = null;
+            }
+
+            if (ctx != null && ctx.inv() != null)
+            {
+                lastEntityContext = Pair.of(entity.getId(), ctx);
+                return ctx;
+            }
+            // Non-Inventory/Empty Entity
+            else if (ctx != null &&
+                    (ctx.type() == InventoryOverlay.InventoryRenderType.WOLF ||
+                     ctx.type() == InventoryOverlay.InventoryRenderType.VILLAGER ||
+                     ctx.type() == InventoryOverlay.InventoryRenderType.HORSE ||
+                     ctx.type() == InventoryOverlay.InventoryRenderType.PLAYER ||
+                     ctx.type() == InventoryOverlay.InventoryRenderType.ARMOR_STAND ||
+                     ctx.type() == InventoryOverlay.InventoryRenderType.LIVING_ENTITY))
+            {
+                lastEntityContext = Pair.of(entity.getId(), ctx);
+                return ctx;
+            }
+            else if (lastEntityContext != null && lastEntityContext.getLeft().equals(entity.getId()))
+            {
+                return lastEntityContext.getRight();
+            }
         }
 
         return null;
+    }
+
+    private static void dumpContext(InventoryOverlay.Context ctx)
+    {
+        System.out.print("Context Dump --> ");
+
+        if (ctx == null)
+        {
+            System.out.print("NULL!\n");
+            return;
+        }
+
+        System.out.printf("\nTYPE: [%s]\n", ctx.type().name());
+        System.out.printf("BE  : [%s]\n", ctx.be() != null ? Registries.BLOCK_ENTITY_TYPE.getId(ctx.be().getType()) : "<NULL>");
+        System.out.printf("ENT : [%s]\n", ctx.entity() != null ? Registries.ENTITY_TYPE.getId(ctx.entity().getType()) : "<NULL>");
+        System.out.printf("INV : [%s]\n", ctx.inv() != null ? "size: "+ctx.inv().size()+"/ empty: "+ctx.inv().isEmpty() : "<NULL>");
+        System.out.printf("NBT : [%s]\n", ctx.nbt() != null ? ctx.nbt().toString() : "<NULL>");
+
+        System.out.print("--> EOF\n");
     }
 
     public static @Nullable InventoryOverlay.Context getTargetInventoryFromBlock(World world, BlockPos pos, @Nullable BlockEntity be, NbtCompound nbt)
@@ -242,7 +310,7 @@ public class RayTraceUtils
             inv = EntitiesDataManager.getInstance().getBlockInventory(world, pos, false);
         }
 
-        BlockEntityType<?> beType = nbt != null ? BlockUtils.getBlockEntityTypeFromNbt(nbt) : null;
+        BlockEntityType<?> beType = nbt != null ? NbtBlockUtils.getBlockEntityTypeFromNbt(nbt) : null;
 
         if ((beType != null && beType.equals(BlockEntityType.ENDER_CHEST)) ||
             be instanceof EnderChestBlockEntity)

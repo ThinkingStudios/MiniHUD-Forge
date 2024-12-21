@@ -4,7 +4,7 @@
 
 # BoccHUD
 
-MiniHUD unofficial forge port.
+MiniHUD unofficial (Neo)Forge port.
 
 **Require [MaLiLib-Forge](https://github.com/ThinkingStudios/MaLiLib-Forge).**
 
@@ -18,3 +18,7 @@ For compiled builds (= downloads), see [Releases](https://github.com/ThinkingStu
 - Open a command prompt/terminal to the repository directory
 - run 'gradlew build'
 - The built jar file will be in build/libs/
+
+## Credits
+- [maruohon/minihud](https://github.com/maruohon/minihud)
+- [sakura-ryoko/minihud](https://github.com/sakura-ryoko/minihud)
