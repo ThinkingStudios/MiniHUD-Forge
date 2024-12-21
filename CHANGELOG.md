@@ -1,2 +1,2 @@
 ## Change
-- sync from `sakura-ryoko/minihud` 1.21.3-0.33.0-sakura.8
+- sync from `sakura-ryoko/minihud` 1.21.3-0.33.2-sakura.5

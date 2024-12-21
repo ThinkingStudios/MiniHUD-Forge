@@ -11,7 +11,7 @@ logoFile="icon.png" #optional
 credits="masa" #optional
 authors="TexTrue, ThinkingStudio" #optional
 description = '''
-MiniHUD unofficial forge port.
+MiniHUD unofficial (Neo)Forge port.
 
 Configurable "mini-F3" info lines, and various overlay renderers.
 '''
@@ -36,6 +36,6 @@ side = "BOTH"
 [[dependencies.bocchud]]
 modId = "mafglib"
 type = "required"
-versionRange = "[0.1.4,)"
+versionRange = "[0.2.0,)"
 ordering = "NONE"
 side = "BOTH"

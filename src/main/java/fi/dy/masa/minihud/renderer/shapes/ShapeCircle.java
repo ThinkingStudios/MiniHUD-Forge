@@ -137,18 +137,12 @@ public class ShapeCircle extends ShapeCircleBase
         double distSq = effectiveCenter.squaredDistanceTo(x, y, z);
         double diff = radiusSq - distSq;
 
-        if (diff > 0)
+        if (diff >= 0)
         {
             return true;
         }
 
-        double xAdj = x + outSide.getOffsetX();
-        double yAdj = y + outSide.getOffsetY();
-        double zAdj = z + outSide.getOffsetZ();
-        double distAdjSq = effectiveCenter.squaredDistanceTo(xAdj, yAdj, zAdj);
-        double diffAdj = radiusSq - distAdjSq;
-
-        return diffAdj > 0 && Math.abs(diff) < Math.abs(diffAdj);
+        return false;
     }
 
     public static List<SideQuad> buildStripsToQuadsForCircle(Long2ObjectOpenHashMap<SideQuad> strips,
