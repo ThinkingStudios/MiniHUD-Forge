@@ -6,7 +6,7 @@ mappings_patch="1.21+build.4"
 neoforge="21.3.58"
 
 # Mod properties
-version="0.1.10"
+version="0.1.11"
 maven-group="org.thinkingstudio.bocchud"
 archives-name="BoccHUD"
 
