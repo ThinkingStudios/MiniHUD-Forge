@@ -24,6 +24,7 @@
     "IMixinZombieEntity",
     "IMixinZombieVillagerEntity",
     "MixinBeaconBlockEntity",
+    "MixinBundleItem",
     "MixinChatScreen",
     "MixinChunkTicketManager",
     "MixinClientCommonNetworkHandler",
@@ -42,11 +43,8 @@
     "debug.IMixinMobEntity",
     "debug.MixinDebugInfoSender",
     "debug.MixinDebugRenderer",
+    "debug.MixinPath",
     "debug.MixinSharedConstants"
-  ],
-  "mixins": [
-    "MixinBundleItem",
-    "debug.MixinPath"
   ],
   "injectors": {
     "defaultRequire": 1
