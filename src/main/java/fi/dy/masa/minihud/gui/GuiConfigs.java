@@ -55,7 +55,7 @@ public class GuiConfigs extends GuiConfigsBase
         {
             int width = this.getStringWidth(tab.getDisplayName()) + 10;
 
-            if (x >= this.width - width - 10)
+            if (x >= this.getScreenWidth() - width - 10)
             {
                 x = 10;
                 y += 22;

@@ -31,7 +31,13 @@ public class Configs implements IConfigHandler
     {
         public static final ConfigBoolean       AXOLOTL_TOOLTIPS                    = new ConfigBoolean("axolotlTooltips", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       BEE_TOOLTIPS                        = new ConfigBoolean("beeTooltips", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       DISABLE_VANILLA_BEE_TOOLTIPS        = new ConfigBoolean("disableVanillaBeeTooltips", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       BUNDLE_TOOLTIPS                     = new ConfigBoolean("bundleTooltips", true).apply(GENERIC_KEY);
+        public static final ConfigInteger       BUNDLE_TOOLTIPS_FILL_LEVEL          = new ConfigInteger("bundleTooltipsFillLevel", 64, 1, 64).apply(GENERIC_KEY);
+        public static final ConfigBoolean       CUSTOM_MODEL_TOOLTIPS               = new ConfigBoolean("customModelTooltips", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       FOOD_TOOLTIPS                       = new ConfigBoolean("foodTooltips", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       HONEY_TOOLTIPS                      = new ConfigBoolean("honeyTooltips", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       LODESTONE_TOOLTIPS                  = new ConfigBoolean("lodestoneTooltips", false).apply(GENERIC_KEY);
         public static final ConfigInteger       BIOME_OVERLAY_RANGE                 = new ConfigInteger("biomeOverlayRange", 4, 0, 32).apply(GENERIC_KEY);
         public static final ConfigInteger       BIOME_OVERLAY_RANGE_VERTICAL        = new ConfigInteger("biomeOverlayRangeVertical", 0, 0, 32).apply(GENERIC_KEY);
         public static final ConfigBoolean       BIOME_OVERLAY_SINGLE_COLOR          = new ConfigBoolean("biomeOverlaySingleColor", true).apply(GENERIC_KEY);
@@ -41,6 +47,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       BUNDLE_PREVIEW                      = new ConfigBoolean("bundlePreview", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       BUNDLE_DISPLAY_BACKGROUND_COLOR     = new ConfigBoolean("bundleDisplayBgColor", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       BUNDLE_DISPLAY_REQUIRE_SHIFT        = new ConfigBoolean("bundleDisplayRequireShift", true).apply(GENERIC_KEY);
+        public static final ConfigInteger       BUNDLE_DISPLAY_ROW_WIDTH            = new ConfigInteger("bundleDisplayRowWidth", 9, 6, 9).apply(GENERIC_KEY);
         public static final ConfigString        COORDINATE_FORMAT_STRING            = new ConfigString("coordinateFormat", "x: %.1f y: %.1f z: %.1f").apply(GENERIC_KEY);
         public static final ConfigString        DATE_FORMAT_REAL                    = new ConfigString("dateFormatReal", "yyyy-MM-dd HH:mm:ss").apply(GENERIC_KEY);
         public static final ConfigString        DATE_FORMAT_MINECRAFT               = new ConfigString("dateFormatMinecraft", "MC time: (day {DAY}) {HOUR}:{MIN}:xx").apply(GENERIC_KEY);
@@ -48,17 +55,19 @@ public class Configs implements IConfigHandler
         //public static final ConfigBoolean       DEBUG_DEVELOPMENT_MODE              = new ConfigBoolean("debugDevelopmentMode", false).apply(GENERIC_KEY);
         //public static final ConfigBoolean       DEBUG_RENDERER_PATH_MAX_DIST        = new ConfigBoolean("debugRendererPathFindingEnablePointWidth", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       DONT_RESET_SEED_ON_DIMENSION_CHANGE = new ConfigBoolean("dontClearStoredSeedOnDimensionChange", true).apply(GENERIC_KEY);
-        public static final ConfigBoolean       ENTITY_DATA_SYNC                    = new ConfigBoolean("entityDataSync", true).apply(GENERIC_KEY);
-        public static final ConfigBoolean       ENTITY_DATA_SYNC_BACKUP             = new ConfigBoolean("entityDataSyncBackup", true).apply(GENERIC_KEY);
-        public static final ConfigFloat         ENTITY_DATA_SYNC_CACHE_TIMEOUT      = new ConfigFloat("entityDataSyncCacheTimeout", 1.0f, 0.25f, 5.0f).apply(GENERIC_KEY);
+        public static final ConfigBooleanHotkeyed ENTITY_DATA_SYNC                  = new ConfigBooleanHotkeyed("entityDataSync", false, "").apply(GENERIC_KEY);
+        public static final ConfigBoolean       ENTITY_DATA_SYNC_BACKUP             = new ConfigBoolean("entityDataSyncBackup", false).apply(GENERIC_KEY);
+        public static final ConfigFloat         ENTITY_DATA_SYNC_CACHE_TIMEOUT      = new ConfigFloat("entityDataSyncCacheTimeout", 0.75f, 0.15f, 5.0f).apply(GENERIC_KEY);
         public static final ConfigBoolean       ENTITY_DATA_LOAD_NBT                = new ConfigBoolean("entityDataSyncLoadNbt", false).apply(GENERIC_KEY);
         //public static final ConfigBoolean       FIX_VANILLA_DEBUG_RENDERERS         = new ConfigBoolean("enableVanillaDebugRendererFix", true).apply(GENERIC_KEY);
         public static final ConfigDouble        FONT_SCALE                          = new ConfigDouble("fontScale", 0.5, 0.01, 100.0).apply(GENERIC_KEY);
         public static final ConfigOptionList    HUD_ALIGNMENT                       = new ConfigOptionList("hudAlignment", HudAlignment.TOP_LEFT).apply(GENERIC_KEY);
+        public static final ConfigBooleanHotkeyed HUD_DATA_SYNC                     = new ConfigBooleanHotkeyed("hudDataSync", false, "").apply(GENERIC_KEY);
         public static final ConfigBoolean       INFO_LINES_USES_NBT                 = new ConfigBoolean("infoLinesUsesNbt", true).apply(GENERIC_KEY);
         public static final ConfigHotkey        INVENTORY_PREVIEW                   = new ConfigHotkey("inventoryPreview", "LEFT_ALT", KeybindSettings.PRESS_ALLOWEXTRA).apply(GENERIC_KEY);
         public static final ConfigBoolean       INVENTORY_PREVIEW_ENABLED           = new ConfigBoolean("inventoryPreviewEnabled", false).apply(GENERIC_KEY);
         public static final ConfigHotkey        INVENTORY_PREVIEW_TOGGLE_SCREEN     = new ConfigHotkey("inventoryPreviewToggleScreen", "BUTTON_3", KeybindSettings.create(KeybindSettings.Context.ANY, KeyAction.PRESS, true, true, false, true)).apply(GENERIC_KEY);
+        public static final ConfigBoolean       INVENTORY_PREVIEW_VILLAGER_BG_COLOR = new ConfigBoolean("inventoryPreviewVillagerBGColor", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       LIGHT_LEVEL_AUTO_HEIGHT             = new ConfigBoolean("lightLevelAutoHeight", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       LIGHT_LEVEL_COLORED_NUMBERS         = new ConfigBoolean("lightLevelColoredNumbers", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       LIGHT_LEVEL_COLLISION_CHECK         = new ConfigBoolean("lightLevelCollisionCheck", false).apply(GENERIC_KEY);
@@ -122,15 +131,23 @@ public class Configs implements IConfigHandler
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 AXOLOTL_TOOLTIPS,
                 BEE_TOOLTIPS,
+                DISABLE_VANILLA_BEE_TOOLTIPS,
+                BUNDLE_TOOLTIPS,
+                BUNDLE_TOOLTIPS_FILL_LEVEL,
+                CUSTOM_MODEL_TOOLTIPS,
+                FOOD_TOOLTIPS,
                 HONEY_TOOLTIPS,
+                LODESTONE_TOOLTIPS,
                 BIOME_OVERLAY_SINGLE_COLOR,
                 BUNDLE_PREVIEW,
                 BUNDLE_DISPLAY_BACKGROUND_COLOR,
                 BUNDLE_DISPLAY_REQUIRE_SHIFT,
+                BUNDLE_DISPLAY_ROW_WIDTH,
                 DEBUG_MESSAGES,
                 //DEBUG_DEVELOPMENT_MODE,
                 //DEBUG_RENDERER_PATH_MAX_DIST,
                 DONT_RESET_SEED_ON_DIMENSION_CHANGE,
+                HUD_DATA_SYNC,
                 ENTITY_DATA_SYNC,
                 ENTITY_DATA_SYNC_BACKUP,
                 ENTITY_DATA_SYNC_CACHE_TIMEOUT,
@@ -206,6 +223,7 @@ public class Configs implements IConfigHandler
                 INVENTORY_PREVIEW,
                 INVENTORY_PREVIEW_ENABLED,
                 INVENTORY_PREVIEW_TOGGLE_SCREEN,
+                INVENTORY_PREVIEW_VILLAGER_BG_COLOR,
                 VILLAGER_CONVERSION_TICKS,
                 VILLAGER_OFFER_ENCHANTMENT_BOOKS,
                 VILLAGER_OFFER_PRICE_RANGE,
@@ -216,6 +234,8 @@ public class Configs implements IConfigHandler
 
         public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
                 MAIN_RENDERING_TOGGLE,
+                HUD_DATA_SYNC,
+                ENTITY_DATA_SYNC,
                 MOVE_SHAPE_TO_PLAYER,
                 OPEN_CONFIG_GUI,
                 REQUIRED_KEY,

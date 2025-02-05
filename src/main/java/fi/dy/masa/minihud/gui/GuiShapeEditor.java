@@ -71,7 +71,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
 
         this.createShapeEditorElements(x, y);
 
-        ButtonGeneric button = new ButtonGeneric(x, this.height - 24, -1, 20, ConfigGuiTab.SHAPES.getDisplayName());
+        ButtonGeneric button = new ButtonGeneric(x, this.getScreenHeight() - 24, -1, 20, ConfigGuiTab.SHAPES.getDisplayName());
         this.addButton(button, new GuiShapeManager.ButtonListenerTab(ConfigGuiTab.SHAPES));
     }
 
@@ -87,8 +87,8 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         y += 12;
 
         GuiTextFieldGeneric textField = new GuiTextFieldGeneric(x, y, 70, 17, this.textRenderer);
-        textField.setMaxLength(12);
-        textField.setText(String.format("#%08X", this.shape.getColor().intValue));
+        textField.setMaxLengthWrapper(12);
+        textField.setTextWrapper(String.format("#%08X", this.shape.getColor().intValue));
         this.addTextField(textField, new TextFieldListenerColor(this.shape));
         this.nextY = y + 20;
         this.colorY = y - 1;
@@ -102,8 +102,8 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         y += 12;
 
         GuiTextFieldGeneric textField = new GuiTextFieldGeneric(x, y, 240, 17, this.textRenderer);
-        textField.setText(this.shape.getDisplayName());
-        this.addTextField(textField, (txtFld) -> { this.shape.setDisplayName(txtFld.getText()); return true; });
+        textField.setTextWrapper(this.shape.getDisplayName());
+        this.addTextField(textField, (txtFld) -> { this.shape.setDisplayName(txtFld.getTextWrapper()); return true; });
         y += 20;
 
         int renderTypeX = x + 230;
@@ -349,7 +349,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
     {
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         GuiTextFieldGeneric textField = new GuiTextFieldGeneric(x, y + 1, textFieldWidth, 14, textRenderer);
-        textField.setText("" + coordinateSource.getAsDouble());
+        textField.setTextWrapper("" + coordinateSource.getAsDouble());
 
         this.addTextFieldAndButtonForBoxCoordinate(x + textFieldWidth + 4, y, textField,
                                                    coordinateSource, coordinateConsumer);
@@ -373,7 +373,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         ButtonGeneric button = new ButtonGeneric(x, y, MaLiLibIcons.BTN_PLUSMINUS_16, hover);
         this.addButton(button, new ButtonListenerDoubleModifier(coordinateSource, (v) -> {
             coordinateConsumer.accept(v);
-            textField.setText("" + coordinateSource.getAsDouble());
+            textField.setTextWrapper("" + coordinateSource.getAsDouble());
         }));
     }
 
@@ -393,14 +393,14 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         y += 11;
 
         GuiTextFieldDouble txtField = new GuiTextFieldDouble(x + 12, y, 40, 14, this.textRenderer);
-        txtField.setText(String.valueOf(supplier.getAsDouble()));
+        txtField.setTextWrapper(String.valueOf(supplier.getAsDouble()));
         this.addTextField(txtField, new TextFieldListenerDouble(consumer));
 
         if (addButton)
         {
             String hover = StringUtils.translate("malilib.gui.button.hover.plus_minus_tip");
             ButtonGeneric button = new ButtonGeneric(x + 54, y - 1, MaLiLibIcons.BTN_PLUSMINUS_16, hover);
-            this.addButton(button, new ButtonListenerDoubleModifier(supplier, new ChainedDoubleConsumer(consumer, (val) -> txtField.setText(String.valueOf(supplier.getAsDouble())) )));
+            this.addButton(button, new ButtonListenerDoubleModifier(supplier, new ChainedDoubleConsumer(consumer, (val) -> txtField.setTextWrapper(String.valueOf(supplier.getAsDouble())) )));
         }
     }
 
@@ -410,14 +410,14 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         y += 11;
 
         GuiTextFieldInteger txtField = new GuiTextFieldInteger(x + 12, y, 40, 14, this.textRenderer);
-        txtField.setText(String.valueOf(supplier.getAsInt()));
+        txtField.setTextWrapper(String.valueOf(supplier.getAsInt()));
         this.addTextField(txtField, new TextFieldListenerInteger(consumer));
 
         if (addButton)
         {
             String hover = StringUtils.translate("malilib.gui.button.hover.plus_minus_tip");
             ButtonGeneric button = new ButtonGeneric(x + 54, y - 1, MaLiLibIcons.BTN_PLUSMINUS_16, hover);
-            this.addButton(button, new ButtonListenerIntModifier(supplier, new ChainedIntConsumer(consumer, (val) -> txtField.setText(String.valueOf(supplier.getAsInt())) )));
+            this.addButton(button, new ButtonListenerIntModifier(supplier, new ChainedIntConsumer(consumer, (val) -> txtField.setTextWrapper(String.valueOf(supplier.getAsInt())) )));
         }
     }
 
@@ -650,7 +650,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         @Override
         public boolean onTextChange(GuiTextFieldGeneric textField)
         {
-            this.shape.setColorFromString(textField.getText());
+            this.shape.setColorFromString(textField.getTextWrapper());
             return false;
         }
     }
@@ -662,7 +662,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         {
             try
             {
-                this.consumer.accept(Integer.parseInt(textField.getText()));
+                this.consumer.accept(Integer.parseInt(textField.getTextWrapper()));
                 return true;
             }
             catch (Exception ignore) {}
@@ -678,7 +678,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         {
             try
             {
-                this.consumer.accept(Double.parseDouble(textField.getText()));
+                this.consumer.accept(Double.parseDouble(textField.getTextWrapper()));
                 return true;
             }
             catch (Exception ignore) {}

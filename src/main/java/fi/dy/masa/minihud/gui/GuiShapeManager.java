@@ -43,13 +43,13 @@ public class GuiShapeManager extends GuiListBase<ShapeBase, WidgetShapeEntry, Wi
     @Override
     protected int getBrowserWidth()
     {
-        return this.width - 20;
+        return this.getScreenWidth() - 20;
     }
 
     @Override
     protected int getBrowserHeight()
     {
-        return this.height - this.getListY() - 6;
+        return this.getScreenHeight() - this.getListY() - 6;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class GuiShapeManager extends GuiListBase<ShapeBase, WidgetShapeEntry, Wi
         {
             int width = this.getStringWidth(tab.getDisplayName()) + 10;
 
-            if (x >= this.width - width - 10)
+            if (x >= this.getScreenWidth() - width - 10)
             {
                 x = 10;
                 y += 22;
@@ -86,11 +86,11 @@ public class GuiShapeManager extends GuiListBase<ShapeBase, WidgetShapeEntry, Wi
         }
 
         String name = StringUtils.translate("minihud.gui.button.add_shape");
-        ButtonGeneric addShapeButton = new ButtonGeneric(this.width - 10, y, -1, true, name);
+        ButtonGeneric addShapeButton = new ButtonGeneric(this.getScreenWidth() - 10, y, -1, true, name);
 
         // Check if there is enough space to put the dropdown widget and
         // the button at the end of the last tab button row
-        if (rows < 2 || (this.width - 10 - x < (addShapeButton.getWidth() + this.widgetDropDown.getWidth() + 4)))
+        if (rows < 2 || (this.getScreenWidth() - 10 - x < (addShapeButton.getWidth() + this.widgetDropDown.getWidth() + 4)))
         {
             y += 22;
         }

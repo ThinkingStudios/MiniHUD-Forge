@@ -1,4 +1,4 @@
-package fi.dy.masa.minihud.mixin;
+package fi.dy.masa.minihud.mixin.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;

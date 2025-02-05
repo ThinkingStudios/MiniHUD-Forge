@@ -40,10 +40,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.structure.Structure;
+
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.network.ClientPlayHandler;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.Reference;
 import fi.dy.masa.minihud.config.RendererToggle;

@@ -4,12 +4,14 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
+
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureStart;
-import fi.dy.masa.malilib.util.Constants;
+
 import fi.dy.masa.malilib.util.IntBoundingBox;
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.config.Configs;
 
