@@ -91,6 +91,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     HORSE_SPEED             ("infoHorseSpeed",              false, ""),
     HORSE_JUMP              ("infoHorseJump",               false, ""),
     PANDA_GENE              ("infoPandaGene",               false, ""),
+    DOLPHIN_TREASURE        ("infoDolphinTreasure",         false, ""),
     ENTITY_VARIANT          ("infoEntityVariant",           false, ""),
     ;
 
@@ -230,6 +231,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
         this.keybind = KeybindMulti.fromStorageString(defaultHotkey, settings);
         this.keybind.setCallback(new KeyCallbackToggleBoolean(this));
         this.defaultLinePosition = linePosition;
+        this.linePosition = linePosition;
         this.comment = comment;
         this.prettyName = prettyName;
         this.translatedName = translatedName;

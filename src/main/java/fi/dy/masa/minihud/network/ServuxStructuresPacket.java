@@ -39,7 +39,7 @@ public class ServuxStructuresPacket implements IClientPayloadData
     {
         this.packetType = type;
         this.nbt = new NbtCompound();
-        this.buffer = packet;
+        this.buffer = new PacketByteBuf(packet.copy());
     }
 
     @Override
@@ -106,7 +106,8 @@ public class ServuxStructuresPacket implements IClientPayloadData
             // Write Packet Buffer
             try
             {
-                output.writeBytes(this.buffer.readBytes(this.buffer.readableBytes()));
+                PacketByteBuf serverReplay = new PacketByteBuf(this.buffer.copy());
+                output.writeBytes(serverReplay.readBytes(serverReplay.readableBytes()));
             }
             catch (Exception e)
             {

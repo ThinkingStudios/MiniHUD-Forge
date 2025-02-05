@@ -3,9 +3,10 @@ package fi.dy.masa.minihud.event;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.llamalad7.mixinextras.lib.apache.commons.tuple.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joml.Matrix4f;
 
@@ -34,10 +35,7 @@ import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EnderChestInventory;
-import net.minecraft.item.FilledMapItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
@@ -48,6 +46,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.OptionalChunk;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -68,6 +67,7 @@ import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.interfaces.IRenderer;
 import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
@@ -82,11 +82,15 @@ import fi.dy.masa.minihud.data.EntitiesDataManager;
 import fi.dy.masa.minihud.data.HudDataManager;
 import fi.dy.masa.minihud.data.MobCapDataHandler;
 import fi.dy.masa.minihud.mixin.*;
+import fi.dy.masa.minihud.mixin.entity.IMixinPassiveEntity;
+import fi.dy.masa.minihud.mixin.entity.IMixinSkeletonEntity;
+import fi.dy.masa.minihud.mixin.entity.IMixinZombieEntity;
+import fi.dy.masa.minihud.mixin.entity.IMixinZombieVillagerEntity;
+import fi.dy.masa.minihud.renderer.InventoryOverlayHandler;
 import fi.dy.masa.minihud.renderer.OverlayRenderer;
 import fi.dy.masa.minihud.util.DataStorage;
 import fi.dy.masa.minihud.util.IServerEntityManager;
 import fi.dy.masa.minihud.util.MiscUtils;
-import fi.dy.masa.minihud.util.RayTraceUtils;
 
 public class RenderHandler implements IRenderer
 {
@@ -179,12 +183,16 @@ public class RenderHandler implements IRenderer
         if (Configs.Generic.INVENTORY_PREVIEW_ENABLED.getBooleanValue() &&
             Configs.Generic.INVENTORY_PREVIEW.getKeybind().isKeybindHeld())
         {
+            /*
             var inventory = RayTraceUtils.getTargetInventory(mc, true);
 
             if (inventory != null)
             {
                 fi.dy.masa.minihud.renderer.RenderUtils.renderInventoryOverlay(inventory, drawContext);
             }
+             */
+
+            InventoryOverlayHandler.getInstance().getRenderContext(drawContext, mc.getProfiler(), mc);
 
             // OG method (Works with Crafters also)
             //fi.dy.masa.minihud.renderer.RenderUtils.renderInventoryOverlay(mc, drawContext);
@@ -221,7 +229,7 @@ public class RenderHandler implements IRenderer
 
                 if (player != null)
                 {
-                    Pair<Entity, NbtCompound> pair = EntitiesDataManager.getInstance().requestEntity(player.getId());
+                    Pair<Entity, NbtCompound> pair = EntitiesDataManager.getInstance().requestEntity(world, player.getId());
                     NbtCompound nbt = new NbtCompound();
                     EnderChestInventory inv;
 
@@ -247,7 +255,7 @@ public class RenderHandler implements IRenderer
             if (Configs.Generic.BUNDLE_PREVIEW.getBooleanValue() &&
                (Configs.Generic.BUNDLE_DISPLAY_REQUIRE_SHIFT.getBooleanValue() == false || GuiBase.isShiftDown()))
             {
-                RenderUtils.renderBundlePreview(stack, x, y, Configs.Generic.BUNDLE_DISPLAY_BACKGROUND_COLOR.getBooleanValue(), drawContext);
+                RenderUtils.renderBundlePreview(stack, x, y, Configs.Generic.BUNDLE_DISPLAY_ROW_WIDTH.getIntegerValue(), Configs.Generic.BUNDLE_DISPLAY_BACKGROUND_COLOR.getBooleanValue(), drawContext);
             }
         }
     }
@@ -259,6 +267,65 @@ public class RenderHandler implements IRenderer
             this.mc.world != null && this.mc.player != null && this.mc.options.hudHidden == false)
         {
             OverlayRenderer.renderOverlays(posMatrix, projMatrix, this.mc);
+        }
+    }
+
+    @Override
+    public void onRenderTooltipComponentInsertFirst(Item.TooltipContext context, ItemStack stack, List<Text> list)
+    {
+        // NO-OP
+    }
+
+    @Override
+    public void onRenderTooltipComponentInsertMiddle(Item.TooltipContext context, ItemStack stack, List<Text> list)
+    {
+        if (Configs.Generic.BUNDLE_TOOLTIPS.getBooleanValue() &&
+            stack.getItem() instanceof BundleItem)
+        {
+            MiscUtils.addBundleTooltip(stack, list);
+        }
+    }
+
+    @Override
+    public void onRenderTooltipComponentInsertLast(Item.TooltipContext context, ItemStack stack, List<Text> list)
+    {
+        if (Configs.Generic.AXOLOTL_TOOLTIPS.getBooleanValue() &&
+            stack.getItem() == Items.AXOLOTL_BUCKET)
+        {
+            MiscUtils.addAxolotlTooltip(stack, list);
+        }
+
+        if (Configs.Generic.BEE_TOOLTIPS.getBooleanValue() &&
+            stack.getItem() instanceof BlockItem blockItem &&
+            blockItem.getBlock() instanceof BeehiveBlock &&
+            stack.contains(DataComponentTypes.BEES))
+        {
+            MiscUtils.addBeeTooltip(stack, list);
+        }
+
+        if (Configs.Generic.CUSTOM_MODEL_TOOLTIPS.getBooleanValue() &&
+            stack.contains(DataComponentTypes.CUSTOM_MODEL_DATA))
+        {
+            MiscUtils.addCustomModelTooltip(stack, list);
+        }
+
+        if (Configs.Generic.FOOD_TOOLTIPS.getBooleanValue() &&
+            stack.contains(DataComponentTypes.FOOD))
+        {
+            MiscUtils.addFoodTooltip(stack, list);
+        }
+
+        if (Configs.Generic.HONEY_TOOLTIPS.getBooleanValue() &&
+            stack.getItem() instanceof BlockItem blockItem &&
+            blockItem.getBlock() instanceof BeehiveBlock)
+        {
+            MiscUtils.addHoneyTooltip(stack, list);
+        }
+
+        if (Configs.Generic.LODESTONE_TOOLTIPS.getBooleanValue() &&
+            stack.contains(DataComponentTypes.LODESTONE_TRACKER))
+        {
+            MiscUtils.addLodestoneTooltip(stack, list);
         }
     }
 
@@ -496,16 +563,26 @@ public class RenderHandler implements IRenderer
         {
             if (EntitiesDataManager.getInstance().hasServuxServer())
             {
-                this.addLineI18n("minihud.info_line.servux", EntitiesDataManager.getInstance().getServuxVersion());
+                this.addLineI18n("minihud.info_line.servux",
+                                 EntitiesDataManager.getInstance().getServuxVersion());
             }
             else if (this.getDataStorage().hasServuxServer())
             {
-                this.addLineI18n("minihud.info_line.servux", this.getDataStorage().getServuxVersion());
+                this.addLineI18n("minihud.info_line.servux",
+                                 this.getDataStorage().getServuxVersion());
             }
-            else if (this.getDataStorage().hasIntegratedServer() == false)
+            else if (this.getHudData().hasServuxServer())
+            {
+                this.addLineI18n("minihud.info_line.servux",
+                                 this.getHudData().getServuxVersion());
+            }
+            else if (this.getDataStorage().hasIntegratedServer() == false &&
+                    !EntitiesDataManager.getInstance().hasServuxServer() &&
+                    !this.getHudData().hasServuxServer())
             {
                 this.addLineI18n("minihud.info_line.servux.not_connected");
             }
+
             if (EntitiesDataManager.getInstance().hasServuxServer())
             {
                 this.addLineI18n("minihud.info_line.servux.entity_sync",
@@ -519,6 +596,14 @@ public class RenderHandler implements IRenderer
             {
                 this.addLineI18n("minihud.info_line.servux.structures",
                                  this.getDataStorage().getStrucutreCount(),
+                                 this.getHudData().getSpawnChunkRadius(),
+                                 this.getHudData().getWorldSpawn().toShortString(),
+                                 this.getHudData().isWorldSpawnKnown() ? StringUtils.translate("minihud.info_line.slime_chunk.yes") : StringUtils.translate("minihud.info_line.slime_chunk.no")
+                );
+            }
+            else if (this.getHudData().hasServuxServer())
+            {
+                this.addLineI18n("minihud.info_line.servux.no_structures_hud",
                                  this.getHudData().getSpawnChunkRadius(),
                                  this.getHudData().getWorldSpawn().toShortString(),
                                  this.getHudData().isWorldSpawnKnown() ? StringUtils.translate("minihud.info_line.slime_chunk.yes") : StringUtils.translate("minihud.info_line.slime_chunk.no")
@@ -1304,6 +1389,15 @@ public class RenderHandler implements IRenderer
                             this.addLineI18n("minihud.info_line.entity_variant.cat", catPair.getLeft().getValue().getPath(), catPair.getRight().getName());
                         }
                     }
+                    else if (entityType.equals(EntityType.FOX))
+                    {
+                        FoxEntity.Type foxType = NbtEntityUtils.getFoxVariantFromNbt(nbt);
+
+                        if (foxType != null)
+                        {
+                            this.addLineI18n("minihud.info_line.entity_variant.fox", foxType.asString());
+                        }
+                    }
                     else if (entityType.equals(EntityType.FROG))
                     {
                         RegistryKey<FrogVariant> variant = NbtEntityUtils.getFrogVariantFromNbt(nbt);
@@ -1378,6 +1472,18 @@ public class RenderHandler implements IRenderer
                             this.addLineI18n("minihud.info_line.entity_variant.rabbit", rabbitType.asString());
                         }
                     }
+                    // TODO 1.21.3+
+                    /*
+                    else if (entityType.equals(EntityType.SALMON))
+                    {
+                        SalmonEntity.Variant salmonVariant = NbtEntityUtils.getSalmonVariantFromNbt(nbt);
+
+                        if (salmonVariant != null)
+                        {
+                            this.addLineI18n("minihud.info_line.entity_variant.salmon", salmonVariant.asString());
+                        }
+                    }
+                     */
                     else if (entityType.equals(EntityType.SHEEP))
                     {
                         DyeColor color = NbtEntityUtils.getSheepColorFromNbt(nbt);
@@ -1412,8 +1518,12 @@ public class RenderHandler implements IRenderer
                 }
                 else if (pair.getLeft() instanceof CatEntity cat)
                 {
-                    RegistryKey<CatVariant> variant = cat.getVariant().getKey().orElse(CatVariant.ALL_BLACK);
+                    RegistryKey<CatVariant> variant = cat.getVariant().getKey().orElse(CatVariant.BLACK);
                     this.addLineI18n("minihud.info_line.entity_variant.cat", variant.getValue().getPath(), cat.getCollarColor().getName());
+                }
+                else if (pair.getLeft() instanceof FoxEntity fox)
+                {
+                    this.addLineI18n("minihud.info_line.entity_variant.fox", fox.getVariant().asString());
                 }
                 else if (pair.getLeft() instanceof FrogEntity frog)
                 {
@@ -1462,10 +1572,24 @@ public class RenderHandler implements IRenderer
                 {
                     this.addLineI18n("minihud.info_line.entity_variant.parrot", parrot.getVariant().asString());
                 }
+                // TODO 1.21.5+
+                /*
+                else if (pair.getLeft() instanceof PigEntity pig)
+                {
+                    this.addLineI18n("minihud.info_line.entity_variant.pig", pig.getVariant().getKey().get().getValue().getPath());
+                }
+                */
                 else if (pair.getLeft() instanceof RabbitEntity rabbit)
                 {
                     this.addLineI18n("minihud.info_line.entity_variant.rabbit", rabbit.getVariant().asString());
                 }
+                // TODO 1.21.3+
+                /*
+                else if (pair.getLeft() instanceof SalmonEntity salmon)
+                {
+                    this.addLineI18n("minihud.info_line.entity_variant.salmon", salmon.getVariant().asString());
+                }
+                 */
                 else if (pair.getLeft() instanceof SheepEntity sheep)
                 {
                     this.addLineI18n("minihud.info_line.entity_variant.sheep", sheep.getColor().getName());
@@ -1598,6 +1722,107 @@ public class RenderHandler implements IRenderer
                 }
             }
         }
+        else if (type == InfoToggle.DOLPHIN_TREASURE)
+        {
+            if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.ENTITY)
+            {
+                Pair<Entity, NbtCompound> pair = this.getTargetEntity(world, mc);
+
+                if (pair == null)
+                {
+                    return;
+                }
+
+                if (Configs.Generic.INFO_LINES_USES_NBT.getBooleanValue() && !pair.getRight().isEmpty())
+                {
+                    NbtCompound nbt = pair.getRight();
+                    EntityType<?> entityType = NbtEntityUtils.getEntityTypeFromNbt(nbt);
+                    Triple<BlockPos, Integer, Boolean> dolphinTriple = NbtEntityUtils.getDolphinDataFromNbt(nbt);
+
+                    if (dolphinTriple != null && entityType.equals(EntityType.DOLPHIN))
+                    {
+                        BlockPos treasure = dolphinTriple.getLeft();
+                        boolean hasTreasure = !treasure.equals(BlockPos.ORIGIN);
+                        int dryTime = dolphinTriple.getMiddle();
+
+                        if (dryTime == 2400)
+                        {
+                            // Submerged
+                            if (hasTreasure)
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure", treasure.toShortString());
+                            }
+                        }
+                        else if (dryTime > 0)
+                        {
+                            // Countdown until dry
+                            if (hasTreasure)
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying", treasure.toShortString(), StringUtils.getDurationString((dryTime / 20) * 1000L));
+                            }
+                            else
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying_no_treasure", StringUtils.getDurationString((dryTime / 20) * 1000L));
+                            }
+                        }
+                        else if (dryTime < 0)
+                        {
+                            // Drying Out and taking Damage
+                            if (hasTreasure)
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying", treasure.toShortString(), StringUtils.getDurationString(((dryTime * (-1)) / 20) * 1000L));
+                            }
+                            else
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying_no_treasure", StringUtils.getDurationString(((dryTime * (-1)) / 20) * 1000L));
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (pair.getLeft() instanceof DolphinEntity dolphin)
+                    {
+                        BlockPos treasure = dolphin.getTreasurePos();
+                        boolean hasTreasure = !treasure.equals(BlockPos.ORIGIN);
+                        int dryTime = dolphin.getMoistness();
+
+                        if (dryTime == 2400)
+                        {
+                            // Submerged
+                            if (hasTreasure)
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure", treasure.toShortString());
+                            }
+                        }
+                        else if (dryTime > 0)
+                        {
+                            // Countdown until dry
+                            if (hasTreasure)
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying", treasure.toShortString(), StringUtils.getDurationString((dryTime / 20) * 1000L));
+                            }
+                            else
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying_no_treasure", StringUtils.getDurationString((dryTime / 20) * 1000L));
+                            }
+                        }
+                        else if (dryTime < 0)
+                        {
+                            // Drying Out and taking Damage
+                            if (hasTreasure)
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying", treasure.toShortString(), StringUtils.getDurationString(((dryTime * (-1)) / 20) * 1000L));
+                            }
+                            else
+                            {
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying_no_treasure", StringUtils.getDurationString(((dryTime * (-1)) / 20) * 1000L));
+                            }
+                        }
+                    }
+                }
+            }
+        }
         else if (type == InfoToggle.ENTITY_REG_NAME)
         {
             if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.ENTITY)
@@ -1620,7 +1845,7 @@ public class RenderHandler implements IRenderer
         {
             if (mc.player != null)
             {
-                this.addLineI18n("minihud.info_line.player_experience", mc.player.experienceLevel, mc.player.experienceProgress, mc.player.totalExperience);
+                this.addLineI18n("minihud.info_line.player_experience", mc.player.experienceLevel, 100 * mc.player.experienceProgress, mc.player.totalExperience);
             }
         }
         else if (type == InfoToggle.LOOKING_AT_PLAYER_EXP)
@@ -1644,13 +1869,13 @@ public class RenderHandler implements IRenderer
 
                         if (triple.getLeft() > 0)
                         {
-                            this.addLineI18n("minihud.info_line.looking_at_player_exp", triple.getLeft(), triple.getRight(), triple.getMiddle());
+                            this.addLineI18n("minihud.info_line.looking_at_player_exp", triple.getLeft(), triple.getRight(), 100 * triple.getMiddle());
                         }
                     }
                 }
                 else if (pair.getLeft() instanceof ServerPlayerEntity player)
                 {
-                    this.addLineI18n("minihud.info_line.looking_at_player_exp", player.experienceLevel, player.experienceProgress, player.totalExperience);
+                    this.addLineI18n("minihud.info_line.looking_at_player_exp", player.experienceLevel, 100 * player.experienceProgress, player.totalExperience);
                 }
             }
         }
@@ -1695,6 +1920,84 @@ public class RenderHandler implements IRenderer
         }
     }
 
+    private boolean isEntityDataValid(@Nonnull NbtCompound nbt)
+    {
+        // Has a valid Inventory = ServerWorld
+        if (InventoryUtils.hasNbtItems(nbt))
+        {
+            return true;
+        }
+
+        //System.out.printf("isEntityDataValid(): nbt: [%s]\n", nbt.toString());
+
+        for (String key : nbt.getKeys())
+        {
+            switch (key)
+            {
+                // If `Fire == 0` instead of `-1` means it's ClientWorld; it's ridiculous, but it works.
+                case NbtKeys.FIRE ->
+                {
+                    int fire = nbt.getShort(NbtKeys.FIRE);
+
+                    if (fire < 0 || fire > 0)
+                    {
+                        return true;
+                    }
+                }
+                // If `Age == -1 or 1 instead of 0 or > 1 it's ClientWorld; it's ridiculous, but it works.
+                case NbtKeys.AGE ->
+                {
+                    int age = nbt.getInt(NbtKeys.AGE);
+
+                    if (age == 0 || age > 1)
+                    {
+                        return true;
+                    }
+                }
+                // Has a Brain besides the default = ServerWorld
+                case NbtKeys.BRAIN ->
+                {
+                    NbtCompound tag = nbt.getCompound(NbtKeys.BRAIN);
+
+                    if (!tag.isEmpty() && !tag.getCompound(NbtKeys.MEMORIES).isEmpty())
+                    {
+                        return true;
+                    }
+                }
+                case NbtKeys.OFFERS -> { return true; }
+                case NbtKeys.TRADE_RECIPES -> { return true; }
+                case NbtKeys.ZOMBIE_CONVERSION ->
+                {
+                    if (nbt.getInt(NbtKeys.ZOMBIE_CONVERSION) > 0)
+                    {
+                        return true;
+                    }
+                }
+                case NbtKeys.DROWNED_CONVERSION ->
+                {
+                    if (nbt.getInt(NbtKeys.DROWNED_CONVERSION) > 0)
+                    {
+                        return true;
+                    }
+                }
+                case NbtKeys.STRAY_CONVERSION ->
+                {
+                    if (nbt.getInt(NbtKeys.STRAY_CONVERSION) > 0)
+                    {
+                        return true;
+                    }
+                }
+                case NbtKeys.CONVERSION_PLAYER -> { return true; }
+                case NbtKeys.RECIPE_BOOK -> { return true; }
+                case NbtKeys.RECIPES -> { return true; }
+                case NbtKeys.SADDLE -> { return true; }
+                case NbtKeys.EFFECTS -> { return true; }
+            }
+        }
+
+        return false;
+    }
+
     @Nullable
     public Pair<Entity, NbtCompound> getTargetEntity(World world, MinecraftClient mc)
     {
@@ -1713,7 +2016,7 @@ public class RenderHandler implements IRenderer
             }
             else
             {
-                pair = EntitiesDataManager.getInstance().requestEntity(lookedEntity.getId());
+                pair = EntitiesDataManager.getInstance().requestEntity(world, lookedEntity.getId());
             }
 
             // Remember the last entity so the "refresh time" is smoothed over.
@@ -1722,9 +2025,16 @@ public class RenderHandler implements IRenderer
             {
                 pair = this.lastEntity;
             }
-            else if (pair != null)
+            else if (pair != null && pair.getRight() != null &&
+                    !pair.getRight().isEmpty() &&
+                     this.isEntityDataValid(pair.getRight()))
             {
                 this.lastEntity = pair;
+            }
+            else if (this.lastEntity != null &&
+                    this.lastEntity.getLeft().getId() == lookedEntity.getId())
+            {
+                pair = this.lastEntity;
             }
 
             return pair;

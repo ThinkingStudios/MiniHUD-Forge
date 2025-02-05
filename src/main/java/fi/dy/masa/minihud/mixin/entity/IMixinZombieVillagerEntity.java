@@ -1,4 +1,4 @@
-package fi.dy.masa.minihud.mixin;
+package fi.dy.masa.minihud.mixin.entity;
 
 import net.minecraft.entity.mob.ZombieVillagerEntity;
 import org.spongepowered.asm.mixin.Mixin;

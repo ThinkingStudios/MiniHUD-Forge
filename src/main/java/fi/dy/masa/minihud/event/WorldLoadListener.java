@@ -16,6 +16,7 @@ import fi.dy.masa.minihud.data.DebugDataManager;
 import fi.dy.masa.minihud.data.EntitiesDataManager;
 import fi.dy.masa.minihud.data.HudDataManager;
 import fi.dy.masa.minihud.renderer.OverlayRenderer;
+import fi.dy.masa.minihud.renderer.OverlayRendererVillagerInfo;
 import fi.dy.masa.minihud.renderer.RenderContainer;
 import fi.dy.masa.minihud.renderer.shapes.ShapeManager;
 import fi.dy.masa.minihud.util.DataStorage;
@@ -52,6 +53,7 @@ public class WorldLoadListener implements IWorldLoadListener
         DataStorage.getInstance().reset(worldAfter == null);
         HudDataManager.getInstance().reset(worldAfter == null);
         EntitiesDataManager.getInstance().reset(worldAfter == null);
+        OverlayRendererVillagerInfo.getInstance().reset(worldAfter == null);
         DebugDataManager.getInstance().reset(worldAfter == null);
 
         // Logging in to a world or changing dimensions or respawning

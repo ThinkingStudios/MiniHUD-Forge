@@ -12,6 +12,7 @@ import fi.dy.masa.minihud.data.HudDataManager;
 import fi.dy.masa.minihud.event.*;
 import fi.dy.masa.minihud.gui.GuiConfigs;
 import fi.dy.masa.minihud.hotkeys.KeyCallbacks;
+import fi.dy.masa.minihud.renderer.OverlayRendererVillagerInfo;
 import fi.dy.masa.minihud.util.DataStorage;
 
 public class InitHandler implements IInitializationHandler
@@ -46,6 +47,7 @@ public class InitHandler implements IInitializationHandler
 
         TickHandler.getInstance().registerClientTickHandler(new ClientTickHandler());
         TickHandler.getInstance().registerClientTickHandler(EntitiesDataManager.getInstance());
+        TickHandler.getInstance().registerClientTickHandler(OverlayRendererVillagerInfo.getInstance());
 
         KeyCallbacks.init();
     }

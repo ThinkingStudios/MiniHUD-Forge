@@ -1,6 +1,5 @@
 package fi.dy.masa.minihud.network;
 
-import lol.bai.badpackets.api.play.ClientPlayContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -10,9 +9,11 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.random.Random;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.network.PacketSplitter;
-import fi.dy.masa.malilib.util.Constants;
+import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.data.HudDataManager;
 import fi.dy.masa.minihud.util.DataStorage;
@@ -25,9 +26,9 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
     private final static ServuxStructuresHandler<ServuxStructuresPacket.Payload> INSTANCE = new ServuxStructuresHandler<>()
     {
         @Override
-        public void receive(ClientPlayContext context, ServuxStructuresPacket.Payload payload)
+        public void receive(ServuxStructuresPacket.Payload payload, ClientPlayNetworking.Context context)
         {
-            ServuxStructuresHandler.INSTANCE.receivePlayPayload(context, payload);
+            ServuxStructuresHandler.INSTANCE.receivePlayPayload(payload, context);
         }
     };
     public static ServuxStructuresHandler<ServuxStructuresPacket.Payload> getInstance() { return INSTANCE; }
@@ -112,7 +113,7 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
                     this.servuxRegistered = true;
                 }
             }
-            // For backwards compat, only if hud_data isn't connected
+            // For backwards compat, only if hud_data isn't connected, or if Servux is too old
             case PACKET_S2C_SPAWN_METADATA ->
             {
                 if (!HudDataManager.getInstance().hasServuxServer())
@@ -151,7 +152,7 @@ public abstract class ServuxStructuresHandler<T extends CustomPayload> implement
     }
 
     @Override
-    public void receivePlayPayload(ClientPlayContext ctx, T payload)
+    public void receivePlayPayload(T payload, ClientPlayNetworking.Context ctx)
     {
         if (payload.getId().id().equals(CHANNEL_ID))
         {

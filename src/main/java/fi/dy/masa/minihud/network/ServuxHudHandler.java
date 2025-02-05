@@ -1,12 +1,12 @@
 package fi.dy.masa.minihud.network;
 
-import lol.bai.badpackets.api.play.ClientPlayContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.random.Random;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import fi.dy.masa.malilib.network.IClientPayloadData;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
@@ -21,9 +21,9 @@ public abstract class ServuxHudHandler<T extends CustomPayload> implements IPlug
 {
     private static final ServuxHudHandler<ServuxHudPacket.Payload> INSTANCE = new ServuxHudHandler<>() {
         @Override
-        public void receive(ClientPlayContext context, ServuxHudPacket.Payload payload)
+        public void receive(ServuxHudPacket.Payload payload, ClientPlayNetworking.Context context)
         {
-            ServuxHudHandler.INSTANCE.receivePlayPayload(context, payload);
+            ServuxHudHandler.INSTANCE.receivePlayPayload(payload, context);
         }
     };
     public static ServuxHudHandler<ServuxHudPacket.Payload> getInstance() { return INSTANCE; }
@@ -86,7 +86,7 @@ public abstract class ServuxHudHandler<T extends CustomPayload> implements IPlug
                     this.readingSessionKey = Random.create(Util.getMeasuringTimeMs()).nextLong();
                 }
 
-                MiniHUD.printDebug("ServuxHudHandler#decodeClientData(): received Entity Data Packet Slice of size {} (in bytes) // reading session key [{}]", packet.getTotalSize(), this.readingSessionKey);
+                MiniHUD.printDebug("ServuxHudHandler#decodeClientData(): received Hud Data Packet Slice of size {} (in bytes) // reading session key [{}]", packet.getTotalSize(), this.readingSessionKey);
                 PacketByteBuf fullPacket = PacketSplitter.receive(this, this.readingSessionKey, packet.getBuffer());
 
                 if (fullPacket != null)
@@ -99,7 +99,7 @@ public abstract class ServuxHudHandler<T extends CustomPayload> implements IPlug
                     }
                     catch (Exception e)
                     {
-                        MiniHUD.logger.error("ServuxHudHandler#decodeClientData(): Entity Data: error reading fullBuffer [{}]", e.getLocalizedMessage());
+                        MiniHUD.logger.error("ServuxHudHandler#decodeClientData(): Hud Data: error reading fullBuffer [{}]", e.getLocalizedMessage());
                     }
                 }
             }
@@ -133,7 +133,7 @@ public abstract class ServuxHudHandler<T extends CustomPayload> implements IPlug
     }
 
     @Override
-    public void receivePlayPayload(ClientPlayContext ctx, T payload)
+    public void receivePlayPayload(T payload, ClientPlayNetworking.Context ctx)
     {
         if (payload.getId().id().equals(CHANNEL_ID))
         {
@@ -150,7 +150,7 @@ public abstract class ServuxHudHandler<T extends CustomPayload> implements IPlug
         {
             if (this.failures > MAX_FAILURES)
             {
-                MiniHUD.printDebug("encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
+                MiniHUD.printDebug("ServuxHudHandler#encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
                 this.servuxRegistered = false;
                 ServuxHudHandler.INSTANCE.unregisterPlayReceiver();
                 HudDataManager.getInstance().onPacketFailure();

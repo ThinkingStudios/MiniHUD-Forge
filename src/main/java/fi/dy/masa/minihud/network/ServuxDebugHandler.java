@@ -2,11 +2,11 @@ package fi.dy.masa.minihud.network;
 
 import java.util.Objects;
 
-import lol.bai.badpackets.api.play.ClientPlayContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import fi.dy.masa.malilib.network.IClientPayloadData;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
@@ -20,9 +20,9 @@ public abstract class ServuxDebugHandler<T extends CustomPayload> implements IPl
 {
     private static final ServuxDebugHandler<ServuxDebugPacket.Payload> INSTANCE = new ServuxDebugHandler<>() {
         @Override
-        public void receive(ClientPlayContext context, ServuxDebugPacket.Payload payload)
+        public void receive(ServuxDebugPacket.Payload payload, ClientPlayNetworking.Context context)
         {
-            ServuxDebugHandler.INSTANCE.receivePlayPayload(context, payload);
+            ServuxDebugHandler.INSTANCE.receivePlayPayload(payload, context);
         }
     };
     public static ServuxDebugHandler<ServuxDebugPacket.Payload> getInstance() { return INSTANCE; }
@@ -106,7 +106,7 @@ public abstract class ServuxDebugHandler<T extends CustomPayload> implements IPl
     }
 
     @Override
-    public void receivePlayPayload(ClientPlayContext ctx, T payload)
+    public void receivePlayPayload(T payload, ClientPlayNetworking.Context ctx)
     {
         if (payload.getId().id().equals(CHANNEL_ID))
         {
@@ -123,7 +123,7 @@ public abstract class ServuxDebugHandler<T extends CustomPayload> implements IPl
         {
             if (this.failures > MAX_FAILURES)
             {
-                MiniHUD.printDebug("encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
+                MiniHUD.printDebug("ServuxDebugHandler#encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
                 this.servuxRegistered = false;
                 ServuxDebugHandler.INSTANCE.unregisterPlayReceiver();
                 DebugDataManager.getInstance().onPacketFailure();
