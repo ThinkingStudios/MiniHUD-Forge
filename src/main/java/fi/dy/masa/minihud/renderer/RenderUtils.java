@@ -30,13 +30,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
+import fi.dy.masa.malilib.mixin.entity.IMixinAbstractHorseEntity;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.util.*;
 import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.data.EntitiesDataManager;
-import fi.dy.masa.minihud.gui.InventoryOverlayScreen;
-import fi.dy.masa.minihud.mixin.IMixinAbstractHorseEntity;
 import fi.dy.masa.minihud.renderer.shapes.SideQuad;
 import fi.dy.masa.minihud.util.RayTraceUtils;
 import fi.dy.masa.minihud.util.ShapeRenderType;
@@ -513,21 +512,13 @@ public class RenderUtils
         }
     }
 
-    //public static void renderInventoryOverlay(RayTraceUtils.InventoryPreviewData inventory, DrawContext drawContext)
-    public static void renderInventoryOverlay(InventoryOverlay.Context inventory, DrawContext drawContext)
-    {
-        var screen = new InventoryOverlayScreen(inventory);
-        screen.init(MinecraftClient.getInstance(), 0, 0);
-        screen.render(drawContext, 0, 0, 0);
-    }
-
     // OG Method (Works)
     public static void renderInventoryOverlay(MinecraftClient mc, DrawContext drawContext)
     {
         World world = WorldUtils.getBestWorld(mc);
         Entity cameraEntity = EntityUtils.getCameraEntity();
 
-        if (mc.player == null)
+        if (mc.player == null || world == null)
         {
             return;
         }
@@ -575,7 +566,7 @@ public class RenderUtils
             if (entity.getWorld().isClient &&
                 Configs.Generic.ENTITY_DATA_SYNC.getBooleanValue())
             {
-                EntitiesDataManager.getInstance().requestEntity(entity.getId());
+                EntitiesDataManager.getInstance().requestEntity(world, entity.getId());
             }
 
             if (entity instanceof LivingEntity)
@@ -593,7 +584,7 @@ public class RenderUtils
             }
             else if (entity instanceof AbstractHorseEntity)
             {
-                inv = ((IMixinAbstractHorseEntity) entity).minihud_getHorseInventory();
+                inv = ((IMixinAbstractHorseEntity) entity).malilib_getHorseInventory();
             }
         }
 

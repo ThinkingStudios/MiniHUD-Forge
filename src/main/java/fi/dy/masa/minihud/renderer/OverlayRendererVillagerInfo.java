@@ -1,7 +1,11 @@
 package fi.dy.masa.minihud.renderer;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
@@ -12,6 +16,7 @@ import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.EnchantmentTags;
 import net.minecraft.util.math.*;
@@ -19,19 +24,190 @@ import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.World;
+
 import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.interfaces.IClientTickHandler;
+import fi.dy.masa.malilib.mixin.entity.IMixinMerchantEntity;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
+import fi.dy.masa.malilib.util.nbt.NbtEntityUtils;
+import fi.dy.masa.malilib.util.nbt.NbtKeys;
+import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
 import fi.dy.masa.minihud.data.EntitiesDataManager;
-import fi.dy.masa.minihud.mixin.IMixinMerchantEntity;
-import fi.dy.masa.minihud.mixin.IMixinZombieVillagerEntity;
+import fi.dy.masa.minihud.mixin.entity.IMixinZombieVillagerEntity;
 import fi.dy.masa.minihud.util.EntityUtils;
 
-public class OverlayRendererVillagerInfo extends OverlayRendererBase
+public class OverlayRendererVillagerInfo extends OverlayRendererBase implements IClientTickHandler
 {
-    public static final OverlayRendererVillagerInfo INSTANCE = new OverlayRendererVillagerInfo();
+    private static final OverlayRendererVillagerInfo INSTANCE = new OverlayRendererVillagerInfo();
+    public static OverlayRendererVillagerInfo getInstance() { return INSTANCE; }
+
+    // Mini Secondary Cache so villagers' data doesn't ... `Flash`
+    private final ConcurrentHashMap<Integer, Pair<Long, Pair<Entity, NbtCompound>>> recentEntityData;
+    private long lastTick;
+
+    public OverlayRendererVillagerInfo()
+    {
+        this.recentEntityData = new ConcurrentHashMap<>();
+        this.lastTick = System.currentTimeMillis();
+    }
+
+    public void reset(boolean isLogout)
+    {
+        // Dimension change tick
+        if (!isLogout)
+        {
+            MiniHUD.printDebug("OverlayRendererVillagerInfo#reset() - dimension change or log-in");
+            long now = System.currentTimeMillis();
+            this.lastTick =  - (this.getCacheTimeout() + 5000L);
+            this.tickCache(now);
+            this.lastTick = now;
+        }
+        else
+        {
+            MiniHUD.printDebug("OverlayRendererVillagerInfo#reset() - log-out");
+        }
+
+        // Clear
+        synchronized (this.recentEntityData)
+        {
+            this.recentEntityData.clear();
+        }
+    }
+
+    @Override
+    public void onClientTick(MinecraftClient mc)
+    {
+        long now = System.currentTimeMillis();
+
+        if (now - this.lastTick > 50)
+        {
+            this.lastTick = now;
+
+            if (RendererToggle.OVERLAY_VILLAGER_INFO.getBooleanValue())
+            {
+                this.tickCache(now);
+            }
+            else
+            {
+                if (!this.recentEntityData.isEmpty())
+                {
+                    this.recentEntityData.clear();
+                }
+            }
+        }
+    }
+
+    private long getCacheTimeout()
+    {
+        return EntitiesDataManager.getInstance().getCacheTimeout();
+    }
+
+    private void tickCache(long now)
+    {
+        long timeout = this.getCacheTimeout();
+
+        synchronized (this.recentEntityData)
+        {
+            this.recentEntityData.forEach(((integer, longPair) ->
+            {
+                if ((now - longPair.getLeft()) > timeout || longPair.getLeft() > now)
+                {
+                    MiniHUD.printDebug("villagerOverlayCache: entity Id [{}] has timed out by [{}] ms", integer, timeout);
+                    this.recentEntityData.remove(integer);
+                }
+            }));
+        }
+    }
+
+    private boolean isNbtValid(NbtCompound nbt)
+    {
+        if (nbt.contains(NbtKeys.OFFERS))
+        {
+            return true;
+        }
+        else return (nbt.contains(NbtKeys.ZOMBIE_CONVERSION) &&
+                     nbt.getInt(NbtKeys.ZOMBIE_CONVERSION) > 0) ||
+                     nbt.contains(NbtKeys.CONVERSION_PLAYER);
+    }
+
+    private @Nullable Pair<Entity, NbtCompound> getVillagerData(World world, int entityId)
+    {
+        Pair<Entity, NbtCompound> pair = EntitiesDataManager.getInstance().requestEntity(world, entityId);
+
+        if (pair != null &&
+            pair.getRight() != null &&
+            !pair.getRight().isEmpty() &&
+            this.isNbtValid(pair.getRight()))
+        {
+            synchronized (this.recentEntityData)
+            {
+                this.recentEntityData.put(entityId, Pair.of(System.currentTimeMillis(), pair));
+            }
+
+            return pair;
+        }
+        else if (this.recentEntityData.containsKey(entityId))
+        {
+            return this.recentEntityData.get(entityId).getRight();
+        }
+
+        return null;
+    }
+
+    private @Nullable TradeOfferList getTrades(World world, VillagerEntity villager)
+    {
+        if (world == null || villager == null)
+        {
+            return null;
+        }
+
+        Pair<Entity, NbtCompound> pair = this.getVillagerData(world, villager.getId());
+        TradeOfferList list = null;
+
+        if (pair != null)
+        {
+            if (pair.getRight() != null && !pair.getRight().isEmpty())
+            {
+                list = NbtEntityUtils.getTradeOffersFromNbt(pair.getRight(), world.getRegistryManager());
+            }
+            else if (pair.getLeft() != null && pair.getLeft() instanceof VillagerEntity entity)
+            {
+                list = ((IMixinMerchantEntity) entity).malilib_offers();
+            }
+        }
+
+        return list;
+    }
+
+    private int getConversionTime(World world, ZombieVillagerEntity villager)
+    {
+        if (world == null || villager == null)
+        {
+            return -1;
+        }
+
+        Pair<Entity, NbtCompound> pair = this.getVillagerData(world, villager.getId());
+        int conversionTime = -1;
+
+        if (pair != null)
+        {
+            if (pair.getRight() != null && !pair.getRight().isEmpty())
+            {
+                Pair<Integer, UUID> zombiePair = NbtEntityUtils.getZombieConversionTimerFromNbt(pair.getRight());
+                conversionTime = zombiePair != null ? zombiePair.getLeft() : -1;
+            }
+            else if (pair.getLeft() != null && pair.getLeft() instanceof ZombieVillagerEntity zombert)
+            {
+                conversionTime = ((IMixinZombieVillagerEntity) zombert).minihud_conversionTimer();
+            }
+        }
+
+        return conversionTime;
+    }
+
     @Override
     public String getName()
     {
@@ -55,60 +231,62 @@ public class OverlayRendererVillagerInfo extends OverlayRendererBase
     {
         Box box = entity.getBoundingBox().expand(30, 10, 30);
         World world = WorldUtils.getBestWorld(mc);
+
         if (world == null) return;
 
         if (Configs.Generic.VILLAGER_OFFER_ENCHANTMENT_BOOKS.getBooleanValue())
         {
             List<VillagerEntity> librarians = EntityUtils.getEntitiesByClass(mc, VillagerEntity.class, box, villager -> villager.getVillagerData().getProfession() == VillagerProfession.LIBRARIAN);
-
             Map<Object2IntMap.Entry<RegistryEntry<Enchantment>>, Integer> lowestPrices = new HashMap<>();
+
             // Prepare
             if (Configs.Generic.VILLAGER_OFFER_LOWEST_PRICE_NEARBY.getBooleanValue())
             {
                 for (VillagerEntity librarian : librarians)
                 {
-                    TradeOfferList offers = ((IMixinMerchantEntity) librarian).minihud_offers();
-                    if (offers != null)
+                    TradeOfferList offers = this.getTrades(world, librarian);
+
+                    if (offers == null || offers.isEmpty())
                     {
-                        for (TradeOffer tradeOffer : offers)
+                        continue;
+                    }
+
+                    for (TradeOffer tradeOffer : offers)
+                    {
+                        if (tradeOffer.getSellItem().getItem() == Items.ENCHANTED_BOOK && tradeOffer.getFirstBuyItem().item().value() == Items.EMERALD)
                         {
-                            if (tradeOffer.getSellItem().getItem() == Items.ENCHANTED_BOOK && tradeOffer.getFirstBuyItem().item().value() == Items.EMERALD)
+                            for (Object2IntMap.Entry<RegistryEntry<Enchantment>> entry : tradeOffer.getSellItem().getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, null).getEnchantmentEntries())
                             {
-                                for (Object2IntMap.Entry<RegistryEntry<Enchantment>> entry : tradeOffer.getSellItem().getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, null).getEnchantmentEntries())
+                                int emeraldCost = tradeOffer.getFirstBuyItem().count();
+
+                                if (lowestPrices.containsKey(entry))
                                 {
-                                    int emeraldCost = tradeOffer.getFirstBuyItem().count();
-                                    if (lowestPrices.containsKey(entry))
-                                    {
-                                        if (emeraldCost < lowestPrices.get(entry))
-                                        {
-                                            lowestPrices.put(entry, emeraldCost);
-                                        }
-                                    }
-                                    else
+                                    if (emeraldCost < lowestPrices.get(entry))
                                     {
                                         lowestPrices.put(entry, emeraldCost);
                                     }
                                 }
+                                else
+                                {
+                                    lowestPrices.put(entry, emeraldCost);
+                                }
                             }
                         }
                     }
-
                 }
             }
 
             // Render
             for (VillagerEntity librarian : librarians)
             {
-                if (librarian.isClient())
-                {
-                    EntitiesDataManager.getInstance().requestEntity(librarian.getId());
-                }
-                List<String> overlay = new ArrayList<>();
-                TradeOfferList offers = ((IMixinMerchantEntity) librarian).minihud_offers();
-                if (offers == null)
+                TradeOfferList offers = this.getTrades(world, librarian);
+
+                if (offers == null || offers.isEmpty())
                 {
                     continue;
                 }
+
+                List<String> overlay = new ArrayList<>();
 
                 for (TradeOffer tradeOffer : offers)
                 {
@@ -126,6 +304,7 @@ public class OverlayRendererVillagerInfo extends OverlayRendererBase
                             {
                                 continue;
                             }
+
                             sb.append(Enchantment.getName(entry.getKey(), entry.getIntValue()).getString());
                             sb.append(GuiBase.TXT_RST);
 
@@ -133,6 +312,7 @@ public class OverlayRendererVillagerInfo extends OverlayRendererBase
                             {
                                 sb.append(" ");
                                 int emeraldCost = tradeOffer.getFirstBuyItem().count();
+
                                 if (Configs.Generic.VILLAGER_OFFER_LOWEST_PRICE_NEARBY.getBooleanValue())
                                 {
                                     if (emeraldCost > lowestPrices.getOrDefault(entry, Integer.MAX_VALUE))
@@ -140,8 +320,10 @@ public class OverlayRendererVillagerInfo extends OverlayRendererBase
                                         continue;
                                     }
                                 }
+
                                 int lowest = 2 + 3 * entry.getIntValue();
                                 int highest = 6 + 13 * entry.getIntValue();
+
                                 if (entry.getKey().isIn(EnchantmentTags.DOUBLE_TRADE_PRICE))
                                 {
                                     lowest *= 2;
@@ -162,19 +344,22 @@ public class OverlayRendererVillagerInfo extends OverlayRendererBase
 
                                 // Can add additional formatting if you like, but this works as is
                                 sb.append(emeraldCost);
+
                                 // Add Village Offer Price Range
                                 if (Configs.Generic.VILLAGER_OFFER_PRICE_RANGE.getBooleanValue())
                                 {
                                     sb.append(' ').append('(').append(lowest).append('-').append(highest).append(')');
                                 }
+
                                 sb.append(GuiBase.TXT_RST);
                             }
+
                             overlay.add(sb.toString());
                         }
                     }
                 }
 
-                renderAtEntity(overlay, entity, librarian);
+                this.renderAtEntity(overlay, entity, librarian);
             }
         }
 
@@ -184,15 +369,11 @@ public class OverlayRendererVillagerInfo extends OverlayRendererBase
 
             for (ZombieVillagerEntity villager : zombieVillagers)
             {
-                if (villager.getWorld().isClient)
-                {
-                    EntitiesDataManager.getInstance().requestEntity(villager.getId());
-                }
+                int conversionTimer = this.getConversionTime(world, villager);
 
-                int conversionTimer = ((IMixinZombieVillagerEntity) villager).minihud_conversionTimer();
                 if (conversionTimer > 0)
                 {
-                    renderAtEntity(List.of(String.valueOf(conversionTimer)), entity, villager);
+                    this.renderAtEntity(List.of(String.format("%ds", Math.round((float) conversionTimer / 20))), entity, villager);
                 }
             }
         }

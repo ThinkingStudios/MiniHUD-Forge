@@ -72,7 +72,7 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
     DEBUG_WORLDGEN                      ("debugWorldGenEnabled",        true, "");
 
     public static final ImmutableList<RendererToggle> VALUES = ImmutableList.copyOf(values());
-    private static final String RENDER_KEY = Reference.ID+".config.render_toggle";
+    private static final String RENDER_KEY = Reference.MOD_ID+".config.render_toggle";
 
     private final String name;
     private String comment;
@@ -284,7 +284,7 @@ public enum RendererToggle implements IHotkeyTogglable, IConfigNotifiable<IConfi
 
         if (comment != null && this.serverDataRequired)
         {
-            return comment + "\n" + StringUtils.translate(Reference.ID + ".label.config_comment.server_side_data");
+            return comment + "\n" + StringUtils.translate(Reference.MOD_ID + ".label.config_comment.server_side_data");
         }
 
         return comment;

@@ -1,9 +1,7 @@
 package fi.dy.masa.minihud.network;
 
 import io.netty.buffer.Unpooled;
-import lol.bai.badpackets.api.play.ClientPlayContext;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
@@ -18,6 +16,8 @@ import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.network.PacketSplitter;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.data.EntitiesDataManager;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
@@ -25,9 +25,9 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
     private final static ServuxEntitiesHandler<ServuxEntitiesPacket.Payload> INSTANCE = new ServuxEntitiesHandler<>()
     {
         @Override
-        public void receive(ClientPlayContext context, ServuxEntitiesPacket.Payload payload)
+        public void receive(ServuxEntitiesPacket.Payload payload, ClientPlayNetworking.Context context)
         {
-            ServuxEntitiesHandler.INSTANCE.receivePlayPayload(context, payload);
+            ServuxEntitiesHandler.INSTANCE.receivePlayPayload(payload, context);
         }
     };
     public static ServuxEntitiesHandler<ServuxEntitiesPacket.Payload> getInstance() { return INSTANCE; }
@@ -130,7 +130,7 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
     }
 
     @Override
-    public void receivePlayPayload(ClientPlayContext ctx, T payload)
+    public void receivePlayPayload(T payload, ClientPlayNetworking.Context ctx)
     {
         if (payload.getId().id().equals(CHANNEL_ID))
         {
@@ -161,7 +161,7 @@ public abstract class ServuxEntitiesHandler<T extends CustomPayload> implements 
         {
             if (this.failures > MAX_FAILURES)
             {
-                MiniHUD.printDebug("encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
+                MiniHUD.printDebug("ServuxEntitiesHandler#encodeClientData(): encountered [{}] sendPayload failures, cancelling any Servux join attempt(s)", MAX_FAILURES);
                 this.servuxRegistered = false;
                 ServuxEntitiesHandler.INSTANCE.unregisterPlayReceiver();
                 EntitiesDataManager.getInstance().onPacketFailure();
