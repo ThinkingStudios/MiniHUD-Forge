@@ -17,7 +17,7 @@ Configurable "mini-F3" info lines, and various overlay renderers.
 '''
 
 [[mixins]]
-config = "bocchud.mixins.json"
+config = "mixins.minihud.json"
 
 [[dependencies.bocchud]]
 modId = "neoforge"
