@@ -783,7 +783,7 @@
     "minihud.gui.name.box.box_side.south": "south",
     "minihud.gui.name.box.box_side.up": "up",
     "minihud.gui.name.box.box_side.west": "west",
-    "minihud.gui.title.configs": "MiniHUD Configs - %s",
+    "minihud.gui.title.configs": "%s Configs - %s",
     "minihud.gui.title.shape_editor": "Shape Editor (%s)",
     "minihud.gui.title.shape_manager": "Shape Manager",
     "minihud.hotkeys.category.generic_hotkeys": "Generic hotkeys",

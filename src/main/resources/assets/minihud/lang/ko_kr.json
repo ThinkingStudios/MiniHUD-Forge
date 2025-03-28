@@ -783,7 +783,7 @@
     "minihud.gui.name.box.box_side.south": "남쪽",
     "minihud.gui.name.box.box_side.up": "위",
     "minihud.gui.name.box.box_side.west": "서쪽",
-    "minihud.gui.title.configs": "MiniHUD 설정 - %s",
+    "minihud.gui.title.configs": "%s 설정 - %s",
     "minihud.gui.title.shape_editor": "형상 편집기 (%s)",
     "minihud.gui.title.shape_manager": "형상 관리자",
     "minihud.hotkeys.category.generic_hotkeys": "일반 단축키",

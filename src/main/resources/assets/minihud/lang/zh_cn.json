@@ -783,7 +783,7 @@
     "minihud.gui.name.box.box_side.south": "南面",
     "minihud.gui.name.box.box_side.up": "上方",
     "minihud.gui.name.box.box_side.west": "西面",
-    "minihud.gui.title.configs": "MiniHUD 配置 - %s",
+    "minihud.gui.title.configs": "%s 配置 - %s",
     "minihud.gui.title.shape_editor": "形状编辑 (%s)",
     "minihud.gui.title.shape_manager": "形状管理",
     "minihud.hotkeys.category.generic_hotkeys": "通用快捷键",
