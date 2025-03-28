@@ -75,6 +75,7 @@ import fi.dy.masa.malilib.util.game.BlockUtils;
 import fi.dy.masa.malilib.util.nbt.NbtBlockUtils;
 import fi.dy.masa.malilib.util.nbt.NbtEntityUtils;
 import fi.dy.masa.malilib.util.nbt.NbtKeys;
+import fi.dy.masa.malilib.util.time.TimeFormat;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.InfoToggle;
 import fi.dy.masa.minihud.config.RendererToggle;
@@ -86,6 +87,7 @@ import fi.dy.masa.minihud.mixin.entity.IMixinPassiveEntity;
 import fi.dy.masa.minihud.mixin.entity.IMixinSkeletonEntity;
 import fi.dy.masa.minihud.mixin.entity.IMixinZombieEntity;
 import fi.dy.masa.minihud.mixin.entity.IMixinZombieVillagerEntity;
+import fi.dy.masa.minihud.mixin.world.IMixinServerWorld;
 import fi.dy.masa.minihud.renderer.InventoryOverlayHandler;
 import fi.dy.masa.minihud.renderer.OverlayRenderer;
 import fi.dy.masa.minihud.util.DataStorage;
@@ -177,7 +179,9 @@ public class RenderHandler implements IRenderer
             boolean useBackground = Configs.Generic.USE_TEXT_BACKGROUND.getBooleanValue();
             boolean useShadow = Configs.Generic.USE_FONT_SHADOW.getBooleanValue();
 
-            RenderUtils.renderText(x, y, Configs.Generic.FONT_SCALE.getDoubleValue(), textColor, bgColor, alignment, useBackground, useShadow, this.lines, drawContext);
+            RenderUtils.renderText(x, y, Configs.Generic.FONT_SCALE.getDoubleValue(), textColor, bgColor, alignment,
+                                   useBackground, useShadow, Configs.Generic.HUD_STATUS_EFFECTS_SHIFT.getBooleanValue(),
+                                   this.lines, drawContext);
         }
 
         if (Configs.Generic.INVENTORY_PREVIEW_ENABLED.getBooleanValue() &&
@@ -456,9 +460,13 @@ public class RenderHandler implements IRenderer
         {
             try
             {
-                SimpleDateFormat sdf = new SimpleDateFormat(Configs.Generic.DATE_FORMAT_REAL.getStringValue());
+                /*
+                SimpleDateFormat sdf = new SimpleDateFormat(Configs.Generic.DATE_FORMAT.getStringValue());
                 this.date.setTime(System.currentTimeMillis());
                 this.addLine(sdf.format(this.date));
+                 */
+
+                this.addLine(MiscUtils.formatDateNow());
             }
             catch (Exception e)
             {
@@ -654,7 +662,7 @@ public class RenderHandler implements IRenderer
                 // 50 = 1000 (ms/s) / 20 (ticks/s)
                 this.addLineI18n("minihud.info_line.weather",
                                  StringUtils.translate("minihud.info_line.weather." + weatherType),
-                                 ", " + StringUtils.getDurationString(weatherTime * 50L)
+                                 ", " + MiscUtils.formatDuration(weatherTime * 50L)
                                  + " " + StringUtils.translate("minihud.info_line.remaining")
                 );
             }
@@ -1322,7 +1330,7 @@ public class RenderHandler implements IRenderer
                     if (agePair.getLeft() < 0)
                     {
                         int untilGrown = agePair.getLeft() * (-1);
-                        entityLine = entityLine+ " [" + StringUtils.getDurationString(untilGrown * 50) + " " + StringUtils.translate("minihud.info_line.remaining") + "]";
+                        entityLine = entityLine+ " [" + MiscUtils.formatDuration(untilGrown * 50) + " " + StringUtils.translate("minihud.info_line.remaining") + "]";
                     }
                     this.addLine(entityLine);
                 }
@@ -1343,7 +1351,7 @@ public class RenderHandler implements IRenderer
                         if (passive.getBreedingAge() < 0)
                         {
                             int untilGrown = ((IMixinPassiveEntity) passive).minihud_getRealBreedingAge() * (-1);
-                            entityLine = entityLine+ " [" + StringUtils.getDurationString(untilGrown * 50) + " " + StringUtils.translate("minihud.info_line.remaining") + "]";
+                            entityLine = entityLine+ " [" + MiscUtils.formatDuration(untilGrown * 50) + " " + StringUtils.translate("minihud.info_line.remaining") + "]";
                         }
                     }
 
@@ -1636,7 +1644,7 @@ public class RenderHandler implements IRenderer
                                              effectType.value().getName().getString(),
                                              effect.getAmplifier() > 0 ? StringUtils.translate("minihud.info_line.looking_at_effects.amplifier", effect.getAmplifier() + 1) : "",
                                              effect.isInfinite() ? StringUtils.translate("minihud.info_line.looking_at_effects.infinite") :
-                                             StringUtils.getDurationString((effect.getDuration() / 20) * 1000L),
+                                             MiscUtils.formatDuration((effect.getDuration() / 20) * 1000L),
                                              StringUtils.translate("minihud.info_line.remaining")
                             );
                         }
@@ -1657,7 +1665,7 @@ public class RenderHandler implements IRenderer
                                     effect.getEffectType().value().getName().getString(),
                                     effect.getAmplifier() > 0 ? StringUtils.translate("minihud.info_line.looking_at_effects.amplifier", effect.getAmplifier() + 1) : "",
                                     effect.isInfinite() ? StringUtils.translate("minihud.info_line.looking_at_effects.infinite") :
-                                    StringUtils.getDurationString((effect.getDuration() / 20) * 1000L),
+                                    MiscUtils.formatDuration((effect.getDuration() / 20) * 1000L),
                                     StringUtils.translate("minihud.info_line.remaining")
                             );
                         }
@@ -1718,7 +1726,7 @@ public class RenderHandler implements IRenderer
                 }
                 if (conversionTimer > 0)
                 {
-                    this.addLineI18n("minihud.info_line.zombie_conversion", zombieType, StringUtils.getDurationString((conversionTimer / 20) * 1000L));
+                    this.addLineI18n("minihud.info_line.zombie_conversion", zombieType, MiscUtils.formatDuration((conversionTimer / 20) * 1000L));
                 }
             }
         }
@@ -1758,11 +1766,11 @@ public class RenderHandler implements IRenderer
                             // Countdown until dry
                             if (hasTreasure)
                             {
-                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying", treasure.toShortString(), StringUtils.getDurationString((dryTime / 20) * 1000L));
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying", treasure.toShortString(), MiscUtils.formatDuration((dryTime / 20) * 1000L));
                             }
                             else
                             {
-                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying_no_treasure", StringUtils.getDurationString((dryTime / 20) * 1000L));
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying_no_treasure", MiscUtils.formatDuration((dryTime / 20) * 1000L));
                             }
                         }
                         else if (dryTime < 0)
@@ -1770,11 +1778,11 @@ public class RenderHandler implements IRenderer
                             // Drying Out and taking Damage
                             if (hasTreasure)
                             {
-                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying", treasure.toShortString(), StringUtils.getDurationString(((dryTime * (-1)) / 20) * 1000L));
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying", treasure.toShortString(), MiscUtils.formatDuration(((dryTime * (-1)) / 20) * 1000L));
                             }
                             else
                             {
-                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying_no_treasure", StringUtils.getDurationString(((dryTime * (-1)) / 20) * 1000L));
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying_no_treasure", MiscUtils.formatDuration(((dryTime * (-1)) / 20) * 1000L));
                             }
                         }
                     }
@@ -1800,11 +1808,11 @@ public class RenderHandler implements IRenderer
                             // Countdown until dry
                             if (hasTreasure)
                             {
-                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying", treasure.toShortString(), StringUtils.getDurationString((dryTime / 20) * 1000L));
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying", treasure.toShortString(), MiscUtils.formatDuration((dryTime / 20) * 1000L));
                             }
                             else
                             {
-                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying_no_treasure", StringUtils.getDurationString((dryTime / 20) * 1000L));
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.drying_no_treasure", MiscUtils.formatDuration((dryTime / 20) * 1000L));
                             }
                         }
                         else if (dryTime < 0)
@@ -1812,11 +1820,11 @@ public class RenderHandler implements IRenderer
                             // Drying Out and taking Damage
                             if (hasTreasure)
                             {
-                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying", treasure.toShortString(), StringUtils.getDurationString(((dryTime * (-1)) / 20) * 1000L));
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying", treasure.toShortString(), MiscUtils.formatDuration(((dryTime * (-1)) / 20) * 1000L));
                             }
                             else
                             {
-                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying_no_treasure", StringUtils.getDurationString(((dryTime * (-1)) / 20) * 1000L));
+                                this.addLineI18n("minihud.info_line.dolphin_treasure.dying_no_treasure", MiscUtils.formatDuration(((dryTime * (-1)) / 20) * 1000L));
                             }
                         }
                     }

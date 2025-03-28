@@ -9,6 +9,8 @@ import fi.dy.masa.minihud.config.RendererToggle;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
+
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 
@@ -61,48 +63,49 @@ public class RenderContainer
         }
     }
 
-    public void render(Entity entity, Matrix4f matrix4f, Matrix4f projMatrix, MinecraftClient mc)
+    public void render(Entity entity, Matrix4f matrix4f, Matrix4f projMatrix, MinecraftClient mc, Profiler profiler)
     {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
 
-        this.update(cameraPos, entity, mc);
-        this.draw(cameraPos, matrix4f, projMatrix, mc);
+        profiler.push("renderContainer");
+        this.update(cameraPos, entity, mc, profiler);
+        this.draw(cameraPos, matrix4f, projMatrix, mc, profiler);
+        profiler.pop();
     }
 
-    protected void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
+    protected void update(Vec3d cameraPos, Entity entity, MinecraftClient mc, Profiler profiler)
     {
-        mc.getProfiler().push(() -> "RenderContainer#update()");
+        profiler.swap("render_update");
+
         this.allocateResourcesIfNeeded();
         this.countActive = 0;
 
         for (OverlayRendererBase renderer : this.renderers)
         {
-            mc.getProfiler().push(renderer::getName);
+            profiler.push("update_"+renderer.getName());
 
             if (renderer.shouldRender(mc))
             {
                 if (renderer.needsUpdate(entity, mc))
                 {
                     renderer.lastUpdatePos = PositionUtils.getEntityBlockPos(entity);
-                    renderer.setUpdatePosition(cameraPos);
                     renderer.update(cameraPos, entity, mc);
+                    renderer.setUpdatePosition(cameraPos);
                 }
 
                 ++this.countActive;
             }
 
-            mc.getProfiler().pop();
+            profiler.pop();
         }
-
-        mc.getProfiler().pop();
     }
 
-    protected void draw(Vec3d cameraPos, Matrix4f matrix4f, Matrix4f projMatrix, MinecraftClient mc)
+    protected void draw(Vec3d cameraPos, Matrix4f matrix4f, Matrix4f projMatrix, MinecraftClient mc, Profiler profiler)
     {
+        profiler.swap("render_draw");
+
         if (this.resourcesAllocated && this.countActive > 0)
         {
-            mc.getProfiler().push(() -> "RenderContainer#draw()");
-
             RenderSystem.disableCull();
             RenderSystem.enableDepthTest();
             RenderSystem.depthMask(false);
@@ -116,7 +119,7 @@ public class RenderContainer
 
             for (IOverlayRenderer renderer : this.renderers)
             {
-                mc.getProfiler().push(() -> renderer.getClass().getName());
+                profiler.push("draw_"+renderer.getName());
 
                 if (renderer.shouldRender(mc))
                 {
@@ -128,7 +131,7 @@ public class RenderContainer
                     matrix4fstack.popMatrix();
                 }
 
-                mc.getProfiler().pop();
+                profiler.pop();
             }
 
             RenderSystem.polygonOffset(0f, 0f);
@@ -138,8 +141,6 @@ public class RenderContainer
             RenderSystem.enableDepthTest();
             RenderSystem.enableCull();
             RenderSystem.depthMask(true);
-
-            mc.getProfiler().pop();
         }
     }
 

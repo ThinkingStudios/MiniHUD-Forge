@@ -1,6 +1,7 @@
 package fi.dy.masa.minihud.config;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
@@ -13,6 +14,9 @@ import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.hotkeys.KeybindSettings;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.time.DurationFormat;
+import fi.dy.masa.malilib.util.time.TimeFormat;
+import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.Reference;
 import fi.dy.masa.minihud.renderer.OverlayRendererLightLevel;
 import fi.dy.masa.minihud.renderer.OverlayRendererStructures;
@@ -48,20 +52,25 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       BUNDLE_DISPLAY_REQUIRE_SHIFT        = new ConfigBoolean("bundleDisplayRequireShift", true).apply(GENERIC_KEY);
         public static final ConfigInteger       BUNDLE_DISPLAY_ROW_WIDTH            = new ConfigInteger("bundleDisplayRowWidth", 9, 6, 9).apply(GENERIC_KEY);
         public static final ConfigString        COORDINATE_FORMAT_STRING            = new ConfigString("coordinateFormat", "x: %.1f y: %.1f z: %.1f").apply(GENERIC_KEY);
-        public static final ConfigString        DATE_FORMAT_REAL                    = new ConfigString("dateFormatReal", "yyyy-MM-dd HH:mm:ss").apply(GENERIC_KEY);
+        public static final ConfigOptionList    DATE_FORMAT_TYPE                    = new ConfigOptionList("dateFormatType", TimeFormat.REGULAR).apply(GENERIC_KEY);
+        public static final ConfigString        DATE_FORMAT_STRING                  = new ConfigString("dateFormatString", "yyyy-MM-dd HH:mm:ss").apply(GENERIC_KEY);
         public static final ConfigString        DATE_FORMAT_MINECRAFT               = new ConfigString("dateFormatMinecraft", "MC time: (day {DAY}) {HOUR}:{MIN}:xx").apply(GENERIC_KEY);
+        public static final ConfigOptionList    DURATION_FORMAT_TYPE                = new ConfigOptionList("durationFormatType", DurationFormat.PRETTY).apply(GENERIC_KEY);
+        public static final ConfigString        DURATION_FORMAT_STRING              = new ConfigString("durationFormatString", "HH:mm:ss.SSS").apply(GENERIC_KEY);
         public static final ConfigBoolean       DEBUG_MESSAGES                      = new ConfigBoolean("debugMessages", false).apply(GENERIC_KEY);
         //public static final ConfigBoolean       DEBUG_DEVELOPMENT_MODE              = new ConfigBoolean("debugDevelopmentMode", false).apply(GENERIC_KEY);
         //public static final ConfigBoolean       DEBUG_RENDERER_PATH_MAX_DIST        = new ConfigBoolean("debugRendererPathFindingEnablePointWidth", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       DONT_RESET_SEED_ON_DIMENSION_CHANGE = new ConfigBoolean("dontClearStoredSeedOnDimensionChange", true).apply(GENERIC_KEY);
         public static final ConfigBooleanHotkeyed ENTITY_DATA_SYNC                  = new ConfigBooleanHotkeyed("entityDataSync", false, "").apply(GENERIC_KEY);
         public static final ConfigBoolean       ENTITY_DATA_SYNC_BACKUP             = new ConfigBoolean("entityDataSyncBackup", false).apply(GENERIC_KEY);
-        public static final ConfigFloat         ENTITY_DATA_SYNC_CACHE_TIMEOUT      = new ConfigFloat("entityDataSyncCacheTimeout", 0.75f, 0.15f, 5.0f).apply(GENERIC_KEY);
+        public static final ConfigFloat         ENTITY_DATA_SYNC_CACHE_REFRESH      = new ConfigFloat("entityDataSyncCacheRefresh", 0.25f, 0.05f, 1.0f).apply(GENERIC_KEY);
+        public static final ConfigFloat         ENTITY_DATA_SYNC_CACHE_TIMEOUT      = new ConfigFloat("entityDataSyncCacheTimeout", 0.75f, 0.25f, 5.0f).apply(GENERIC_KEY);
         public static final ConfigBoolean       ENTITY_DATA_LOAD_NBT                = new ConfigBoolean("entityDataSyncLoadNbt", false).apply(GENERIC_KEY);
         //public static final ConfigBoolean       FIX_VANILLA_DEBUG_RENDERERS         = new ConfigBoolean("enableVanillaDebugRendererFix", true).apply(GENERIC_KEY);
         public static final ConfigDouble        FONT_SCALE                          = new ConfigDouble("fontScale", 0.5, 0.01, 100.0).apply(GENERIC_KEY);
         public static final ConfigOptionList    HUD_ALIGNMENT                       = new ConfigOptionList("hudAlignment", HudAlignment.TOP_LEFT).apply(GENERIC_KEY);
         public static final ConfigBooleanHotkeyed HUD_DATA_SYNC                     = new ConfigBooleanHotkeyed("hudDataSync", false, "").apply(GENERIC_KEY);
+        public static final ConfigBooleanHotkeyed HUD_STATUS_EFFECTS_SHIFT          = new ConfigBooleanHotkeyed("hudStatusEffectsShift",true, "").apply(GENERIC_KEY);
         public static final ConfigBoolean       INFO_LINES_USES_NBT                 = new ConfigBoolean("infoLinesUsesNbt", true).apply(GENERIC_KEY);
         public static final ConfigHotkey        INVENTORY_PREVIEW                   = new ConfigHotkey("inventoryPreview", "LEFT_ALT", KeybindSettings.PRESS_ALLOWEXTRA).apply(GENERIC_KEY);
         public static final ConfigBoolean       INVENTORY_PREVIEW_ENABLED           = new ConfigBoolean("inventoryPreviewEnabled", false).apply(GENERIC_KEY);
@@ -148,6 +157,7 @@ public class Configs implements IConfigHandler
                 HUD_DATA_SYNC,
                 ENTITY_DATA_SYNC,
                 ENTITY_DATA_SYNC_BACKUP,
+                ENTITY_DATA_SYNC_CACHE_REFRESH,
                 ENTITY_DATA_SYNC_CACHE_TIMEOUT,
                 ENTITY_DATA_LOAD_NBT,
                 INFO_LINES_USES_NBT,
@@ -199,9 +209,13 @@ public class Configs implements IConfigHandler
                 BLOCK_POS_FORMAT_STRING,
                 BLOCK_GRID_OVERLAY_RADIUS,
                 COORDINATE_FORMAT_STRING,
-                DATE_FORMAT_REAL,
+                DATE_FORMAT_TYPE,
+                DATE_FORMAT_STRING,
                 DATE_FORMAT_MINECRAFT,
+                DURATION_FORMAT_TYPE,
+                DURATION_FORMAT_STRING,
                 FONT_SCALE,
+                HUD_STATUS_EFFECTS_SHIFT,
                 LIGHT_LEVEL_MARKER_SIZE,
                 LIGHT_LEVEL_NUMBER_OFFSET_BLOCK_X,
                 LIGHT_LEVEL_NUMBER_OFFSET_BLOCK_Y,
@@ -233,6 +247,7 @@ public class Configs implements IConfigHandler
         public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
                 MAIN_RENDERING_TOGGLE,
                 HUD_DATA_SYNC,
+                HUD_STATUS_EFFECTS_SHIFT,
                 ENTITY_DATA_SYNC,
                 MOVE_SHAPE_TO_PLAYER,
                 OPEN_CONFIG_GUI,
@@ -332,11 +347,11 @@ public class Configs implements IConfigHandler
 
     public static void loadFromFile()
     {
-        File configFile = new File(FileUtils.getConfigDirectory(), CONFIG_FILE_NAME);
+        Path configFile = FileUtils.getConfigDirectoryAsPath().resolve(CONFIG_FILE_NAME);
 
-        if (configFile.exists() && configFile.isFile() && configFile.canRead())
+        if (Files.exists(configFile) && Files.isReadable(configFile))
         {
-            JsonElement element = JsonUtils.parseJsonFile(configFile);
+            JsonElement element = JsonUtils.parseJsonFileAsPath(configFile);
 
             if (element != null && element.isJsonObject())
             {
@@ -363,6 +378,12 @@ public class Configs implements IConfigHandler
                         }
                     }
                 }
+
+                //MiniHUD.debugLog("loadFromFile(): Successfully loaded config file '{}'.", configFile.toAbsolutePath());
+            }
+            else
+            {
+                MiniHUD.LOGGER.error("loadFromFile(): Failed to load config file '{}'.", configFile.toAbsolutePath());
             }
 
             OverlayRendererLightLevel.INSTANCE.setRenderThrough(Configs.Generic.LIGHT_LEVEL_RENDER_THROUGH.getBooleanValue());
@@ -372,9 +393,15 @@ public class Configs implements IConfigHandler
 
     public static void saveToFile()
     {
-        File dir = FileUtils.getConfigDirectory();
+        Path dir = FileUtils.getConfigDirectoryAsPath();
 
-        if ((dir.exists() && dir.isDirectory()) || dir.mkdirs())
+        if (!Files.exists(dir))
+        {
+            FileUtils.createDirectoriesIfMissing(dir);
+            //MiniHUD.debugLog("saveToFile(): Creating directory '{}'.", dir.toAbsolutePath());
+        }
+
+        if (Files.isDirectory(dir))
         {
             JsonObject root = new JsonObject();
             JsonObject objInfoLineOrders = JsonUtils.getNestedObject(root, "InfoLineOrders", true);
@@ -397,7 +424,11 @@ public class Configs implements IConfigHandler
 
             root.add("config_version", new JsonPrimitive(CONFIG_VERSION));
 
-            JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
+            JsonUtils.writeJsonToFileAsPath(root, dir.resolve(CONFIG_FILE_NAME));
+        }
+        else
+        {
+            MiniHUD.LOGGER.error("saveToFile(): Config Folder '{}' does not exist!", dir.toAbsolutePath());
         }
     }
 

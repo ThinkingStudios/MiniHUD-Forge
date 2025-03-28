@@ -2,8 +2,6 @@ package fi.dy.masa.minihud.renderer;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import fi.dy.masa.minihud.Reference;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.client.MinecraftClient;
@@ -44,7 +42,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
 {
     public static final OverlayRendererLightLevel INSTANCE = new OverlayRendererLightLevel();
 
-    private static final Identifier TEXTURE_NUMBERS = Identifier.splitOn(Reference.MOD_ID + ":textures/misc/light_level_numbers.png", ':');
+    private static final Identifier TEXTURE_NUMBERS = Identifier.splitOn("minihud:textures/misc/light_level_numbers.png", ':');
 
     private final List<LightLevelInfo> lightInfos = new ArrayList<>();
     private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
@@ -57,7 +55,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
     @Override
     public String getName()
     {
-        return "OverlayRendererLightLevel";
+        return "LightLevel";
     }
 
     public static void setNeedsUpdate()
