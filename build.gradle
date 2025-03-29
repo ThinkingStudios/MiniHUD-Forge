@@ -13,7 +13,7 @@ repositories {
     maven { url "https://maven.neoforged.net/releases/" }
     maven { url 'https://api.modrinth.com/maven' }
     maven { url "https://maven.su5ed.dev/releases" }
-    maven { url "https://dl.cloudsmith.io/public/thinkingstudio/foxifiednetworking/maven/" }
+    maven { url "https://dl.cloudsmith.io/public/thinkingstudio/forgifiedfabricapi/maven/" }
 }
 
 dependencies {
@@ -25,7 +25,17 @@ dependencies {
     neoForge libs.neoforge
 
     modImplementation libs.mafglib
-    modImplementation libs.foxifiednetworking
+    // ForgifiedFabricAPI
+    for (String module in ffapi_modules.split(",")) {
+        // Fabric API Base
+        if (module == "fabric-api-base") {
+            modImplementation(include("org.sinytra.forgified-fabric-api:$module:0.4.42+d1308ded19")) { transitive = false }
+        }
+        // Fabric Networking API V1
+        if (module == "fabric-networking-api-v1") {
+            modImplementation(include("org.sinytra.forgified-fabric-api:$module:4.3.2+cfe47bf204")) { transitive = false }
+        }
+    }
 
     implementation libs.jsr305
 }
@@ -75,7 +85,7 @@ publisher {
 
     setCurseID("${libs.versions.id.curseforge.get()}")
     setModrinthID("${libs.versions.id.modrinth.get()}")
-    setVersionType("alpha")
+    setVersionType("beta")
     setChangelog(file("CHANGELOG.md").getText("UTF-8"))
     setVersion("${project.version}")
     setDisplayName("${project.version}")

@@ -57,7 +57,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     @Override
     public String getName()
     {
-        return "OverlayRendererBiomeBorders";
+        return "BiomeBorders";
     }
 
     public void setNeedsUpdate()
@@ -77,7 +77,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     {
         synchronized (this.quads)
         {
-            MiniHUD.printDebug("Clearing Biome Border Overlay data...");
+            MiniHUD.debugLog("Clearing Biome Border Overlay data...");
 
             this.quads.clear();
             this.scheduledChunks.clear();
