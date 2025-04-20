@@ -22,20 +22,20 @@ config = "mixins.minihud.json"
 [[dependencies.bocchud]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.3,)"
+versionRange = "[21.4,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.bocchud]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.3,)"
+versionRange = "[1.21.4,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.bocchud]]
 modId = "mafglib"
 type = "required"
-versionRange = "[0.2.0,)"
+versionRange = "[0.3.0,)"
 ordering = "NONE"
 side = "BOTH"

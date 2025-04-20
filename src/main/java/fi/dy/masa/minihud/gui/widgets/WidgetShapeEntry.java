@@ -1,7 +1,6 @@
 package fi.dy.masa.minihud.gui.widgets;
 
 import java.util.List;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.DrawContext;
 
@@ -99,7 +98,8 @@ public class WidgetShapeEntry extends WidgetListEntryBase<ShapeBase>
         this.drawString(this.x + 4, this.y + 7, 0xFFFFFFFF, name, context);
 
         RenderUtils.color(1f, 1f, 1f, 1f);
-        RenderSystem.disableBlend();
+        //RenderSystem.disableBlend();
+//        RenderUtils.blend(false);
 
         super.render(mouseX, mouseY, selected, context);
     }
@@ -155,7 +155,7 @@ public class WidgetShapeEntry extends WidgetListEntryBase<ShapeBase>
 
             private final String translationKey;
 
-            private Type(String translationKey)
+            Type(String translationKey)
             {
                 this.translationKey = translationKey;
             }

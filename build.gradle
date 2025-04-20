@@ -29,11 +29,11 @@ dependencies {
     for (String module in ffapi_modules.split(",")) {
         // Fabric API Base
         if (module == "fabric-api-base") {
-            modImplementation("org.sinytra.forgified-fabric-api:$module:0.4.42+d1308ded19") { transitive = false }
+            modImplementation("org.sinytra.forgified-fabric-api:$module:0.4.42+d1308ded49") { transitive = false }
         }
         // Fabric Networking API V1
         if (module == "fabric-networking-api-v1") {
-            modImplementation("org.sinytra.forgified-fabric-api:$module:4.3.2+cfe47bf204") { transitive = false }
+            modImplementation("org.sinytra.forgified-fabric-api:$module:4.3.2+cfe47bf249") { transitive = false }
         }
     }
 
@@ -85,15 +85,15 @@ publisher {
 
     setCurseID("${libs.versions.id.curseforge.get()}")
     setModrinthID("${libs.versions.id.modrinth.get()}")
-    setVersionType("beta")
+    setVersionType("alpha")
     setChangelog(file("CHANGELOG.md").getText("UTF-8"))
     setVersion("${project.version}")
     setDisplayName("${project.version}")
-    setGameVersions("1.21.4")
+    setGameVersions("1.21.5")
     setLoaders(loom.platform.get().id())
     setCurseEnvironment("client")
     setArtifact(remapJar)
     addAdditionalFile(sourcesJar)
-    curseDepends.required("mafglib", "badpackets")
-    modrinthDepends.required("mafglib", "badpackets")
+    curseDepends.required("mafglib")
+    modrinthDepends.required("mafglib")
 }
