@@ -301,7 +301,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
 
         if (comment != null && this.serverDataRequired)
         {
-            return comment + "\n" + StringUtils.translate(Reference.MOD_ID + ".label.config_comment.server_side_data");
+            return comment + "\n" + StringUtils.translate(Reference.ID + ".label.config_comment.server_side_data");
         }
 
         return comment;
