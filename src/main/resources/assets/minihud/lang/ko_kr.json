@@ -1011,5 +1011,6 @@
     "minihud.message.toggled_using_center_position": "토글 %s %s, 중심 위치 %s",
     "minihud.message.toggled_using_player_spawn": "토글 %s %s, 시뮬레이션 거리 %s",
     "minihud.message.toggled_using_position": "토글 %s %s, 위치 %s",
-    "minihud.message.toggled_using_world_spawn": "토글 %s %s, 월드 스폰 %s"
+    "minihud.message.toggled_using_world_spawn": "토글 %s %s, 월드 스폰 %s",
+    "modmenu.descriptionTranslation.minihud": "원하는 대로 설정할 수 있는 \"미니-F3\" 정보 라인 및 다양한 오버레이 렌더링"
 }

@@ -1011,5 +1011,6 @@
     "minihud.message.toggled_using_center_position": "已切换 %s %s，使用中心坐标 %s",
     "minihud.message.toggled_using_player_spawn": "已切换 %s %s，模拟距离 %s",
     "minihud.message.toggled_using_position": "已切换 %s %s，使用坐标 %s",
-    "minihud.message.toggled_using_world_spawn": "已切换 %s %s，世界出生点 %s"
+    "minihud.message.toggled_using_world_spawn": "已切换 %s %s，世界出生点 %s",
+    "modmenu.descriptionTranslation.minihud": "可配置的“mini-F3”信息行和各种覆盖渲染器"
 }
