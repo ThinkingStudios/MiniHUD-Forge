@@ -1,3 +1,2 @@
 ## Change
-- update NeoForge `21.5.75`
-- update mafglib
+- sync `sakura-ryoko/minihud` 1.21.5-0.35.1

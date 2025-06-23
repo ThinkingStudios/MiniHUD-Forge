@@ -6,7 +6,7 @@ mappings_patch="1.21+build.4"
 neoforge="21.5.75"
 
 # Mod properties
-version="0.3.3"
+version="0.3.4"
 maven-group="org.thinkingstudio.bocchud"
 archives-name="BoccHUD"
 
@@ -15,7 +15,7 @@ id-modrinth="zfPoD7Tm"
 id-curseforge="916504"
 
 # Mod dependencies
-mafglib="0.3.6-mc1.21.5"
+mafglib="0.3.7-mc1.21.5"
 
 # Libraries
 jsr305="3.0.2"
