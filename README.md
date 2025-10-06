@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> BoccHUD 0.4.0 and above source code move to [CagayakeGirls/minihud-neoforge](https://github.com/CagayakeGirls/minihud-neoforge).
+
 <center><div align="center">
 
 <img height="100" src="src/main/resources/icon.png" width="100"/>
